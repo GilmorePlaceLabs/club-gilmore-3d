@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-08T00:00:00-07:00",
+  "title": "Design System: Club Gilmore Model Viewer",
+  "extensions": {
+    "colorMeta": {
+      "navy": { "role": "neutral", "displayName": "Midnight Navy", "canonical": "#141a24", "tonalRamp": ["#070a0e", "#141a24", "#26303d", "#3a4654", "#53606d", "#74808b", "#aab2ba", "#eef0f2"] },
+      "viewport": { "role": "neutral", "displayName": "Model Slate", "canonical": "#18212b", "tonalRamp": ["#080b0f", "#18212b", "#293846", "#3e4d5a", "#586672", "#7b8790", "#b0b8be", "#f0f2f3"] },
+      "panel": { "role": "neutral", "displayName": "Raised Slate", "canonical": "#1c242e", "tonalRamp": ["#090c10", "#1c242e", "#2d3945", "#45525e", "#5f6c77", "#808b94", "#b4bbc0", "#f1f3f4"] },
+      "line": { "role": "neutral", "displayName": "Structural Line", "canonical": "#36414c", "tonalRamp": ["#11161a", "#27313a", "#36414c", "#56616b", "#74808a", "#98a1a8", "#c4c9cd", "#f2f3f4"] },
+      "muted": { "role": "neutral", "displayName": "Operational Mist", "canonical": "#b1bbc4", "tonalRamp": ["#20262a", "#3f484f", "#626c74", "#858f97", "#a5afb7", "#b1bbc4", "#d4dade", "#f3f5f6"] },
+      "gold": { "role": "primary", "displayName": "Gilmore Brass", "canonical": "#d1b674", "tonalRamp": ["#2b240c", "#4b3d15", "#705d21", "#937b31", "#b99b4d", "#d1b674", "#e5ce9c", "#f8eed7"] },
+      "text": { "role": "neutral", "displayName": "Clear Text", "canonical": "#e7eaef", "tonalRamp": ["#25272a", "#464a4f", "#696e74", "#91979e", "#b8bec5", "#d5d9de", "#e7eaef", "#fafbfc"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Archivo Display", "purpose": "Architectural headings, brand mark, browser title, and room-detail title." },
+      "body": { "displayName": "IBM Plex Sans Body", "purpose": "Search, controls, metadata, amenity descriptions, and operational copy." },
+      "label": { "displayName": "Operational Label", "purpose": "Compact controls, counts, instructions, and status information." }
+    },
+    "shadows": [
+      { "name": "panel-ambient", "value": "0 14px 35px #0002", "purpose": "Room browser separation over the model viewport." },
+      { "name": "detail-ambient", "value": "0 14px 35px #0003", "purpose": "Detail panel and hover-label separation." },
+      { "name": "control-ambient", "value": "0 8px 25px #0003", "purpose": "Camera control rail separation." },
+      { "name": "dialog-deep", "value": "0 30px 80px #0006", "purpose": "About dialog modality." }
+    ],
+    "motion": [
+      { "name": "control-state", "value": "background 0.15s, color 0.15s", "purpose": "Default quiet-button transition." },
+      { "name": "loading-spin", "value": "spin 1s linear infinite", "purpose": "Loading ring only." },
+      { "name": "reduced-motion", "value": "animation: none; transition: none", "purpose": "Applied under prefers-reduced-motion: reduce." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "760px" },
+      { "name": "compact-desktop", "value": "1100px" },
+      { "name": "desktop", "value": "761px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Active View Toggle",
+      "kind": "button",
+      "refersTo": "view-toggle-active",
+      "description": "Selected camera projection within the compact camera-control rail.",
+      "html": "<button class=\"ds-view-toggle\" aria-pressed=\"true\">3D view</button>",
+      "css": ".ds-view-toggle{min-height:44px;padding:12px 14px;border:0;border-radius:2px;background:#d1b674;color:#18212b;font:400 12px 'IBM Plex Sans',sans-serif;cursor:pointer;transition:background .15s,color .15s}.ds-view-toggle:hover{background:#e5ce9c}.ds-view-toggle:focus-visible{outline:2px solid #d1b674;outline-offset:4px}.ds-view-toggle:active{background:#b99b4d}"
+    },
+    {
+      "name": "Quiet Header Utility",
+      "kind": "button",
+      "description": "Low-emphasis header action for model information or download.",
+      "html": "<button class=\"ds-quiet-button\">About the model</button>",
+      "css": ".ds-quiet-button{display:inline-flex;align-items:center;gap:10px;padding:12px;border:0;background:transparent;color:#e7eaef;font:400 13px 'IBM Plex Sans',sans-serif;cursor:pointer;transition:background .15s,color .15s}.ds-quiet-button:hover{background:#303b47}.ds-quiet-button:focus-visible{outline:2px solid #d1b674;outline-offset:4px}.ds-quiet-button:active{color:#d1b674}"
+    },
+    {
+      "name": "Amenity Search Field",
+      "kind": "input",
+      "description": "Search entry point inside the room browser.",
+      "html": "<label class=\"ds-search\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"></circle><path d=\"m16 16 5 5\"></path></svg><input placeholder=\"Search amenities\" aria-label=\"Search amenities\"></label>",
+      "css": ".ds-search{position:relative;display:block;width:250px}.ds-search svg{position:absolute;left:12px;top:12px;width:16px;height:16px;fill:none;stroke:#b1bbc4;stroke-width:1.5;pointer-events:none}.ds-search input{box-sizing:border-box;width:100%;min-height:44px;padding:11px 10px 11px 36px;border:1px solid transparent;border-radius:3px;background:#222c36;color:#e7eaef;caret-color:#d1b674;font:400 13px 'IBM Plex Sans',sans-serif}.ds-search input::placeholder{color:#b1bbc4}.ds-search input:focus-visible{outline:2px solid #d1b674;outline-offset:4px}"
+    },
+    {
+      "name": "Amenity List Row",
+      "kind": "custom",
+      "description": "Selectable amenity row used in the room index.",
+      "html": "<button class=\"ds-room-row\" aria-pressed=\"true\"><svg class=\"ds-room-symbol\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"5\" y=\"5\" width=\"14\" height=\"14\"></rect></svg><span>Indoor Pool</span><svg class=\"ds-room-arrow\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 7 7-7 7\"></path></svg></button>",
+      "css": ".ds-room-row{display:flex;align-items:center;gap:11px;width:266px;min-height:49px;padding:11px 9px;border:0;border-bottom:1px solid #29333e;border-radius:2px;background:#303738;color:#f0d69e;text-align:left;font:400 13px 'IBM Plex Sans',sans-serif;cursor:pointer}.ds-room-symbol{width:17px;height:17px;fill:none;stroke:#b9a06b;stroke-width:1.5}.ds-room-arrow{width:15px;height:15px;margin-left:auto;fill:none;stroke:#7e8e9b;stroke-width:1.5}.ds-room-row:hover{background:#26323d}.ds-room-row:focus-visible{outline:2px solid #d1b674;outline-offset:4px}.ds-room-row:active{background:#3a454d}"
+    },
+    {
+      "name": "Booking Link",
+      "kind": "button",
+      "refersTo": "booking-link",
+      "description": "Primary detail-panel action for a future amenity booking destination.",
+      "html": "<a class=\"ds-booking-link\" href=\"#booking\">Open booking page <span aria-hidden=\"true\">↗</span></a>",
+      "css": ".ds-booking-link{display:flex;justify-content:space-between;padding:13px 15px;border-radius:3px;background:#d1b674;color:#141a24;text-decoration:none;font:400 13px 'IBM Plex Sans',sans-serif;transition:background .15s,color .15s}.ds-booking-link:hover{background:#e5ce9c}.ds-booking-link:focus-visible{outline:2px solid #d1b674;outline-offset:4px}.ds-booking-link:active{background:#b99b4d}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Architectural Instrument",
+    "overview": "Club Gilmore's Level 4 explorer makes a furnished building model the dominant surface and keeps the interface quiet, technical, and immediately useful. It extends the community portal's midnight-navy and brass identity into a compact architectural control room: a whole-floor view, a precise room index, and a focused detail panel. The experience is full-height and dark by default, with high-contrast light text and brass reserved for orientation, selection, and the booking path.",
+    "keyCharacteristics": ["Full-screen 3D model with restrained overlay panels.", "Navy surfaces, thin slate structure, and sparing brass emphasis.", "Archivo for architectural headings; IBM Plex Sans for operational detail.", "Low-radius geometry and light ambient elevation."],
+    "rules": [
+      { "name": "The Brass-Only-When-It-Means-Something Rule", "body": "Keep brass for selected, navigational, measured, or primary-action states. It is not a general decoration color.", "section": "colors" },
+      { "name": "The Quiet Overlay Rule", "body": "Floating UI should read as a technical instrument over the model. Do not turn overlays into bright cards or use heavy decorative shadows.", "section": "elevation" }
+    ],
+    "dos": ["Do keep the furnished 3D model as the largest visual surface.", "Do use brass (#d1b674) to identify active, selected, orienting, measured, or primary-action states.", "Do retain 44px mobile targets and the shared brass focus treatment."],
+    "donts": ["Don't introduce rounded, pastel, or high-elevation marketing-card styling.", "Don't use brass as a default body-text or large-surface background color.", "Don't obscure the model with simultaneous mobile browser, detail, help, and scale overlays."]
+  }
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <meta name="theme-color" content="#141a24" />
+ <meta name="description" content="Explore Club Gilmore's Level 4 amenities in an interactive architectural model." />
+ <title>Club Gilmore · Explore Level 4</title>
+</head>
+<body>
+ <header class="topbar">
+  <a class="brand" href="./" aria-label="Club Gilmore home"><svg viewBox="0 0 38 38" aria-hidden="true"><path d="M8 29V10l11-5 11 5v19l-11 5Z M15 30V14l4-2 4 2v16 M8 21l7 3m8 0 7-3"/></svg><span>CLUB GILMORE</span></a>
+  <div class="location"><span class="level-mark">L4</span><span>Amenities</span></div>
+  <div class="top-actions"><button id="about-button" class="quiet-button">About the model</button><button id="download" class="quiet-button" title="Download the 3D model as a GLB file">Download model <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg></button></div>
+ </header>
+ <main id="app">
+  <section id="viewport" aria-label="Interactive 3D amenity model">
+   <div id="scene"></div>
+   <div id="labels" aria-hidden="true"></div>
+   <div id="hover-label" hidden></div>
+   <div class="view-heading"><h1>Explore Club Gilmore.</h1><p>Find your space. Take a closer look.</p></div>
+   <div id="loading" role="status"><span class="loading-ring"></span><p>Preparing your view…</p></div>
+   <div id="webgl-error" hidden><h2>The 3D view couldn’t load.</h2><p>Try a browser with WebGL enabled. You can still browse spaces and photos.</p></div>
+   <div class="compass" title="Drawing north"><svg id="compass-arrow" viewBox="0 0 48 48" aria-hidden="true"><path d="m24 7 8 27-8-5-8 5Z"/></svg><span>N</span></div>
+   <div class="camera-controls" aria-label="View controls">
+    <div class="view-switch"><button id="view-3d" aria-pressed="true">3D view</button><button id="view-plan" aria-pressed="false">Plan view</button></div>
+    <span class="control-separator"></span>
+    <button id="zoom-out" class="icon-button" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+    <button id="zoom-in" class="icon-button" aria-label="Zoom in" title="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button id="reset" class="icon-button" aria-label="Reset view" title="Reset view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 0 6M4 3v6h6"/></svg></button>
+    <span class="control-separator"></span>
+    <button id="walls" class="icon-button" aria-label="Raise walls to 3 metres" aria-pressed="false" title="Raise walls"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 19 9-4 9 4V5l-9-3-9 3Zm9-17v13M3 9l9-3 9 3"/></svg></button>
+    <button id="label-toggle" class="icon-button" aria-label="Hide room labels" aria-pressed="true" title="Room labels"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h10l6 8-6 8H4ZM8 9v6m3-6v6"/></svg></button>
+   </div>
+   <div class="view-help"><span class="desktop-help">Drag to rotate <b>·</b> Right-drag to pan <b>·</b> Scroll to zoom</span><span class="mobile-help">Drag to rotate <b>·</b> Pinch to zoom</span></div>
+   <div class="scale"><span id="scale-bar"></span><span id="scale-distance">10 m</span></div>
+  </section>
+  <aside class="room-browser" id="room-browser" aria-label="Browse amenities">
+   <button class="browser-toggle" id="browser-toggle" aria-expanded="true" aria-controls="browser-content"><span>Find a space</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 14 5-5 5 5"/></svg></button>
+   <div id="browser-content">
+    <div class="search-wrap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" placeholder="Search amenities" aria-label="Search amenities" autocomplete="off" /></div>
+    <div class="filter-wrap"><label class="filter-label" for="category">Show</label><select id="category" aria-label="Filter spaces by category"></select></div>
+    <div class="list-meta"><span id="result-count"></span><span>LEVEL 04</span></div>
+    <div id="room-list" class="room-list"></div>
+    <p id="empty" hidden>No spaces match. Try another name or category.</p>
+    <div class="browser-foot"><span class="status-dot"></span> Select a room to explore</div>
+   </div>
+  </aside>
+  <aside class="detail" id="detail" aria-label="Room details" hidden>
+   <div class="detail-top"><span id="detail-category"></span><button id="close-detail" class="icon-button" aria-label="Close room details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+   <h2 id="detail-name" tabindex="-1"></h2>
+   <div class="photo-wrap" id="photo-wrap"><img id="room-photo" alt="" /><div class="photo-controls"><button id="previous-photo" class="icon-button" aria-label="Previous photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg></button><span id="photo-count"></span><button id="next-photo" class="icon-button" aria-label="Next photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 5 7 7-7 7"/></svg></button></div></div>
+   <p id="no-photo" hidden>Explore this space in the model. A dedicated room photo has not been linked yet.</p>
+   <div class="detail-description"><p id="detail-description"></p><p id="detail-measure" hidden></p></div>
+   <div class="detail-location"><span>Location</span><strong>Club Gilmore · Level 4</strong></div>
+   <a id="booking-link" target="_blank" rel="noopener noreferrer" hidden>Open booking page <span aria-hidden="true">↗</span></a>
+   <p id="booking-note">Booking isn’t connected in this preview.</p>
+   <button id="show-whole" class="text-button">Back to the whole floor <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg></button>
+  </aside>
+ </main>
+ <dialog id="about"><button id="close-about" class="icon-button" aria-label="Close about dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button><h2>A new perspective on your amenities.</h2><p>This interactive cutaway follows the Level 4 architectural plans, with furniture and finishes interpreted from the Club Gilmore photos.</p><dl><div><dt>Pool</dt><dd>20 m long</dd></div><div><dt>Wall height</dt><dd>Uniform 3 m; lowered in cutaway view</dd></div><div><dt>Detail</dt><dd>Representative furnishings; traced room geometry</dd></div></dl><p>The dog park is shown as a separate island, as in the supplied amenity illustration. Photos are visual references and may show a similar room. This model is for exploring amenities, not construction or evacuation planning.</p><p>Room selection is ready for future booking links. No reservations are made in this preview.</p></dialog>
+ <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+ <script type="module" src="/src/main.js"></script>
+</body>
+</html>

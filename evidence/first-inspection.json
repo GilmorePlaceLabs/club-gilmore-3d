@@ -1,0 +1,17 @@
+{
+  "errors": [],
+  "stats": {
+    "rooms": 46,
+    "meshes": 651,
+    "vertices": 390901,
+    "drawCalls": 1205,
+    "triangles": 260735,
+    "modelBounds": [
+      119.80963674591727,
+      3.9000000059604645,
+      106.64686965942383
+    ],
+    "scrollWidth": 1440,
+    "clientWidth": 1440
+  }
+}

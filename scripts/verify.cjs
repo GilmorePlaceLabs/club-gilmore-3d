@@ -1,0 +1,28 @@
+const {chromium}=require('C:/Users/Qazim/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--enable-unsafe-swiftshader']});
+ const page=await browser.newPage({viewport:{width:1440,height:1000},acceptDownloads:true});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});await page.waitForFunction(()=>window.clubGilmore?.ready);
+ const geometry=await page.evaluate(async()=>{const T=await import('/node_modules/three/build/three.module.js');const c=window.clubGilmore;let water,finite=true;c.model.root.updateMatrixWorld(true);c.model.root.traverse(o=>{if(o.name==='20m lap pool water')water=o;if(o.isMesh){for(const n of o.geometry.attributes.position.array)if(!Number.isFinite(n))finite=false;}});return {finite,pool:water?new T.Box3().setFromObject(water).getSize(new T.Vector3()).toArray():null,ids:c.rooms.map(r=>r.id),wallScales:c.model.wallGroups.map(g=>g.scale.y)};});
+ assert(geometry.finite);assert.equal(new Set(geometry.ids).size,geometry.ids.length);assert(geometry.pool);assert(Math.abs(geometry.pool[2]-20)<.0001);assert(geometry.wallScales.every(n=>Math.abs(n-1.1/3)<.00001));
+ await page.locator('#walls').click();assert(await page.evaluate(()=>window.clubGilmore.model.wallGroups.every(g=>g.scale.y===1)));await page.locator('#walls').click();
+ await page.getByRole('searchbox').fill('zzzznonexistent');assert(await page.locator('#empty').isVisible());await page.getByRole('searchbox').fill('');
+ await page.locator('#category').selectOption('Wellness');assert((await page.locator('.room-item').count())>0);await page.locator('#category').selectOption('All spaces');
+ await page.getByRole('button',{name:'Indoor pool & hydrotherapy',exact:true}).click();await page.waitForTimeout(800);assert(await page.locator('#booking-link').isHidden());assert(await page.locator('#booking-note').isVisible());assert(await page.locator('#room-photo').evaluate(i=>i.complete&&i.naturalWidth>0));
+ await page.locator('#show-whole').click();await page.waitForTimeout(800);
+ await page.locator('#view-plan').click();await page.waitForTimeout(800);assert.equal(await page.locator('#view-plan').getAttribute('aria-pressed'),'true');
+ const point=await page.evaluate(()=>{const c=window.clubGilmore,r=c.rooms.find(r=>r.name==='Main gym'),p=c.model.roomGroups.get(r.id).center.clone().project(c.camera),b=c.renderer.domElement.getBoundingClientRect();return {x:b.left+(p.x+1)*b.width/2,y:b.top+(1-p.y)*b.height/2,id:r.id};});
+ await page.mouse.click(point.x,point.y);assert.equal(await page.evaluate(()=>window.clubGilmore.selectedRoomId),point.id);
+ await page.locator('#show-whole').click();await page.locator('#view-3d').click();await page.waitForTimeout(800);
+ const z=await page.evaluate(()=>window.clubGilmore.camera.zoom);await page.locator('#zoom-in').click();assert((await page.evaluate(()=>window.clubGilmore.camera.zoom))>z);await page.locator('#reset').click();await page.waitForTimeout(800);
+ await page.locator('#about-button').click();assert(await page.locator('#about').isVisible());await page.keyboard.press('Escape');assert(await page.locator('#about').isHidden());
+ const downloadPromise=page.waitForEvent('download',{timeout:60000});await page.locator('#download').click();const download=await downloadPromise;await download.saveAs('Club-Gilmore-Level-4.glb');
+ const glb=fs.readFileSync('Club-Gilmore-Level-4.glb');assert.equal(glb.toString('ascii',0,4),'glTF');assert.equal(glb.readUInt32LE(4),2);assert.equal(glb.readUInt32LE(8),glb.length);const gltf=JSON.parse(glb.toString('utf8',20,20+glb.readUInt32LE(12)));assert(gltf.meshes.length>40);assert(gltf.nodes.some(n=>n.extras?.roomId));
+ const reload=await page.evaluate(async()=>{const {checkExport}=await import('/scripts/roundtrip.js');return checkExport();});assert(reload.pool);assert(Math.abs(reload.pool[2]-20)<.0001);
+ const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await mobile.goto('http://127.0.0.1:4173/');await mobile.waitForFunction(()=>window.clubGilmore?.ready);await mobile.locator('#browser-toggle').click();await mobile.getByRole('button',{name:'Main gym',exact:true}).click();await mobile.keyboard.press('Escape');assert.equal(await mobile.evaluate(()=>document.activeElement.id),'browser-toggle');
+ const targets=await mobile.locator('.camera-controls button').evaluateAll(bs=>bs.map(b=>({id:b.id,width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height})));assert(targets.every(b=>b.width>=44&&b.height>=44));assert(await mobile.evaluate(()=>document.documentElement.scrollWidth===innerWidth));assert.equal(errors.length,0);
+ fs.writeFileSync('evidence/verification.json',JSON.stringify({result:'PASS',geometry,export:{bytes:glb.length,meshes:gltf.meshes.length,nodes:gltf.nodes.length,reload},mobileTargets:targets,errors},null,2));console.log('PASS: dimensions, finite geometry, selection, canvas hit, filters, view controls, photos, unconnected booking, modal, GLB export/reimport, mobile focus and touch targets. GLB bytes: '+glb.length);await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});
