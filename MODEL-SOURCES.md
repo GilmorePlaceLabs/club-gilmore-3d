@@ -113,3 +113,21 @@ An earlier draft of this correction also placed sofa groups along the south stri
 photographs do not support that, and the strip is too shallow between the pool coping and the
 south tree planter; those groups were removed and the south loungers restored.
 
+### Pool enclosure follow-up — user aerial, September 9, 2026
+
+An overhead photograph of this corner, plus the user's direct correction of the rendered model,
+supersede three details of the previous entry.
+
+The lounge groups face the other way: the long four-module run sits on the pool side with the
+two single modules facing it from the fence side, not the reverse. The aerial also shows the
+groups reading as facing pairs across the coffee table, which this orientation gives.
+
+The fence carries **two** gates on the east run, one either side of the lounge groups — the
+modelled openings are trace z=644–668 and z=860–884. The earlier single gate was wrong.
+
+The deck's north edge had no barrier at all, which left the glass run dead-ending at a lone
+post above an open slab edge. The aerial shows a solid concrete parapet along that edge, so
+trace segments (40,596)–(265,596) and (465,596)–(660,596) are now a 1.15 m parapet with a
+stone cap, and the glass run extends to the corner at z=596 to meet it. Parapet height is
+proportional to the photograph, not a measured dimension.
+

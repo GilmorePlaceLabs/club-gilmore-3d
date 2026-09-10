@@ -76,3 +76,10 @@ to *Bocce-side fireplace lounges*, whose QA entry records only a focused check r
 full regression run. The assertion was narrowed to `'bocce lawn'`, preserving its intent. This
 was a pre-existing test defect, not a regression from this change.
 
+Pool enclosure follow-up (seating orientation, second gate, north parapet): production build
+passes and `scripts/verify-level6.cjs` returns **PASS** at 18,845,000 export bytes, with zero
+page JavaScript errors. Inspected fresh Chrome 3D and plan renders of the east run: the lounge
+groups now face the pool, both gates read as separate openings, and the glass fence terminates
+against the new north parapet rather than at an open post. Evidence refreshed in
+`evidence/level6-pool-enclosure.png` and `evidence/level6-pool-enclosure-plan.png`.
+

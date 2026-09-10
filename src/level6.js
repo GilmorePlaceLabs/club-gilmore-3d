@@ -99,7 +99,7 @@ export function createLevel6Model(){
   deckSofa(g,0,-1.25,0,4);deckTable(g,0,0);
   for(const side of [-1,1])deckSofa(g,side*.85,1.2,Math.PI,1);
  };
- for(const z of [690,760,830])deckLounge(612,z,-Math.PI/2);
+ for(const z of [690,760,830])deckLounge(612,z,Math.PI/2);
  // IMG_4025/4026: a frameless glass safety fence encloses the pool deck along
  // the timber walkway, gated where that walkway meets the deck. Only this east
  // run is photographed; the remaining enclosure edges are not yet evidenced.
@@ -111,12 +111,20 @@ export function createLevel6Model(){
   for(let i=0;i<n;i++)line(at(i/n),at((i+1)/n),1.72,fenceGlass,.022,.1);
   for(let i=0;i<=n;i++){const [x,z]=at(i/n);B(x,z,1.5,1.5,1.86,fencePost);for(const y of [.3,.92,1.54])B(x,z,3.4,3.4,.11,fencePost,y);}
  };
- poolFence([660,611],[660,644]);poolFence([660,668],[660,901]);
- const gate=makeGroup(props,...world([660,656]),Math.PI/2);gate.name='Pool enclosure gate';
- for(const side of [-1,1])box(gate,side*.55,.95,0,.1,1.9,.1,fencePost);
- for(const y of [.14,1.8])box(gate,0,y,0,1.1,.1,.1,fencePost);
- box(gate,0,.97,0,1.02,1.56,.024,fenceGlass);
- cyl(gate,.36,1,.08,.022,1.12,'metal');
+ // The deck's north edge was an open slab edge and left the fence dead-ending
+ // at a lone post. The aerial shows a solid concrete parapet there; closing it
+ // also lands the glass run on a real corner.
+ const parapet=M('#c9c6bd',.85);
+ for(const [a,b] of [[[40,596],[265,596]],[[465,596],[660,596]]]){line(a,b,1.15,parapet,.34);line(a,b,.08,stone,.44,1.15);}
+ poolFence([660,596],[660,644]);poolFence([660,668],[660,860]);poolFence([660,884],[660,901]);
+ const poolGate=z=>{
+  const g=makeGroup(props,...world([660,z]),Math.PI/2);g.name='Pool enclosure gate';
+  for(const side of [-1,1])box(g,side*.55,.95,0,.1,1.9,.1,fencePost);
+  for(const y of [.14,1.8])box(g,0,y,0,1.1,.1,.1,fencePost);
+  box(g,0,.97,0,1.02,1.56,.024,fenceGlass);
+  cyl(g,.36,1,.08,.022,1.12,'metal');
+ };
+ poolGate(656);poolGate(872);
  const pergola=(x,z,w,d,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);for(const xx of [-1,1])for(const zz of [-1,1])box(g,xx*w*U/2,1.45,zz*d*U/2,.16,2.9,.16,metal);for(const zz of [-1,1])box(g,0,2.91,zz*d*U/2,w*U+.22,.2,.18,metal);for(let xx=-w*U/2;xx<=w*U/2;xx+=.23)box(g,xx,3.02,0,.085,.14,d*U+.25,metal);};
  pergola(209,641,106,42);pergola(520,641,98,42);pergola(844,991,97,58,-.7);pergola(1600,505,50,48,-.76);
  for(const z of [703,759,814]){const [a,b]=world([89,z]);cyl(props,a,.24,b,.85,.38,'oak');cyl(props,a,.47,b,.76,.17,'ivory');const canopy=new T.Mesh(new T.SphereGeometry(.88,16,10,0,Math.PI),mats.linen);canopy.position.set(a,.66,b);canopy.rotation.y=Math.PI/2;props.add(canopy);}
