@@ -334,34 +334,38 @@ export function createLevel6Model(){
  surface([[1170,512],[1240,493],[1470,502],[1504,554],[1298,778],[1170,638]],grass,.08);
  const circle=(x,z,r,material,y=.11)=>{const [a,b]=world([x,z]);mesh(props,new T.CylinderGeometry(r*U,r*U,.04,64),material,a,y,b);};circle(1293,635,89,stone);circle(1293,635,86,rubber,.14);circle(1386,586,63,stone);circle(1386,586,60,tan,.17);
  const [px,pz]=world([1286,626]),[podX,podZ]=world([1386,586]);buildPlayground(props,px,pz,podX,podZ);
- // Change rooms: interior from the user's annotated plan, south elevation from
- // IMG_4029/4034. Zone positions are proportional readings of that plan.
- surface(rect(267,456,198,155),mats.tilefloor,.06);const walls=new T.Group();props.add(walls);
+ // Change rooms. Shell follows the traced block outline rather than a bounding
+ // rectangle; interior zone positions are proportional readings of the user's
+ // reference render. South elevation from IMG_4029/4034.
+ const changeOutline=[[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]];
+ surface(changeOutline,mats.tilefloor,.06);const walls=new T.Group();props.add(walls);
  const clad=M('#5d6165',.78),partition=M('#d9dad6',.5),cubicle=M('#8a6a48',.7),fixture=M('#f1f0ea',.35);
- // Shell. The photographed south face is dark stone panel with a recessed entry.
- B(268,533,4,155,3,clad,0,walls);B(463,532,4,158,3,clad,0,walls);
- B(356,429,150,4,3,clad,0,walls);B(285,456,40,4,3,clad,0,walls);B(445,453,40,4,3,clad,0,walls);
- B(308,610,83,4,3,clad,0,walls);B(424,610,79,4,3,clad,0,walls);
- for(const x of [352,382])B(x,602,3,20,3,clad,0,walls);
- B(367,594,34,4,3,clad,0,walls);B(367,592,20,1.5,2.35,M('#31383c',.35),0,walls);
- // Change cubicles down the west wall, each with its timber bench.
- for(let i=0;i<6;i++)B(289,466+i*17,34,2,2.3,partition,0,walls);
- for(let i=0;i<5;i++)B(281,474+i*17,18,10,.45,cubicle);
+ // Stepped shell, with the recessed entry opening on the south face.
+ for(const [x,z,w,d] of [[275,456,16,4],[283,441,4,29],[356,427,146,4],[429,439,4,25],
+  [445,452,32,4],[463,531,4,159],[267,533,4,155],[308,611,83,4],[424,611,79,4]])B(x,z,w,d,3,clad,0,walls);
+ for(const x of [352,382])B(x,603,3,20,3,clad,0,walls);
+ B(367,595,34,4,3,clad,0,walls);B(367,593,20,1.5,2.35,M('#31383c',.35),0,walls);
+ // Six changing bays with timber benches down the west wall.
+ for(let i=0;i<7;i++)B(289,470+i*12.7,36,2,2.3,partition,0,walls);
+ for(let i=0;i<6;i++)B(280,476+i*12.7,20,8,.45,cubicle);
  // Accessible shower and washroom in the north-west corner.
- B(337,448,2,38,2.6,partition,0,walls);B(307,467,62,2,2.6,partition,0,walls);
- B(288,440,11,12,.42,fixture);B(327,437,9,9,.05,fixture,2.15);
- // Washroom stalls along the north wall.
- for(let i=0;i<6;i++)B(352+i*15,458,2,42,2.3,partition,0,walls);
- for(let i=0;i<5;i++)B(359+i*15,441,10,11,.42,fixture);
- // Enclosed individual showers, then the open standing showers below them.
- for(let i=0;i<5;i++)B(340+i*20,501,2,34,2.3,partition,0,walls);
- for(let i=0;i<4;i++)B(350+i*20,489,9,9,.05,fixture,2.15);
- for(let i=0;i<4;i++){B(358+i*20,543,2,28,2,partition,0,walls);B(368+i*20,532,8,8,.05,fixture,2.1);}
- // Vanity run of three basins against the east wall.
- B(455,516,16,40,.9,M('#3a3f42',.5));for(let i=0;i<3;i++)B(455,503+i*13,11,9,.06,fixture,.91);
+ B(341,445,2,34,2.6,partition,0,walls);B(313,462,58,2,2.6,partition,0,walls);
+ B(296,440,12,12,.42,fixture);B(331,436,9,9,.05,fixture,2.15);
+ // Five washroom stalls hung off the north wall.
+ for(let i=0;i<6;i++)B(352+i*14.6,447,2,33,2.3,partition,0,walls);
+ for(let i=0;i<5;i++)B(359+i*14.6,436,9,10,.42,fixture);
+ // Three wide enclosed shower booths, each with a timber back panel.
+ B(377,487,71,2,2.3,partition,0,walls);
+ for(let i=0;i<4;i++)B(342+i*23,500,2,26,2.3,partition,0,walls);
+ for(let i=0;i<3;i++){B(354+i*23,490,19,3,2,cubicle);B(354+i*23,494,8,8,.05,fixture,2.15);}
+ // Five open standing showers below them.
+ for(let i=0;i<6;i++)B(368+i*10.2,542,2,24,2,partition,0,walls);
+ for(let i=0;i<5;i++)B(373+i*10.2,533,6,6,.05,fixture,2.1);
+ // Three-basin vanity hard against the east wall.
+ B(455,518,12,40,.9,M('#3a3f42',.5));for(let i=0;i<3;i++)B(455,505+i*13,8,9,.06,fixture,.91);
  // Steam room in the south-east corner.
- for(const x of [389,436])B(x,578,2,42,2.6,partition,0,walls);B(412,558,49,2,2.6,partition,0,walls);
- B(422,572,22,10,.45,cubicle);
+ B(421,581,2,46,2.6,partition,0,walls);B(441,558,42,2,2.6,partition,0,walls);
+ B(441,570,34,10,.45,cubicle);
  // IMG_4029/4034 south elevation: three stainless outdoor shower columns west of
  // the entry, life ring, bottle filler, and the canopied storage door east of it.
  for(const x of [292,312,332]){

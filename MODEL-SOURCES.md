@@ -180,3 +180,21 @@ is kept out of `wallGroups`, so the shell and its south-elevation fixtures alway
 full 3 m. It is Level 6's only enclosure, so the wall raise/lower control now has nothing to act
 on there and is disabled while Level 6 is active.
 
+### Change-room layout corrected against the reference render
+
+The user compared the model against the source render and the previous fit-out was wrong on
+several counts. Corrected:
+
+- The shell now follows the traced block outline `changeOutline` instead of a bounding rectangle,
+  so the stepped north-west and north-east returns read as built.
+- Six changing bays with timber benches down the west wall, not five.
+- Five washroom stalls hung off the north wall, in the eastern half rather than centred.
+- Three **wide** enclosed shower booths, each with a timber back panel, replacing four narrow
+  stalls — the reference clearly shows three broad booths with timber backs.
+- Five open standing showers below them, not four.
+- The three-basin vanity sits hard against the east wall.
+- The steam room moved into the south-east corner behind the vanity run.
+
+Zone extents were read proportionally off the reference render, which carries no dimensions, so
+counts and adjacencies are matched but sizes remain interpretations.
+

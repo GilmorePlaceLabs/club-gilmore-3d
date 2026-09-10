@@ -107,3 +107,10 @@ Change room at full height: production build passes and `scripts/verify-level6.c
 block renders at full height in the default view and that the wall toggle reports disabled on
 Level 6. Evidence: `evidence/level6-change-full-height.png`.
 
+Change-room layout correction: production build passes and `scripts/verify-level6.cjs` returns
+**PASS** at 18,702,304 export bytes with zero page JavaScript errors. Inspected a fresh Chrome
+overhead of the whole block against the user's reference render — stepped shell outline, six
+changing bays, five washroom stalls, three wide timber-backed shower booths, five standing
+showers, east vanity and south-east steam room all read in the reference's arrangement. Evidence
+refreshed in `evidence/level6-change-interior.png` and `evidence/level6-change-elevation.png`.
+
