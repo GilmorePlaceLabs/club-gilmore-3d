@@ -345,8 +345,16 @@ export function createLevel6Model(){
  const roundTable=(x,z)=>{const [a,b]=world([x,z]);cyl(props,a,.76,b,.78,.09,'oak');cyl(props,a,.37,b,.13,.7,metal);for(let i=0;i<3;i++){const arc=new T.Mesh(new T.TorusGeometry(1.04,.16,4,24,1.7),mats.oak);arc.rotation.x=-Math.PI/2;arc.rotation.z=i*2.094;arc.scale.z=.4;arc.position.set(a,.43,b);props.add(arc);}};
  // One table bridges the two lounges; the second sits just beyond the far group.
  for(const [x,z] of [[1086,780],[1142,925]])roundTable(x,z);
- // User correction: the two objects beneath the south lawn pergola are round tables.
- for(const offset of [-24,24])roundTable(844+Math.cos(.7)*offset,991+Math.sin(.7)*offset);
+ // IMG_4021: this pergola shelters three round dining tables, each with four
+ // individual black chairs — teak tops on pale pedestals, not the curved-bench
+ // picnic tables that belong on the fire-pit terrace. Placed on the bay axis.
+ const cafeTable=(x,z)=>{
+  const [a,b]=world([x,z]),g=makeGroup(props,a,b,.64);g.name='Round dining table and four chairs';
+  cyl(g,0,.735,0,.46,.05,'oak');cyl(g,0,.765,0,.09,.02,'white');
+  cyl(g,0,.36,0,.1,.7,'ivory');cyl(g,0,.045,0,.27,.09,'ivory');
+  for(let i=0;i<4;i++){const t=i*Math.PI/2;chair(g,Math.sin(t)*.95,Math.cos(t)*.95,t+Math.PI,'black');}
+ };
+ for(const [x,z] of [[831.4,1014.4],[859.5,993.5],[887.6,972.6]])cafeTable(x,z);
 
  // User's overhead close-up: three lengthwise dining tables, each with its own
  // grill against the planted (east) edge. Table axes follow the three-bay run.
