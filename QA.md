@@ -114,3 +114,43 @@ changing bays, five washroom stalls, three wide timber-backed shower booths, fiv
 showers, east vanity and south-east steam room all read in the reference's arrangement. Evidence
 refreshed in `evidence/level6-change-interior.png` and `evidence/level6-change-elevation.png`.
 
+Final change-room remap supersedes the preceding fit-out counts. Production build passes, and a
+focused browser review of both plan and pool-facing elevation confirms the stepped shell contains
+the accessible northwest wet room, five north bathroom cubicles, six west changing cubicles, four
+central individual showers, the separate lower-left two-head standing-shower bay, the distinct
+five-fixture lower row, east vanity and southeast steam room. The charcoal tiled facade reads at
+the intended value and its recessed entry, outdoor showers, life ring, fountains, storage door,
+louvre, glass canopy, signs and sconces appear in the photographed order.
+
+Change-room rebuild independently reviewed in Chrome: plan checked against annotated and unannotated user reference, north stalls corrected to remain inside stepped shell, central showers and distinct standing-shower bay aligned, east vanity and southeast steam room visible. Pool-facing elevation checked for three outdoor shower panels, recessed entrance, life ring, dual-height fountains and canopied storage door. Scene loads with no page errors. Evidence: evidence/level6-change-room-plan.png, evidence/level6-change-room-3d.png, evidence/level6-change-room-facade.png.
+
+Entrance follow-up: verified deeper recess and two framed glass side doors in fresh 3D and plan renders; no page errors reported. Rear wall moved north by8 trace units (~0.52m). Local steam-room bench/wall ends adjusted for door clearance. Evidence: evidence/level6-change-entrance-glass-doors.png.
+
+Entrance assembly correction: independently inspected both oblique sides in Chrome. Closed glazed leaves now sit in complete side openings with attached jambs/lintels; old steam glass/bench conflicts removed; formerly floating plaque/light mounted to rear wall. No page errors. Evidence: evidence/level6-entry-junction-east.png and evidence/level6-entry-junction-west.png.
+
+Screenshot corrections, September 9, 2026 — `node scripts/verify-level6.cjs` passes (13 rooms,
+all photos resolve, finite geometry, 19,320,532-byte GLB, level switching, deep link, mobile).
+Each change was checked in a targeted Chrome render before and after: the sun-deck southeast
+corner now carries glass fence and unbroken slab, the three west daybeds open onto the deck, the
+change-room frontage is clear of loungers, the four enclosed showers have head and drain together
+at the closed end, and the north playhouse is rebuilt from IMG_4038/4040 as an open shelter with
+no chimney.
+
+South-garden traced-layout correction, September 10: production build passes. Focused plan and
+3D review against the user's authoritative overhead confirms the notched lawns and planting
+islands, clear diagonal path, retained round tables, continuous planter rims and west perimeter
+trees. Pergola rafters terminate on its traced perimeter beams and two supported crossbeams form
+three bays; no roof members stop in mid-air.
+
+Southern garden goal: independently compared fresh plan/3D browser captures against supplied d9d73395 image-2 overhead. Verified shaped east-edge pergola, supported clipped rafters, two retained actual round tables, paved shelter floor, notched lawn polygons, planted islands with pale rims, west perimeter planting and clear diagonal timber route. Scene loaded with no page errors. Evidence: evidence/level6-south-garden-plan.png and evidence/level6-south-garden-3d.png.
+
+IMG_3991 actual lawn correction: fresh browser render checked for removal of extra lawn-side notch bed and end flower strip, continuous grass, retained square planter and new capped black lamp post. No page errors. Evidence: evidence/level6-south-actual-planter-lamp.png.
+
+South lawn edge follow-up, September 10, 2026: `node scripts/verify-level6.cjs` passes again
+after squaring the southwest lawn's edge to the timber walk. Plan renders before and after
+confirm the tapering pale sliver along the walk is gone and the divider holds one width.
+
+Pergola furniture pass, September 10, 2026: `node scripts/verify-level6.cjs` passes. Checked in
+Chrome renders — south pergola now carries three round dining tables with four black chairs each
+(IMG_4021), fire-terrace tables sit across their bays (IMG_4009), and a render taken down a
+table's long axis confirms the end chairs face the table at both pergolas.
