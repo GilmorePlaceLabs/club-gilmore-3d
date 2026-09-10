@@ -70,7 +70,27 @@ Table/BBQ refinement in progress: central picnic tables rotated along the terrac
 
 Three-bay pergola — user's 4:25 PM actual overhead close-up: tables run along the pergola's three-bay axis, with individual chairs (three along each long edge and one at each end). Each bay has one BBQ counter against the planted edge. Replaced crosswise bench tables with lengthwise dining tables, added three correctly oriented grills, and removed the misplaced freestanding end grill. This explicit close-up supersedes prior orientation inference from distant aerials.
 
-South lawn pergola — user's 4:27 PM correction supersedes the inferred BBQ placement. Removed both counters and replaced them with two round timber tables using the existing curved-seat furniture design. Updated the visible name to South garden & round tables, preserving its stable room ID. This correction follows the user's explicit identification and model screenshot; IMG_3991.HEIC was not decoded successfully by the available sandboxed FFmpeg, so no new photographic-detail claim is made from that file.
+South lawn pergola — user's 4:27 PM correction supersedes the inferred BBQ placement. Removed both counters and replaced them with two round timber tables using the existing curved-seat furniture design. Updated the visible name to South garden & round tables, preserving its stable room ID. This furniture correction follows the user's explicit identification and model screenshot.
+
+South garden traced-layout correction, September 10: the user's detailed overhead crop supersedes
+the earlier broad lawn and sparse-planter interpretation. Its affine alignment to Level 6 trace
+coordinates fixes the pergola footprint at `[[802,1000],[908,921],[908,1019],[820,1034]]` and the
+two existing table centres at `[833,1001]` and `[862,980]`. Parallel roof slats now terminate on
+the perimeter beams, with two supported crossbeams forming three bays. The two round tables remain
+from the user's earlier explicit correction and supersede the rectangular-table concept in the
+overhead rendering. The bocce selection floor
+is a neutral stone underlay, while explicit polygons define the upper lawn and the two notched
+southern lawns. Raised beds have continuous pale concrete rims, denser mixed planting and mapped
+trees, including the missing `[748,1047]–[801,1066]` notch island and the west perimeter strip.
+Sizes and plant species remain illustrative.
+
+IMG_3991 actual-site correction, September 10: the decoded photograph now leads the south-garden
+gallery and supersedes the concept rendering for landscaping beyond the diagonal walk. That area
+is broad continuous turf with one square raised tree planter beside the path and one black post
+light with a shallow downlight cap farther into the lawn. The previously inferred west notch bed
+and far-south flower strip were removed and their footprints restored to grass. Beds adjoining
+the pergola and the perimeter tree planting lie on the other side of the walk and remain. The
+pergola, its two user-confirmed round tables and the far-tip fire-pit seating are unchanged.
 
 Bocce-side fireplace lounges — IMG_3992: decoded and reviewed the user's actual photograph. Replaced the two low BBQ-like ends with full-height dark fireplace walls, four facing grey sofas, two striped armchairs per end lounge and white round coffee tables. Added the central slatted dining table with six striped chairs. Updated the public label and description, preserving L6-bbq-central for existing links; IMG_3992 now leads its gallery as site-3992.jpg. Positions/heights remain proportional interpretations.
 
@@ -131,6 +151,24 @@ trace segments (40,596)–(265,596) and (465,596)–(660,596) are now a 1.15 m p
 stone cap, and the glass run extends to the corner at z=596 to meet it. Parapet height is
 proportional to the photograph, not a measured dimension.
 
+The deck's southeast corner was left open: the east glass run stopped at z=901 and the slab-edge
+railing along z=900 stopped at x=636, leaving roughly 1.6 m of unguarded edge above the drop.
+User screenshot correction, September 9, 2026: the glass fence now returns from (660,901) to
+(636,901) to close the corner into that railing.
+
+The same corner had a hole in the deck itself: the sun-deck slab stops at z=901 while the east
+slab's west return started at z=914, leaving trace x=636–660, z=901–914 open to the background.
+The east slab now returns at (636,901)–(660,901) so the two meet.
+
+The three circular daybeds on the western planted edge (trace x=89, z=703/759/814) had their
+canopies opening toward the planter. User screenshot correction, September 9, 2026: rotated 180°
+so each opens onto the deck and pool.
+
+The north lounger row at trace z=639 ran the full width of the deck, parking loungers directly
+against the change-room south elevation. User screenshot correction, September 9, 2026: the row
+is now cut back to the two pergola bays either side, keeping the building frontage clear —
+loungers remain at x<267 and x>465 only.
+
 ### Pool deck lounge layout — user's marked aerial crop
 
 The user's red-boxed crop of the site aerial settles the lounge composition, superseding both
@@ -149,52 +187,257 @@ Six loungers were removed. Row density remains an interpretation — no photogra
 count — but the rows no longer extend beyond the pool they serve. The separate hot-tub loungers
 west of x=236 are unchanged, as they front the hot tub rather than the pool.
 
+### BBQ counters rebuilt in stainless — IMG_4010, September 10, 2026
+
+The photograph shows each BBQ as a stainless steel appliance standing proud of a monolithic dark
+stone counter: a rounded stainless lid, a black control fascia with steel knobs, and a flat side
+shelf either side. The model had a small light hood on a dark box with black grate bars and black
+knobs, which read as an all-black block.
+
+`grill` now builds the firebox, lid, fascia, knobs and shelves in `mats.metal`, keeps the dark
+counter body, and swaps the counter's pale `stone` top for `counterStone` (#4a4e51) so the counter
+reads as one dark stone as photographed. The open grate bars are dropped — the photographed lids
+are closed. Browser JPEG copy is `public/photos/site-4010.jpg`, now leading the Outdoor fireplace
+& lounge gallery.
+
+### Level 4 turf field completed — IMG_3979/4015/4016/4042, September 10, 2026
+
+Four photographs of the same light well from different angles; the yard numbers fix the
+orientation between them. Reading them together: the turf runs the length of the well with its
+yard lines and a single inboard row of hash marks, the numbers sit on the opposite side from that
+hash row, and the turf does not stop where the bridge crosses above — it carries on as a plain end
+zone closed by a goal line. Only the far end of the south well is paved, and that paving holds
+three dark modular lounge groups with purple-grey cushions, not bare tile.
+
+Changes: the south well splits into turf `rect(934,676,102,170)` and paving `rect(934,846,102,228)`;
+a goal line lands at z=844; a hash row runs at x=1004 every 10.6 trace units (the yard, since the
+existing 10-yard number spacing is 106) and breaks across the bridge; three lounge groups sit at
+z=900/965/1030 on the well centreline.
+
+Follow-up the same day: the lounge seating was modelled as rows of sofas facing each other. The
+photographs show the opposite — three units wrapping a low central table in a square with the
+fourth side open: a two-seat sofa across the head and an armchair on each return. Rebuilt as
+`wellCluster`. User correction the same day: there is one cluster, not several, and it faces the
+other way — the sofa sits on the far side with the open fourth side looking back up the numbered
+turf. Modelled as a single `wellCluster(950)`, centred on the paving, with the seat offsets
+negated so the group reads 180 degrees round from the first attempt. A closer read of IMG_4015 adds the
+backs: each unit carries a low back panel on its outer side with its own cushion against it,
+rising about 0.32 m above the seat cushion — the furniture is genuinely low-backed, so the panel
+stays low. `seat` takes a bx/bz unit vector picking which of its four sides the back sits on, so
+the sofa's back faces out of the square and each armchair's back faces its own return.
+
+The turf's end is trace z=730, read off a line the user drew across the render. Scale for that
+reading came from the bridge's two edges (z=637 and 673) and the z=560 yard line; the resulting
+54-trace-unit strip of turf south of the bridge matches the annotated image's proportions
+directly. An earlier attempt put the end at z=846, which was too long.
+
+The Level 4 floor stops at trace z=850, from a second user line on the render; beyond it the well
+reads as open void. That open end carries the deck's own glass railing detail dropped to
+Level 4 — a 0.95 m glass panel, a slim metal top rail and posts every 20 trace units, offset so
+the panel sits on the -4.5 floor instead of the deck. That leaves 120 trace units of paving between the goal line and the end, and
+the lounge cluster moves from z=950 to z=790 to sit centred in it — the same instruction's second
+arrow. The well's side rails become one run from z=276 to z=850 rather than two split around the
+bridge, matching the now-continuous floor.
+
+The turf is one surface from z=276 to z=730, and the hash row runs unbroken through it. Both were
+previously split around the bridge, leaving trace z=637-676 with no Level 4 floor at all. The
+bridge slab hides that stretch from directly overhead, so the gap only showed as a black band once
+the camera was oblique enough to see past the slab — which is how the user caught it.
+
+For reference, the overhead render puts the turf's end about 0.75 number-spacings past the 10,
+trace z=640, with no turf south of the bridge at all — shorter than the annotation. The annotation
+outranks it. The bridge position the user marked on that same render sits 0.73 spacings past the
+10, trace 637-676, which is where the model already had it, so the bridge did not move.
+
+Two limits worth recording. The green cannot be extended past the 30 at the north end — the well's
+slab opening stops at z=275, three quarters of a number spacing beyond it — so the field keeps its
+traced extent rather than gaining a 40. And the aerial is a high oblique from a tower, so its pixel
+lengths do not scale to trace units; only the ordering, the side each marking sits on and the
+turf/paving split are taken from it.
+
+### South pool gate moved one panel — user annotation, September 10, 2026
+
+The south gate in the pool enclosure moves one 24-unit panel along the east run: opening
+860-884 becomes 836-860 and `poolGate(872)` becomes `poolGate(848)`. The flanking runs become
+668-836 (seven panels) and 860-901 (two).
+
+It moves toward the pool rather than away from it because only 17 trace units of fence remain
+between the gate's far post at z=884 and the deck corner at z=901 — less than one panel — so the
+other direction cannot take a full-panel shift. The north gate at z=656 is unchanged.
+
+### Lounge-terrace BBQ counters doubled — IMG_4036/4037, September 10, 2026
+
+Both photographs show one station as a long dark stone counter with **two** freestanding stainless
+BBQ carts standing against its front face — cart bodies on casters, lid handles either side, black
+control fascia — not a single appliance dropped into the counter top.
+
+`grill` gains a `units` argument: the counter is 4.4 m for two carts at 2.3 m spacing, 2.7 m for
+one, and `bbqUnit` draws the cart forward of the counter face so it stands proud as photographed.
+The lounge terrace's two stations become `grill(820,327,0,2)` and `grill(820,588,Math.PI,2)`.
+
+Rotation now matters because the carts sit on one side only. Each station backs onto its perimeter
+planter and faces the terrace centre, so the south station takes `Math.PI`. The east pergola bays
+stay at one cart each — their overhead close-up shows a single BBQ counter per bay — and their
+existing `-Math.PI/2` already faces away from the planted east edge.
+
+Browser JPEG copies are `public/photos/site-4036.jpg` and `site-4037.jpg`, now leading the Outdoor
+fireplace & lounge gallery.
+
+### Fire-terrace compact BBQs matched to the counter units — September 10, 2026
+
+The fire pit terrace's two freestanding BBQs read as plain black boxes: `compactGrill` built its
+hood and top slab from the file-local `metal` (#3b4243, dark slate) rather than the `'metal'`
+string that resolves to `mats.metal` (#aab2b4, stainless). Same trap the counter grill had.
+
+They now use the counter BBQs' idiom at their own scale — stainless firebox and rounded lid,
+black control fascia with steel knobs, `counterStone` top slab, dark cabinet and casters kept. The
+lid handle also floated 4 cm clear of the lid behind it; it is reseated on the lid's front face.
+
+### Fire-terrace table run offset off the planter — September 10, 2026
+
+Rotating the tables across their bays pushed each far end chair into the island planter. In the
+pergola's own (u,v) frame the planter's near edge sits at v = 20.6, 19.8 and 19.0 at the three
+table positions — inside the post line at v = 24 — and its stone rim brings the obstruction to
+about v = 17.8. An end chair reaches 1.60 m from the table centre to the back of its backrest,
+which is v = 24.6.
+
+The run is therefore placed at `pergolaAt(u,-10)` rather than `pergolaAt(u)`: 10 trace units
+(0.65 m) off the planter edge. The far chair backs now stop at v = 14.6, clearing the rim by 3.2
+units (0.21 m); the near chair backs sit 0.68 m outside the post line, which is where IMG_4009
+shows them.
+
+### Pergola end chairs turned inward — September 10, 2026
+
+Both pergola dining tables placed their two end chairs with the rotations swapped. `chair` and
+`patioChair` both put the backrest at local z = -0.22, so rotation 0 faces +z; a chair at local
+x = -1.34 therefore needs +PI/2 to face the table and -PI/2 turns it away. Both call sites had it
+the wrong way round, so all four end chairs on the fire terrace and all six on the east BBQ
+terrace sat with their backs to their tables. The side chairs were always correct.
+
+### Fire-terrace pergola tables rotated — IMG_4009, September 10, 2026
+
+Level 6 has two three-bay pergolas and they take different evidence. The **east BBQ terrace** one
+(`pergola(1086,z,80,58)` at z=331/392/453, eight chairs per table, a grill per bay) keeps the
+lengthwise table axis set by the overhead close-up logged above. The **fire-pit terrace** one
+(`pergolaCenter` (1208,769), angle -0.79, six dark chairs per table, no grills) is the pergola in
+IMG_4009, and its tables run *across* each bay, square to the three-bay run — not end-to-end along
+it as modelled. Their group rotation becomes `pergolaAngle + PI/2`.
+
+Table plus end chairs reach about 24.6 trace units from centre against a 48-unit bay depth, so the
+end chairs sit right at the post line, as the photograph shows. Browser JPEG copy is
+`public/photos/site-4009.jpg`, now leading the Fire pit terrace gallery.
+
+### South pergola seating — IMG_4021, September 10, 2026
+
+The photograph shows three round dining tables under the south pergola, each with four individual
+black chairs: a light timber top with a pale central hub on a pale tapered pedestal. The model had
+two of the fire-pit terrace's curved-bench picnic tables instead. Browser JPEG copy is
+`public/photos/site-4021.jpg`, now leading that room's gallery.
+
+Modelled as `cafeTable` at trace (831.4,1014.4), (859.5,993.5) and (887.6,972.6) — the pergola
+quad's centroid plus and minus 35 trace units along its long axis (106,-79), which is the spacing
+the two previous tables used. Chair radius is 0.95 m; each table clears every pergola edge by at
+least 17 trace units. `roundTable`, the curved-bench form, stays on the fire-pit terrace where
+IMG_3989 shows it.
+
+The photograph also shows charcoal floor tile under this pergola where the model has pale paving.
+Not changed here, and not yet evidenced anywhere else.
+
+### South lawn tip aligned to the slab edge — floor plan, September 10, 2026
+
+The floor plan's southern wedge runs its lower-right edge parallel to the site boundary. The
+model's did not: measured normal to the slab edge (932,1128)-(691,1312), the lawn stood 19.3 trace
+units in at its south point and 31.8 at the walk end, so the pale margin fanned by 0.81 m over the
+run.
+
+The two southern corners move to (772.4,1217.2) and (881.1,1134.2), holding that edge parallel at
+a constant 26 trace units (about 1.7 m) — the mean of the two former margins. The divider line
+follows to the new corner. The west edge, the bottom-left chamfer that clears the fire-pit
+terrace, and the walk-side edge are unchanged.
+
+Plan pixel distances are not transferable to trace units here — the trace system is normalized to
+the marketing render, and matching the two references' lengths on this wedge gives 1.30 and 1.64
+px per trace unit depending on which edge is measured. Only the plan's parallel, perpendicular and
+straight-edge relationships are used; margins stay on the model's own measurements.
+
+### Open-turf tree planter squared — IMG_3991, September 10, 2026
+
+The user's marked aerial shows the raised tree planter in the open turf beyond the timber walk as
+a true square with its sides running parallel and square to the walk. The traced polygon
+(748,1047)-(774,1022)-(801,1066)-(778,1086) was neither: adjacent sides measured 36 and 52 trace
+units and met at 102 degrees rather than 90.
+
+It is now a square of 44 trace units (about 2.86 m) on the same centre, (775.25,1055.25), with its
+axes taken from the walk's southwest edge direction (223,241). Side length preserves the previous
+area; the centre and the tree anchor at (777,1055) are unchanged.
+
+### South garden lawn edge — user's floor-plan crop, September 10, 2026
+
+The floor plan shows the southern planted wedges reading as straight-edged blocks separated by a
+constant-width paved slot. In the model the southwest lawn's edge along the timber walk was not
+parallel to it: measured normal to the walk's southwest side, the gap ran 1.3 trace units at the
+west end and 9.8 at the south, so the pale margin fanned from about 0.08 m to 0.64 m over its
+length. The lawn's south corner moves from (877,1142) to (877,1130), putting that edge parallel
+to the walk at one divider width, and the pale divider line follows it.
+
+The wedges' remaining sawtooth against the walk's northeast side is the planting beds cut out of
+the lawn, not an edge error, and is left as traced.
+
+### North toddler playhouse — IMG_4038/4040
+
+Two site photographs of the play structure, supplied September 9, 2026, supersede the render
+inference. Browser JPEG copies are `public/photos/site-4038.jpg` and `site-4040.jpg`.
+
+The modelled version was an enclosed teal box on oak posts with a black chimney. The photographs
+show none of that. The real piece is an open shelter: a timber gable roof carrying a red
+"KIDS ONLY" board, standing on dark navy posts, with a low teal apron and play counter beneath
+it and a steering-wheel panel on one side. A wall of vertical timber slats and a teal graphic
+panel run off the gable end in a straight line, and low teal disc seats sit on the pad. There is
+no chimney. The pad is tan poured rubber inside a pale concrete ring, set in turf.
+
+The linear run is modelled along the roof's ridge axis. Which compass direction that run points
+is not resolvable from these two photographs, so it stays as previously traced; element sizes are
+proportional readings, not measured dimensions.
+
+Follow-up, September 10, 2026: both roof planes carried a positive Z rotation, which tipped their
+outer edges up and made the roof read as a valley rather than a gable. The sign is negated so the
+eaves fall to the posts. This inversion predates the rebuild above.
+
 ### Change-room block rebuilt — annotated plan and IMG_4028/4029/4034
 
-The user supplied an annotated overhead of the change-room block naming each zone, plus three
-photographs of its pool-facing elevation. Browser JPEG copies are `public/photos/site-4028.jpg`,
-`site-4029.jpg` and `site-4034.jpg`; the HEIC originals are unchanged. Both supersede the earlier
-generic cubicle-and-shower fit-out, which was invented from the low-resolution render.
+The user supplied an annotated overhead of the change-room block, an unannotated detailed crop
+of the same render, and photographs of its pool-facing elevation. Browser JPEG copies are
+`public/photos/site-4028.jpg`, `site-4029.jpg` and `site-4034.jpg`; the HEIC originals are
+unchanged. These references supersede the earlier generic fit-out and the later incorrect
+three-shower/five-standing-shower interpretation.
 
-Interior, from the annotation: timber change cubicles down the west wall, an accessible shower
-and washroom in the north-west corner, a row of washroom stalls along the north wall, enclosed
-individual showers through the middle, open standing showers below them, a three-basin vanity
-against the east wall, and a steam room in the south-east corner. Zone positions are proportional
-readings of the annotated overhead — the drawing carries no dimensions, so stall counts, partition
-spacing and room sizes are interpretations, not measurements.
+`src/changeRoom.js` keeps all positions in the Level 6 1855 × 1344 trace coordinate system. The
+shell follows the stepped `changeOutline`. The detailed crop establishes six timber changing
+cubicles down the west side, one accessible northwest shower/washroom, five north bathroom
+cubicles, four enclosed individual showers across the centre, three basins on the east wall and
+the steam room at the southeast. Fixtures, drains, benches, taps, mirrors and door leaves are
+separate three-dimensional forms so the zones remain legible from overhead rather than reading
+as rows of undifferentiated blocks.
 
-South elevation, from IMG_4029 and IMG_4034: dark grey stone panel cladding with a recessed entry,
-three stainless outdoor shower columns west of it — each a slim wall panel with a rain-head arm,
-a control box and a handheld hose — a life ring, a two-tier bottle filler and drinking fountain,
-and a storage door with a frosted glass canopy and louvred vent above. IMG_4028 additionally
-confirms the pool's dark mosaic coping band and its imperial/metric depth markers, which are not
-modelled. Fixture sizes are proportional to the photographs.
+The standing-shower annotation points to the narrow two-head bay immediately below and left of
+the four enclosed showers. The adjacent lower-right row remains a separate group of five
+cubicles containing white toilet-like fixtures in the unannotated render. Its exact program is
+not labelled, so the model preserves its visible geometry without describing it as another row
+of standing showers. User screenshot correction, September 9, 2026: inside the four enclosed
+showers the rain head stood over the timber bench with the drain at the doorway. Head and drain
+now share the closed north end and the bench sits by the south door, clear of its swing. Zone extents and clearances are proportional readings; no dimensioned
+change-room plan was supplied.
 
-The façade fixtures are attached to the block's wall group so they lower with the cutaway rather
-than floating above the shortened walls.
+IMG_4029 and IMG_4034 establish the south elevation: charcoal-grey rectangular stone panels,
+a recessed central entrance, three stainless outdoor shower panels with rain heads, controls
+and hand hoses, an orange life ring, dual-height drinking fountains and bottle filler, and a
+frosted storage door with a louvred vent and projecting glass canopy. Small safety placards,
+red alarms and black wall sconces are represented as geometric details in their photographed
+order. IMG_4028 additionally confirms the pool's dark mosaic coping band and depth markers,
+which remain outside this change-room rebuild.
 
-### Change room renders at full height
-
-At the user's request the change-room block is no longer lowered by the cutaway: its wall group
-is kept out of `wallGroups`, so the shell and its south-elevation fixtures always render at the
-full 3 m. It is Level 6's only enclosure, so the wall raise/lower control now has nothing to act
-on there and is disabled while Level 6 is active.
-
-### Change-room layout corrected against the reference render
-
-The user compared the model against the source render and the previous fit-out was wrong on
-several counts. Corrected:
-
-- The shell now follows the traced block outline `changeOutline` instead of a bounding rectangle,
-  so the stepped north-west and north-east returns read as built.
-- Six changing bays with timber benches down the west wall, not five.
-- Five washroom stalls hung off the north wall, in the eastern half rather than centred.
-- Three **wide** enclosed shower booths, each with a timber back panel, replacing four narrow
-  stalls — the reference clearly shows three broad booths with timber backs.
-- Five open standing showers below them, not four.
-- The three-basin vanity sits hard against the east wall.
-- The steam room moved into the south-east corner behind the vanity run.
-
-Zone extents were read proportionally off the reference render, which carries no dimensions, so
-counts and adjacencies are matched but sizes remain interpretations.
-
+The enclosure has no roof. Its stepped perimeter and photographed pool facade remain at their
+full representative height, while the internal privacy partitions are lower. The Level 6 wall
+control remains disabled and the change-room shell stays out of `wallGroups`, so global wall
+scaling cannot stretch its fixtures. Plan view looks directly into every interior zone; orbiting
+to the pool side reveals the complete exterior elevation. All dimensions are illustrative.
