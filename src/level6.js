@@ -366,7 +366,7 @@ export function createLevel6Model(){
   for(const xx of [-.76,.76])box(dining,xx,.38,0,.09,.72,.72,metal);
   for(let xx=-.98;xx<1.06;xx+=.18)box(dining,xx,.831,0,.012,.005,.94,'walnut');
   for(const xx of [-.7,0,.7]){chair(dining,xx,-.83,0,'linen');chair(dining,xx,.83,Math.PI,'linen');}
-  chair(dining,-1.4,0,-Math.PI/2,'linen');chair(dining,1.4,0,Math.PI/2,'linen');
+  chair(dining,-1.4,0,Math.PI/2,'linen');chair(dining,1.4,0,-Math.PI/2,'linen');
   grill(1120,z,-Math.PI/2);
  }
  // Authoritative overhead trace: the three connected bays run southeast along
@@ -380,10 +380,14 @@ export function createLevel6Model(){
  for(const u of [-75,-25,25,75])box(playPergola,u*U,2.91,0,.18,.2,48*U+.22,metal);
  for(const bay of [-50,0,50])for(let u=-20;u<=20;u+=4)box(playPergola,(bay+u)*U,3.02,0,.075,.14,48*U+.25,metal);
  const patioChair=(parent,x,z,rotation=0)=>{const g=makeGroup(parent,x,z,rotation);box(g,0,.43,0,.48,.1,.5,fireFrame);box(g,0,.72,-.22,.48,.52,.08,fireFrame);for(const sx of [-1,1])for(const sz of [-1,1])box(g,sx*.17,.18,sz*.17,.045,.35,.045,fireFrame);};
+ // IMG_4009: each table sits across its bay, square to the three-bay run, not
+ // end-to-end along it. The island planter's near edge cuts inside the pergola
+ // footprint (v about 19 against a post line at 24), so the run is offset 10
+ // trace units off that edge to keep the far end chairs clear of the planter.
  for(const u of [-50,0,50]){
-  const [tx,tz]=world(pergolaAt(u)),dining=makeGroup(props,tx,tz,pergolaAngle);dining.name='Timber dining table with individual dark chairs';
+  const [tx,tz]=world(pergolaAt(u,-10)),dining=makeGroup(props,tx,tz,pergolaAngle+Math.PI/2);dining.name='Timber dining table with individual dark chairs';
   box(dining,0,.77,0,2.1,.09,.9,'oak');for(const x of [-.78,.78])box(dining,x,.38,0,.09,.72,.68,metal);
-  for(const x of [-.64,.64]){patioChair(dining,x,-.79,0);patioChair(dining,x,.79,Math.PI);}patioChair(dining,-1.34,0,-Math.PI/2);patioChair(dining,1.34,0,Math.PI/2);
+  for(const x of [-.64,.64]){patioChair(dining,x,-.79,0);patioChair(dining,x,.79,Math.PI);}patioChair(dining,-1.34,0,Math.PI/2);patioChair(dining,1.34,0,-Math.PI/2);
  }
  const island=[[1151,741],[1239,827],[1185,873],[1150,839]];planter(island,false);
  // A continuous pale concrete rim follows the traced planter, enclosing the
