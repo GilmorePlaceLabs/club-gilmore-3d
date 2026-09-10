@@ -94,3 +94,11 @@ at 18,601,740 export bytes with zero page JavaScript errors. Inspected a fresh C
 against the user's marked screenshot: both north rows now begin and end level with the pool.
 Evidence refreshed in `evidence/level6-pool-enclosure.png` and `-plan.png`.
 
+Change-room rebuild (annotated interior plan, IMG_4029/4034 south elevation): production build
+passes and `scripts/verify-level6.cjs` returns **PASS** at 18,692,764 export bytes with zero page
+JavaScript errors, including the three new photo URLs on the change-room gallery. Inspected a
+fresh Chrome overhead of the interior against the annotated plan and a walls-raised elevation
+against IMG_4029 — shower columns, life ring, recessed entry, bottle filler and canopied storage
+door all read in their photographed order. Evidence: `evidence/level6-change-interior.png` and
+`evidence/level6-change-elevation.png`.
+

@@ -149,3 +149,27 @@ Six loungers were removed. Row density remains an interpretation — no photogra
 count — but the rows no longer extend beyond the pool they serve. The separate hot-tub loungers
 west of x=236 are unchanged, as they front the hot tub rather than the pool.
 
+### Change-room block rebuilt — annotated plan and IMG_4028/4029/4034
+
+The user supplied an annotated overhead of the change-room block naming each zone, plus three
+photographs of its pool-facing elevation. Browser JPEG copies are `public/photos/site-4028.jpg`,
+`site-4029.jpg` and `site-4034.jpg`; the HEIC originals are unchanged. Both supersede the earlier
+generic cubicle-and-shower fit-out, which was invented from the low-resolution render.
+
+Interior, from the annotation: timber change cubicles down the west wall, an accessible shower
+and washroom in the north-west corner, a row of washroom stalls along the north wall, enclosed
+individual showers through the middle, open standing showers below them, a three-basin vanity
+against the east wall, and a steam room in the south-east corner. Zone positions are proportional
+readings of the annotated overhead — the drawing carries no dimensions, so stall counts, partition
+spacing and room sizes are interpretations, not measurements.
+
+South elevation, from IMG_4029 and IMG_4034: dark grey stone panel cladding with a recessed entry,
+three stainless outdoor shower columns west of it — each a slim wall panel with a rain-head arm,
+a control box and a handheld hose — a life ring, a two-tier bottle filler and drinking fountain,
+and a storage door with a frosted glass canopy and louvred vent above. IMG_4028 additionally
+confirms the pool's dark mosaic coping band and its imperial/metric depth markers, which are not
+modelled. Fixture sizes are proportional to the photographs.
+
+The façade fixtures are attached to the block's wall group so they lower with the cutaway rather
+than floating above the shortened walls.
+

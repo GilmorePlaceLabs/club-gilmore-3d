@@ -22,7 +22,7 @@ export const level6Rooms=[
  room('bbq-central','Bocce-side fireplace lounges',rect(690,653,225,113),[site(3992),site(3979),site(3983)],'Two dark stone fireplaces anchor the ends of this terrace beside the bocce lawn. Each lounge has facing grey sofas, two striped armchairs and a low white round table. A dark slatted dining table and six striped chairs sit between the lounges.','Social'),
  room('bbq-east','East BBQ terrace',rect(1038,274,122,390),[site(4007),site(4042),'stairs-aerial.jpg',site(3996),site(3981),site(3978),terrace],'A broad wood-look tiled walkway connects the north pavilion to the eastern terrace. A dark taupe emergency-stair enclosure follows the east side of the light well, with two solid push-bar doors, small canopies, wall sconces and roof service pipes. A timber picnic table sits in its paved forecourt. The nearby three-bay pergola has timber dining tables and individual chairs.','Social'),
  room('bbq-south','South garden & round tables',[[660,891],[696,891],[911,1114],[777,1227],[665,1260],[639,1244],[639,987]],[site(3980),site(3986),aerial],'An angled walkway separates planted garden wedges at the southern tip. A slatted pergola shelters two round timber tables with curved seating beside the bocce lawn, with a small fire pit seating area near the end.','Social'),
- room('change','Pool change rooms',[[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]],[aerial],'The pool change-room block opens directly onto the north side of the sun deck below Tower 2. Internal cubicles are interpreted from the overhead render; the aerial photo shows the exterior setting.','Wellness'),
+ room('change','Pool change rooms',[[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]],[site(4029),site(4034),site(4028),aerial],'The change-room block opens onto the north side of the sun deck below Tower 2. Its dark stone south elevation carries three stainless outdoor shower columns, a life ring, a bottle filler and a canopied storage door either side of the recessed entry. Inside are timber change cubicles down the west wall, an accessible shower and washroom, a row of washroom stalls, enclosed individual showers, open standing showers, a three-basin vanity and a steam room.','Wellness'),
 ];
 export const level6Labels=['pool','hot-tub','lounge','bocce','play','garden','fire','bbq-north','bbq-south','change'].map(id=>`L6-${id}`);
 export function createLevel6Model(){
@@ -334,10 +334,46 @@ export function createLevel6Model(){
  surface([[1170,512],[1240,493],[1470,502],[1504,554],[1298,778],[1170,638]],grass,.08);
  const circle=(x,z,r,material,y=.11)=>{const [a,b]=world([x,z]);mesh(props,new T.CylinderGeometry(r*U,r*U,.04,64),material,a,y,b);};circle(1293,635,89,stone);circle(1293,635,86,rubber,.14);circle(1386,586,63,stone);circle(1386,586,60,tan,.17);
  const [px,pz]=world([1286,626]),[podX,podZ]=world([1386,586]);buildPlayground(props,px,pz,podX,podZ);
- // Change-room cutaway with showers, cubicles, vanities and entry passage.
+ // Change rooms: interior from the user's annotated plan, south elevation from
+ // IMG_4029/4034. Zone positions are proportional readings of that plan.
  surface(rect(267,456,198,155),mats.tilefloor,.06);const walls=new T.Group();props.add(walls);wallGroups.push(walls);
- for(const [x,z,w,d] of [[268,530,3,150],[463,530,3,150],[365,456,198,3],[298,610,60,3],[430,610,65,3]])B(x,z,w,d,3,mats.wall,0,walls);
- for(let i=0;i<6;i++){B(339+i*17,484,2,39,2.3,mats.wall,0,walls);B(347+i*17,469,12,8,.4,mats.white);}for(let i=0;i<5;i++){B(343+i*22,537,2,34,2.3,mats.wall,0,walls);B(354+i*22,529,9,13,.45,mats.white);}B(292,535,18,103,.9,mats.stone);for(let i=0;i<5;i++)B(292,495+i*19,12,10,.05,mats.white,.91);
+ const clad=M('#5d6165',.78),partition=M('#d9dad6',.5),cubicle=M('#8a6a48',.7),fixture=M('#f1f0ea',.35);
+ // Shell. The photographed south face is dark stone panel with a recessed entry.
+ B(268,533,4,155,3,clad,0,walls);B(463,532,4,158,3,clad,0,walls);
+ B(356,429,150,4,3,clad,0,walls);B(285,456,40,4,3,clad,0,walls);B(445,453,40,4,3,clad,0,walls);
+ B(308,610,83,4,3,clad,0,walls);B(424,610,79,4,3,clad,0,walls);
+ for(const x of [352,382])B(x,602,3,20,3,clad,0,walls);
+ B(367,594,34,4,3,clad,0,walls);B(367,592,20,1.5,2.35,M('#31383c',.35),0,walls);
+ // Change cubicles down the west wall, each with its timber bench.
+ for(let i=0;i<6;i++)B(289,466+i*17,34,2,2.3,partition,0,walls);
+ for(let i=0;i<5;i++)B(281,474+i*17,18,10,.45,cubicle);
+ // Accessible shower and washroom in the north-west corner.
+ B(337,448,2,38,2.6,partition,0,walls);B(307,467,62,2,2.6,partition,0,walls);
+ B(288,440,11,12,.42,fixture);B(327,437,9,9,.05,fixture,2.15);
+ // Washroom stalls along the north wall.
+ for(let i=0;i<6;i++)B(352+i*15,458,2,42,2.3,partition,0,walls);
+ for(let i=0;i<5;i++)B(359+i*15,441,10,11,.42,fixture);
+ // Enclosed individual showers, then the open standing showers below them.
+ for(let i=0;i<5;i++)B(340+i*20,501,2,34,2.3,partition,0,walls);
+ for(let i=0;i<4;i++)B(350+i*20,489,9,9,.05,fixture,2.15);
+ for(let i=0;i<4;i++){B(358+i*20,543,2,28,2,partition,0,walls);B(368+i*20,532,8,8,.05,fixture,2.1);}
+ // Vanity run of three basins against the east wall.
+ B(455,516,16,40,.9,M('#3a3f42',.5));for(let i=0;i<3;i++)B(455,503+i*13,11,9,.06,fixture,.91);
+ // Steam room in the south-east corner.
+ for(const x of [389,436])B(x,578,2,42,2.6,partition,0,walls);B(412,558,49,2,2.6,partition,0,walls);
+ B(422,572,22,10,.45,cubicle);
+ // IMG_4029/4034 south elevation: three stainless outdoor shower columns west of
+ // the entry, life ring, bottle filler, and the canopied storage door east of it.
+ for(const x of [292,312,332]){
+  B(x,613,2.6,1.4,1.45,'metal',.83,walls);B(x,615,2.6,2.6,.04,'metal',2.24,walls);
+  B(x,614,1,1,.06,'metal',2.26,walls);B(x-3,613,1.5,1.2,.12,'black',1.72,walls);
+  B(x+2,613,.7,.7,.5,'metal',1.05,walls);
+ }
+ const [rx,rz]=world([343,613]);
+ mesh(walls,new T.TorusGeometry(.23,.065,8,18),M('#d8541f',.6),rx,1.5,rz);
+ B(400,613,6,2,.5,'metal',.85,walls);B(400,613,4.5,1.4,.22,'metal',1.32,walls);
+ B(449,613,7,1.5,2.25,M('#cfd8d4',.3),0,walls);B(449,617,12,7,.06,fenceGlass,2.52,walls);
+ B(449,612,11,1,.34,'black',2.8,walls);
  // IMG_3984/3985: flat turf and tan play circle, with a timber toddler house.
  surface([[662,112],[858,42],[914,104],[930,238],[845,238],[845,157],[698,157],[698,238],[662,238]],mats.woodfloor,.075);for(let x=665;x<831;x+=45)surface(rect(x,109,22,22),mats.tilefloor,.08);
  surface(rect(696,130,146,108),grass,.08);
