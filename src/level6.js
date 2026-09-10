@@ -456,7 +456,15 @@ export function createLevel6Model(){
  // Bocce lanes, low edging, cantilevered wall benches and festoon lighting.
  // IMG: the plank seats spring from the planter wall on a pale steel bracket and
  // cantilever over the turf; they are not freestanding benches out on the lawn.
- for(const z of [783,833])B(803,z,207,3,.03,mats.white,.08);for(const x of [727,802,876]){B(x,771,17,4,.44,mats.white,.02);B(x,773,23,8,.08,mats.oak,.46);const [a,b]=world([x,819]);cyl(props,a,1.65,b,.035,3.3,metal);}for(let i=0;i<20;i++){const [a,b]=world([727+i*7.85,819]);cyl(props,a,3.2-Math.sin(i/19*Math.PI)*.3,b,.035,.06,'ivory');}line([727,819],[876,819],.015,metal,.012,3.24);
+ for(const z of [783,833])B(803,z,207,3,.03,mats.white,.08);
+ for(const x of [727,802,876]){B(x,771,17,4,.44,mats.white,.02);B(x,773,23,8,.08,mats.oak,.46);}
+ // Festoon poles alternate sides of the court — two standing in the planted edge and
+ // one out on the far turf — so the strings cross the lanes instead of running down
+ // the middle of them. One continuous run links all three.
+ const festoon=[[727,751],[802,852],[876,751]];
+ for(const [x,z] of festoon){const [a,b]=world([x,z]);cyl(props,a,1.65,b,.035,3.3,metal);}
+ for(let s=0;s<2;s++){const p=festoon[s],q=festoon[s+1];line(p,q,.015,metal,.012,3.24);
+  for(let i=1;i<12;i++){const t=i/12,[a,b]=world([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);cyl(props,a,3.2-Math.sin(t*Math.PI)*.28,b,.035,.06,'ivory');}}
  // Playground follows the built photograph: twin slides and faceted climbing pods.
  surface([[1170,512],[1240,493],[1470,502],[1504,554],[1298,778],[1170,638]],grass,.08);
  const circle=(x,z,r,material,y=.11)=>{const [a,b]=world([x,z]);mesh(props,new T.CylinderGeometry(r*U,r*U,.04,64),material,a,y,b);};circle(1293,635,89,stone);circle(1293,635,86,rubber,.14);circle(1386,586,63,stone);circle(1386,586,60,tan,.17);

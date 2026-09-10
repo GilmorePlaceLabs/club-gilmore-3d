@@ -292,6 +292,11 @@ lawn with a 4.5-trace gap to the wall face at z=769 and nothing underneath.
 The plank now runs z=769-777 so its inboard edge meets the wall, on a pale bracket at z=769-773.
 The nine scattered bocce balls are removed; the photographed court is empty turf.
 
+Follow-up, same day: the three festoon poles stood in a straight line at z=819, down the middle of
+the lanes. The user's arrows put them on alternating sides — trace (727,751) and (876,751) in the
+planted edge, (802,852) out on the far turf. The string stays one continuous run linking all
+three, now in two crossing spans rather than one straight one.
+
 ### Fire-terrace compact BBQs matched to the counter units — September 10, 2026
 
 The fire pit terrace's two freestanding BBQs read as plain black boxes: `compactGrill` built its
