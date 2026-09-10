@@ -173,3 +173,10 @@ modelled. Fixture sizes are proportional to the photographs.
 The façade fixtures are attached to the block's wall group so they lower with the cutaway rather
 than floating above the shortened walls.
 
+### Change room renders at full height
+
+At the user's request the change-room block is no longer lowered by the cutaway: its wall group
+is kept out of `wallGroups`, so the shell and its south-elevation fixtures always render at the
+full 3 m. It is Level 6's only enclosure, so the wall raise/lower control now has nothing to act
+on there and is disabled while Level 6 is active.
+

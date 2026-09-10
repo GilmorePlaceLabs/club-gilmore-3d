@@ -102,3 +102,8 @@ against IMG_4029 — shower columns, life ring, recessed entry, bottle filler an
 door all read in their photographed order. Evidence: `evidence/level6-change-interior.png` and
 `evidence/level6-change-elevation.png`.
 
+Change room at full height: production build passes and `scripts/verify-level6.cjs` returns
+**PASS** at 18,692,704 export bytes with zero page JavaScript errors. Confirmed in Chrome that the
+block renders at full height in the default view and that the wall toggle reports disabled on
+Level 6. Evidence: `evidence/level6-change-full-height.png`.
+

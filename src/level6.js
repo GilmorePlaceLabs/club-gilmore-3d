@@ -336,7 +336,7 @@ export function createLevel6Model(){
  const [px,pz]=world([1286,626]),[podX,podZ]=world([1386,586]);buildPlayground(props,px,pz,podX,podZ);
  // Change rooms: interior from the user's annotated plan, south elevation from
  // IMG_4029/4034. Zone positions are proportional readings of that plan.
- surface(rect(267,456,198,155),mats.tilefloor,.06);const walls=new T.Group();props.add(walls);wallGroups.push(walls);
+ surface(rect(267,456,198,155),mats.tilefloor,.06);const walls=new T.Group();props.add(walls);
  const clad=M('#5d6165',.78),partition=M('#d9dad6',.5),cubicle=M('#8a6a48',.7),fixture=M('#f1f0ea',.35);
  // Shell. The photographed south face is dark stone panel with a recessed entry.
  B(268,533,4,155,3,clad,0,walls);B(463,532,4,158,3,clad,0,walls);
