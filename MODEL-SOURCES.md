@@ -85,3 +85,31 @@ IMG_3989 supplied by the user: corrected the fire-pit terrace to use two spaced 
 IMG_3988 supplied by the user and the September 9 authoritative overhead trace: rebuilt the playground-side pergola as three connected square bays on the diagonal garden axis (center [1208, 769], rotation -0.79 radians in trace coordinates). Its planter is the traced clipped quadrilateral [[1151,741], [1239,827], [1185,873], [1150,839]], separating the pergola from the fire-pit lounges. It contains small trees, grasses and flowering shrubs; compact grills sit at [1145,803] and [1165,852] on the lounge-facing side. Existing fire-pit lounges, bowls and round tables were intentionally preserved.
 
 IMG_3986 2, IMG_4007 and IMG_4042 establish the narrow emergency-stair enclosure on the east side of the north light well. It is traced at x=1038–1080, z=503–638, with dark taupe metal panel walls, a gravel roof inside raised coping, roof-end pipes, and two separate push-bar doors on the playground-facing east face. The model places the doors at z=522 and z=617, each with a small canopy, exit indicator, wall sconce and red safety fixture. A centered timber picnic table replaces the former inferred round table. It is supporting circulation geometry, not a new bookable amenity.
+
+### Pool enclosure and deck lounge — IMG_4025/4026/4035
+
+The user's IMG_4025, IMG_4026 and IMG_4035 photographs (September 9, 2026) establish two
+things the model was missing. Browser JPEG copies are `public/photos/site-4025.jpg`,
+`site-4026.jpg` and `site-4035.jpg`; the HEIC originals are unchanged.
+
+IMG_4025 shows the gated entry where the timber plank walkway and its turf verge meet the
+pool deck: a frameless glass safety fence on slim black posts, with a black-framed gate leaf
+and a concrete-and-frosted-glass return beside it. That walkway/deck junction is unique in
+the traced layout, so the enclosure and its gate are modelled along the deck's east edge at
+trace x=660, with the gate in the z=644–668 opening. The fence is 1.72 m of glass on 1.86 m
+posts with three clamp bands, proportioned from the photographs; it is not a measured height.
+**Only this east run is photographed.** The remaining enclosure edges are not yet evidenced
+and are deliberately not modelled rather than inferred.
+
+IMG_4026 and IMG_4035 establish that the deck strip inside that fence holds timber-framed
+striped modular sectionals — a four-module run facing two single modules across a rectangular
+teak coffee table — not the rows of sun loungers previously modelled there. Three such groups
+now occupy the east strip at trace x=612, facing the pool. IMG_4026 also confirms sun loungers
+and picnic benches remain on the pool's opposite long edge, so the north and south lounger rows
+are unchanged. Module counts, group spacing and the teak tone are proportional interpretations;
+the linear slot drain visible in IMG_4035 is not modelled.
+
+An earlier draft of this correction also placed sofa groups along the south strip. The
+photographs do not support that, and the strip is too shallow between the pool coping and the
+south tree planter; those groups were removed and the south loungers restored.
+

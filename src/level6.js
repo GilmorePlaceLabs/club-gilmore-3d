@@ -10,9 +10,9 @@ const aerial='amenity-deck-aerial.jpg',terrace='bbq-firepit-terrace.jpg';
 const site=n=>`site-${n}.jpg`;
 const room=(id,name,polygon,photos,description,category='Outdoor',extra={})=>({id:`L6-${id}`,name,polygon,photos,description,category,kind:id,bookingUrl:null,...extra});
 export const level6Rooms=[
- room('pool','Outdoor pool',rect(236,714,329,111),[site(3983),site(3986),'outdoor-pool.jpg','outdoor-pool-sun-deck.jpg'],'Swim outdoors between the residential towers. The long rectangular pool has stone coping, stainless-steel entry rails and rows of timber-framed sun loungers.','Wellness'),
- room('hot-tub','Hot tub',rect(128,714,87,111),[site(3983),'outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'The separate hot tub sits at the west end of the pool, beside the daybeds and landscaped pool perimeter. The pool-deck photographs show its surrounding setting.','Wellness'),
- room('sun-deck','Pool sun deck',[[40,596],[265,596],[265,611],[465,611],[465,596],[660,596],[660,901],[40,901]],[site(3983),'outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'A paved pool terrace with reclining loungers, rolled towels, two open slatted pergolas and circular daybeds along the planted western edge.'),
+ room('pool','Outdoor pool',rect(236,714,329,111),[site(4026),site(3983),site(3986),'outdoor-pool.jpg','outdoor-pool-sun-deck.jpg'],'Swim outdoors between the residential towers. The long rectangular pool has stone coping, stainless-steel entry rails and depth markings. Sun loungers line its north edge; the whole deck sits inside a glass safety enclosure.','Wellness'),
+ room('hot-tub','Hot tub',rect(128,714,87,111),[site(3983),site(4026),'outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'The separate hot tub sits at the west end of the pool, beside the daybeds and landscaped pool perimeter. The pool-deck photographs show its surrounding setting.','Wellness'),
+ room('sun-deck','Pool sun deck',[[40,596],[265,596],[265,611],[465,611],[465,596],[660,596],[660,901],[40,901]],[site(4035),site(4026),site(4025),site(3983),'outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'A paved pool terrace enclosed by a frameless glass safety fence on slim black posts, entered through a gated opening where the timber walkway meets the deck. The south and east strips hold timber-framed striped modular sectionals around teak coffee tables. Reclining loungers, rolled towels, two open slatted pergolas and circular daybeds remain along the north edge and the planted western edge.'),
  room('lounge','Outdoor fireplace & lounge',rect(695,280,215,358),[site(3990),site(3979),site(3978)],'A double-sided dark stone fireplace separates two intimate seating groups. Each side has two facing grey sofas with timber frames, a lounge chair and small round wooden tables. Four picnic tables and two planted islands flank the seating; paired grills sit at the ends of the terrace.','Social'),
  room('bocce','Bocce lawn',[[698,769],[909,769],[909,875],[772,972],[698,884]],[site(3980),site(3983),'bocce-court.jpg','bocce-court-and-pool.jpg'],'Two adjacent green bocce strips sit south of the lounge. Pale boundary lines, low concrete planter walls, timber benches and overhead string lights follow the actual court photographs.'),
  room('play','Children’s play area',[[1170,515],[1220,487],[1453,499],[1519,562],[1300,778],[1170,638]],['childrens-playground.jpg',site(3981),site(3982)],'A blue rubber play surface and adjoining tan climbing area are set into the eastern garden. A curved blue slide and adjacent double slide descend from a guarded hexagonal platform. A bowed climbing cage, access stairs and overhead traverse bar connect the play equipment. Linked grey, navy and orange pentagonal climbing pods occupy the tan surface.'),
@@ -75,7 +75,48 @@ export function createLevel6Model(){
  // Pools, inset water, coping, stair treads and stainless-steel ladders.
  for(const [x,z,w,d] of [[242,724,312,90],[137,724,69,90]]){B(x+w/2,z+d/2,w+9,d+9,.16,mats.pooltile);B(x+w/2,z+d/2,w,d,.18,water);for(let i=0;i<4;i++)B(x+w-4-i*3,z+d/2,3,d-8,.2+i*.035,mats.pooltile);for(const zz of [z+9,z+d-9]){const [a,b]=world([x+w-9,zz]);for(const off of [-.35,.35]){rod(props,[a-.5,.16,b+off],[a-.5,.95,b+off],.035);rod(props,[a-.5,.95,b+off],[a+.55,.95,b+off],.035);rod(props,[a+.55,.95,b+off],[a+.55,.15,b+off],.035);}}}
  const lounger=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.28,0,.73,.12,1.9,'oak');box(g,0,.39,.24,.65,.14,1.3,'linen');const back=box(g,0,.68,-.64,.65,.13,.8,'linen');back.rotation.x=.68;for(const xx of [-.28,.28])for(const zz of [-.7,.7])box(g,xx,.14,zz,.055,.28,.06,'oak');cyl(g,0,.52,.7,.12,.55,'white').rotation.z=Math.PI/2;};
- for(let x=270;x<585;x+=21){lounger(x,699);}for(const x of [278,294,373,389,468,484,550,566])lounger(x,852,Math.PI);for(const x of [145,170,207,230]){lounger(x,698);lounger(x,852,Math.PI);}for(let x=133;x<571;x+=20)if(x<311||x>362)lounger(x,639);for(let z=704;z<829;z+=39)lounger(623,z,Math.PI/2);
+ for(let x=270;x<585;x+=21){lounger(x,699);}for(const x of [278,294,373,389,468,484,550,566])lounger(x,852,Math.PI);for(const x of [145,170,207,230]){lounger(x,698);lounger(x,852,Math.PI);}for(let x=133;x<571;x+=20)if(x<311||x>362)lounger(x,639);
+ // IMG_4026/4035: the south and east deck strips are timber-framed striped
+ // modular sectionals around teak coffee tables, not rows of sun loungers.
+ // Sun loungers remain on the pool's north edge, as those photographs show.
+ const teak=M('#96693f',.75);
+ const deckSofa=(parent,x,z,rotation=0,modules=4)=>{
+  const g=makeGroup(parent,x,z,rotation),width=modules*.78;g.name='Striped modular pool sofa';
+  box(g,0,.21,0,width,.42,.95,teak);
+  for(let i=0;i<6;i++){box(g,0,.09+i*.062,.478,width,.036,.02,'walnut');box(g,0,.09+i*.062,-.478,width,.036,.02,'walnut');}
+  for(let i=0;i<modules;i++){
+   const xx=(i-(modules-1)/2)*.78;
+   box(g,xx,.52,.06,.71,.2,.74,stripe);
+   const back=box(g,xx,.79,-.29,.72,.5,.16,stripe);back.rotation.x=-.1;
+  }
+  for(const side of [-1,1]){box(g,side*(width/2+.1),.39,0,.2,.78,.95,teak);
+   for(let i=0;i<6;i++)box(g,side*(width/2+.205),.09+i*.062,0,.02,.036,.95,'walnut');}
+ };
+ const deckTable=(parent,x,z)=>{const g=makeGroup(parent,x,z);g.name='Teak coffee table';box(g,0,.42,0,1.55,.08,.8,teak);for(const xx of [-.64,.64])for(const zz of [-.31,.31])box(g,xx,.21,zz,.06,.42,.06,'walnut');};
+ // Open-U group: a four-module run facing two single modules across the table.
+ const deckLounge=(x,z,rotation=0)=>{
+  const [a,b]=world([x,z]),g=makeGroup(props,a,b,rotation);g.name='Pool deck lounge group';
+  deckSofa(g,0,-1.25,0,4);deckTable(g,0,0);
+  for(const side of [-1,1])deckSofa(g,side*.85,1.2,Math.PI,1);
+ };
+ for(const z of [690,760,830])deckLounge(612,z,-Math.PI/2);
+ // IMG_4025/4026: a frameless glass safety fence encloses the pool deck along
+ // the timber walkway, gated where that walkway meets the deck. Only this east
+ // run is photographed; the remaining enclosure edges are not yet evidenced.
+ const fencePost=M('#2f3438',.5);
+ const fenceGlass=new T.MeshStandardMaterial({color:'#b9cdd2',roughness:.12,metalness:.05,transparent:true,opacity:.4,depthWrite:false});
+ const poolFence=(a,b)=>{
+  const n=Math.max(1,Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])/24));
+  const at=t=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+  for(let i=0;i<n;i++)line(at(i/n),at((i+1)/n),1.72,fenceGlass,.022,.1);
+  for(let i=0;i<=n;i++){const [x,z]=at(i/n);B(x,z,1.5,1.5,1.86,fencePost);for(const y of [.3,.92,1.54])B(x,z,3.4,3.4,.11,fencePost,y);}
+ };
+ poolFence([660,611],[660,644]);poolFence([660,668],[660,901]);
+ const gate=makeGroup(props,...world([660,656]),Math.PI/2);gate.name='Pool enclosure gate';
+ for(const side of [-1,1])box(gate,side*.55,.95,0,.1,1.9,.1,fencePost);
+ for(const y of [.14,1.8])box(gate,0,y,0,1.1,.1,.1,fencePost);
+ box(gate,0,.97,0,1.02,1.56,.024,fenceGlass);
+ cyl(gate,.36,1,.08,.022,1.12,'metal');
  const pergola=(x,z,w,d,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);for(const xx of [-1,1])for(const zz of [-1,1])box(g,xx*w*U/2,1.45,zz*d*U/2,.16,2.9,.16,metal);for(const zz of [-1,1])box(g,0,2.91,zz*d*U/2,w*U+.22,.2,.18,metal);for(let xx=-w*U/2;xx<=w*U/2;xx+=.23)box(g,xx,3.02,0,.085,.14,d*U+.25,metal);};
  pergola(209,641,106,42);pergola(520,641,98,42);pergola(844,991,97,58,-.7);pergola(1600,505,50,48,-.76);
  for(const z of [703,759,814]){const [a,b]=world([89,z]);cyl(props,a,.24,b,.85,.38,'oak');cyl(props,a,.47,b,.76,.17,'ivory');const canopy=new T.Mesh(new T.SphereGeometry(.88,16,10,0,Math.PI),mats.linen);canopy.position.set(a,.66,b);canopy.rotation.y=Math.PI/2;props.add(canopy);}

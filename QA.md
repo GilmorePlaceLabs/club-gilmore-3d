@@ -59,3 +59,20 @@ Independent visual verification: inspected fresh Chrome render after the final I
 IMG_3988 final independent review: Chrome scene loads without page errors after fixing the planting material reference. Visually checked three pergola bays, planted divider on lounge side, and compact freestanding BBQ clearance. Confirmed approved fire-bowl, sofa, side-table, and round-table code remains byte-for-byte unchanged. Screenshot: evidence/level6-pergola-3988-corrected.png.
 
 Authoritative overhead footprint correction independently verified in browser plan view: broad clipped triangular planter, diagonal pergola, west-side and bevel BBQ alignment, continuous pale rim. Approved lounge/round-table geometry remains unchanged. Scene loads without page errors. Evidence: evidence/level6-triangular-planter-plan.png and evidence/level6-triangular-planter-3d.png.
+
+Pool enclosure and deck lounge correction (IMG_4025/4026/4035): production build passes and
+the full `scripts/verify-level6.cjs` suite returns **PASS** — 13 zones, every referenced photo
+URL reachable, loaded detail images and descriptions, search and empty state, canvas selection
+of the pool, 3D/plan transitions, floor switching back to Level 4 and returning, `#L6-play`
+deep link, mobile overflow and Escape focus return, zero page JavaScript errors. GLB export
+passed its binary header/length and 13 unique room metadata checks at 18,825,580 bytes; GLB
+re-import was not tested. Inspected fresh Chrome 3D and plan renders of the gated east edge
+against IMG_4025 and of the sectional groups against IMG_4026/4035. Evidence:
+`evidence/level6-pool-enclosure.png` and `evidence/level6-pool-enclosure-plan.png`.
+
+While running that suite, its `search 'bocce'` assertion was found to expect one result while
+two rooms now match — a stale expectation left by the earlier IMG_3992 rename of `L6-bbq-central`
+to *Bocce-side fireplace lounges*, whose QA entry records only a focused check rather than a
+full regression run. The assertion was narrowed to `'bocce lawn'`, preserving its intent. This
+was a pre-existing test defect, not a regression from this change.
+
