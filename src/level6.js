@@ -506,9 +506,42 @@ export function createLevel6Model(){
  surface(rect(890,241,40,24),mats.glass,2.65);
  for(const x of [890,903,916,930])line([x,240],[x,265],.1,metal,.08,2.65);
  // Lower Level 4 glimpses keep the light wells open while matching the photographs.
- surface(rect(934,276,102,361),grass,-4.5);surface(rect(934,676,102,398),mats.tilefloor,-4.5);
- for(const x of [934,1035]){line([x,276],[x,637],4.4,metal,.18,-4.5);line([x,677],[x,1074],4.4,metal,.18,-4.5);}
+ // IMG_4015/4016 and the IMG_3979 aerial: the turf does not stop at the bridge. It
+ // carries a short distance into the south well as an end zone closed by a goal line.
+ // The end of that turf is the user's line drawn on the render, trace z=730.
+ surface(rect(934,276,102,454),grass,-4.5);surface(rect(934,730,102,120),mats.tilefloor,-4.5);
+ for(const x of [934,1035])line([x,276],[x,850],4.4,metal,.18,-4.5);
  for(const [z,label] of [[348,'30'],[454,'20'],[560,'10']]){surface(rect(935,z,100,2),mats.white,-4.46);const tex=canvasTexture((c,n)=>{c.clearRect(0,0,n,n);c.fillStyle='#ffffff';c.font='bold 210px sans-serif';c.textAlign='center';c.fillText(label,n/2,340);});const material=new T.MeshStandardMaterial({map:tex,transparent:true,depthWrite:false});const [a,b]=world([964,z-19]);const m=new T.Mesh(new T.PlaneGeometry(3.2,3.2),material);m.rotation.x=-Math.PI/2;m.position.set(a,-4.44,b);props.add(m);}
+ // Goal line closing the end zone, and the inboard hash row every yard. The 10-yard
+ // spacing above is 106 trace units, so one yard is 10.6. The turf and its hash row
+ // run unbroken beneath the bridge: the slab hides that stretch from directly above,
+ // but an oblique view sees past it and a gap there reads as a black hole in the field.
+ surface(rect(935,728,100,2.5),mats.white,-4.46);
+ for(let z=286;z<726;z+=10.6)surface(rect(1004,z,18,1.6),mats.white,-4.46);
+ // IMG_4015/4016: the seats wrap a low table in a square — a sofa across the head and
+ // an armchair on each return, fourth side open — not rows of sofas facing each other.
+ // One cluster, centred on the paving and opening back toward the numbered turf.
+ const wellDark=M('#2a2e33',.7),wellCushion=M('#57525f',.8);
+ const wellCluster=z=>{
+  const [cx,cz]=world([984,z]);
+  // IMG_4015 detail: each unit has a low back on its outer side, with its own
+  // cushion leaning against it. bx/bz picks which side that back sits on.
+  const seat=(dx,dz,w,d,bx,bz)=>{
+   box(props,cx+dx,-4.3,cz+dz,w,.4,d,wellDark);
+   box(props,cx+dx,-4.03,cz+dz,w-.25,.14,d-.25,wellCushion);
+   const px=cx+dx+bx*(w/2-.08),pz=cz+dz+bz*(d/2-.08);
+   box(props,px,-3.87,pz,bx?.16:w,.46,bz?.16:d,wellDark);
+   box(props,px-bx*.15,-3.9,pz-bz*.15,bx?.14:w-.3,.36,bz?.14:d-.3,wellCushion);
+  };
+  seat(0,1.25,2.1,.85,0,1);seat(-1.2,-.1,.85,1.8,-1,0);seat(1.2,-.1,.85,1.8,1,0);
+  box(props,cx,-4.34,cz,.9,.32,.9,wellDark);
+ };
+ wellCluster(790);
+ // The Level 4 floor's open end takes the same glass railing as the deck edges above,
+ // dropped to that level: glass panel, slim top rail, posts every 20 trace units.
+ line([934,850],[1035,850],.95,mats.glass,.055,-4.26);
+ line([934,850],[1035,850],.055,metal,.065,-3.32);
+ for(let i=0;i<=5;i++)B(934+i*20.2,850,1,1,1.2,metal,-4.5);
 
  // Glass follows the exposed slab perimeter, including all three terrace returns.
  const railingSegments=[
