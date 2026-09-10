@@ -405,6 +405,9 @@ export function createLevel6Model(){
   for(let i=0;i<3;i++){const a=i*2.1;mesh(props,new T.IcosahedronGeometry(.17+(i%2)*.07,0),i%2?flower:lavender,x+Math.cos(a)*.35,.88,z+Math.sin(a)*.28,.8,.75,.8);}
  }
  for(const [tx,tz] of [[1169,784],[1185,821]]){const [x,z]=world([tx,tz]);tree(props,x,z,0,.5);}
+ // IMG_4010: these read as plain black boxes because the hood used the dark local
+ // `metal`, not stainless. Rebuilt to the same idiom as the counter BBQs above —
+ // stainless firebox and rounded lid, black fascia, steel knobs, dark cabinet.
  const compactGrill=(x,z,rotation=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rotation);g.name='Compact freestanding hood BBQ';
   box(g,0,.275,0,1.15,.55,.65,fireFrame);box(g,0,.585,0,1.2,.07,.69,counterStone);
   box(g,0,.72,0,1,.2,.6,'metal');
@@ -420,9 +423,6 @@ export function createLevel6Model(){
  const stairTaupe=M('#57524d',.72),stairDoor=M('#45423e',.66),stairTrim=M('#77716a',.58);
  const stairCenter=[1059,570.5];
  B(stairCenter[0],stairCenter[1],42,135,3.12,stairTaupe);
- // IMG_4010: these read as plain black boxes because the hood used the dark local
- // `metal`, not stainless. Rebuilt to the same idiom as the counter BBQs above —
- // stainless firebox and rounded lid, black fascia, steel knobs, dark cabinet.
  // Flat gravel roof sits inside a narrow, raised metal coping.
  B(stairCenter[0],stairCenter[1],44,137,.22,stairTrim,3.1);
  B(stairCenter[0],stairCenter[1],37,130,.09,gravel,3.29);
