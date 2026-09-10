@@ -296,7 +296,9 @@ IMG_4018 and the user's marked overhead establish that the lanes are laid in put
 carry three flush cups — a pale collar ring with a dark hole, level with the surface. Their
 positions are read off that overhead against two known lines: the bench row at trace x=727/802/876
 and the two lane lines at z=783/833, which give a consistent 3 px per trace unit in both axes.
-Modelled at (716,801), (805,821) and (898,804).
+Modelled at (716,801), (805,821) and (898,804). The cup is a regulation 108 mm hole in a
+160 mm collar; the first attempt drew it at roughly double that, which read wrong against the
+3.25 m lane width.
 
 The zone keeps the id `L6-bocce` and the name "Bocce lawn". The lanes, boundary lines and court
 photographs still read as bocce, the putting cups sit within the same strips, and nothing supplied

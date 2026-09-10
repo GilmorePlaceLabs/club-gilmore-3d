@@ -463,9 +463,10 @@ export function createLevel6Model(){
  for(const z of [783,833])B(803,z,207,3,.03,mats.white,.08);
  // IMG_4018: the turf is a putting green and carries flush cups — a pale collar ring
  // with a dark hole inside. Positions read off the user's marked overhead against the
- // bench line (x=727/802/876) and the two lane lines (z=783/833).
+ // bench line (x=727/802/876) and the two lane lines (z=783/833). The hole is a
+ // regulation 108 mm across, so the cup reads small against everything else here.
  for(const [x,z] of [[716,801],[805,821],[898,804]]){const [a,b]=world([x,z]);
-  cyl(props,a,.086,b,.16,.014,'white');cyl(props,a,.094,b,.105,.014,'black');}
+  cyl(props,a,.085,b,.08,.01,'white');cyl(props,a,.091,b,.054,.01,'black');}
  for(const x of [727,802,876]){B(x,771,17,4,.44,mats.white,.02);B(x,773,23,8,.08,mats.oak,.46);}
  // Festoon poles alternate sides of the court — two standing in the planted edge and
  // one out on the far turf — so the strings cross the lanes instead of running down
