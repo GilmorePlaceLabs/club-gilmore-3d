@@ -220,9 +220,29 @@ export function createLevel6Model(){
  for(let i=0;i<23;i++){const x=1155+i*24,z=963-i*22;planter([[x,z],[x+18,z-17],[x+30,z-4],[x+12,z+13]],false);if(i%3===0){const [a,b]=world([x+10,z+2]);tree(props,a,b,0,1);}}
  const picnic=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.78,0,2.4,.09,.95,'oak');for(const xx of [-.8,.8])box(g,xx,.38,0,.18,.72,.65,metal);for(const zz of [-.8,.8]){box(g,0,.46,zz,2.5,.12,.35,'oak');for(const xx of [-.8,.8])box(g,xx,.23,zz,.1,.45,.28,metal);}};
  picnic(880,115,Math.PI/2);picnic(1600,505,-.76);
- const grill=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.48,0,2.7,.94,.76,metal);box(g,0,.97,0,2.8,.08,.83,'stone');box(g,0,1.15,0,1.03,.36,.65,'metal');for(let i=0;i<5;i++)box(g,(i-2)*.2,1.35,0,.035,.025,.54,'black');for(let i=0;i<4;i++)cyl(g,(i-1.5)*.22,1.05,.42,.045,.06,'black').rotation.x=Math.PI/2;};
+ // IMG_4010/4036/4037: the appliances are freestanding stainless carts on casters
+ // standing against the front face of a monolithic dark stone counter, not units
+ // dropped into it. The counter top is the same dark stone, not a pale slab.
+ // The lounge terrace's two stations carry a pair of carts on a longer counter;
+ // the east pergola bays keep the single cart their overhead close-up shows.
+ const counterStone=M('#4a4e51',.6);
+ const bbqUnit=(g,x)=>{
+  box(g,x,.5,.62,1.02,1,.62,'metal');
+  box(g,x,1.16,.62,1.06,.32,.66,'metal');
+  cyl(g,x,1.32,.6,.28,1.06,'metal').rotation.z=Math.PI/2;
+  box(g,x,1.07,.95,1.06,.16,.04,'black');
+  for(let i=0;i<4;i++)cyl(g,x+(i-1.5)*.2,1.07,.99,.03,.05,'metal').rotation.x=Math.PI/2;
+  for(const sx of [-1,1])rod(g,[x+sx*.6,1.02,.36],[x+sx*.6,1.02,.88],.03,'metal');
+  for(const sx of [-1,1])for(const sz of [-1,1])cyl(g,x+sx*.42,.05,.62+sz*.22,.055,.1,'black');
+ };
+ const grill=(x,z,rot=0,units=1)=>{
+  const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot),len=units>1?4.4:2.7;
+  g.name=units>1?'BBQ counter with two grills':'BBQ counter with grill';
+  box(g,0,.48,0,len,.94,.76,metal);box(g,0,.97,0,len+.1,.08,.83,counterStone);
+  for(let i=0;i<units;i++)bbqUnit(g,(i-(units-1)/2)*2.3);
+ };
 
- grill(820,327);grill(820,588);
+ grill(820,327,0,2);grill(820,588,Math.PI,2);
  const fire=(x,z,round=true)=>{const [a,b]=world([x,z]);if(round){cyl(props,a,.3,b,.79,.55,'stone');cyl(props,a,.59,b,.53,.025,'black');}else{box(props,a,.28,b,.75,.5,2.1,'stone');box(props,a,.54,b,.4,.03,1.7,'black');}for(let i=0;i<7;i++){const flame=new T.Mesh(new T.ConeGeometry(.07,.18+(i%3)*.06,5),new T.MeshStandardMaterial({color:'#f2bd66',emissive:'#cc651d',emissiveIntensity:.6}));flame.position.set(a+(round?Math.sin(i)*.3:0),.66,b+(round?Math.cos(i)*.3:(i-3)*.2));props.add(flame);}};
  const seat=(x,z,r=0,size=2.25)=>{const [a,b]=world([x,z]);sofa(props,a,b,r,'blue',size);};
  // Four picnic tables flank two tree planters and the double-sided fireplace.
@@ -374,9 +394,12 @@ export function createLevel6Model(){
  }
  for(const [tx,tz] of [[1169,784],[1185,821]]){const [x,z]=world([tx,tz]);tree(props,x,z,0,.5);}
  const compactGrill=(x,z,rotation=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rotation);g.name='Compact freestanding hood BBQ';
-  box(g,0,.275,0,1.15,.55,.65,fireFrame);box(g,0,.585,0,1.2,.07,.69,metal);
-  box(g,0,.82,.03,1.13,.34,.62,metal);box(g,0,.91,-.295,1.03,.05,.035,fireFrame);
-  rod(g,[-.39,.98,-.36],[.39,.98,-.36],.025,'black');
+  box(g,0,.275,0,1.15,.55,.65,fireFrame);box(g,0,.585,0,1.2,.07,.69,counterStone);
+  box(g,0,.72,0,1,.2,.6,'metal');
+  cyl(g,0,.86,-.02,.24,1,'metal').rotation.z=Math.PI/2;
+  box(g,0,.68,.31,1,.13,.035,'black');
+  for(let i=0;i<4;i++)cyl(g,(i-1.5)*.19,.68,.34,.026,.045,'metal').rotation.x=Math.PI/2;
+  rod(g,[-.34,1.03,.15],[.34,1.03,.15],.03,'black');
   for(const sx of [-.46,.46])for(const sz of [-.24,.24])cyl(g,sx,.07,sz,.065,.14,'black');
  };
  compactGrill(1145,803,Math.PI/2);compactGrill(1165,852,pergolaAngle);
@@ -385,6 +408,9 @@ export function createLevel6Model(){
  const stairTaupe=M('#57524d',.72),stairDoor=M('#45423e',.66),stairTrim=M('#77716a',.58);
  const stairCenter=[1059,570.5];
  B(stairCenter[0],stairCenter[1],42,135,3.12,stairTaupe);
+ // IMG_4010: these read as plain black boxes because the hood used the dark local
+ // `metal`, not stainless. Rebuilt to the same idiom as the counter BBQs above —
+ // stainless firebox and rounded lid, black fascia, steel knobs, dark cabinet.
  // Flat gravel roof sits inside a narrow, raised metal coping.
  B(stairCenter[0],stairCenter[1],44,137,.22,stairTrim,3.1);
  B(stairCenter[0],stairCenter[1],37,130,.09,gravel,3.29);
