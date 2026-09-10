@@ -69,7 +69,10 @@ export function createLevel6Model(){
  surface([[660,672],[697,672],[697,882],[911,1113],[883,1134],[660,893]],wood,.015);
  surface([[1120,975],[1735,416],[1750,430],[1135,995]],wood,.02);
  for(const r of level6Rooms){const group=new T.Group();group.name=r.name;group.userData={roomId:r.id,level:6,description:r.description};root.add(group);
- const poly=r.polygon.map(world),floor=surface(r.polygon,(r.kind==='bocce'?grass:mats.tilefloor).clone(),r.kind==='sun-deck'?.025:.045,0,group);floor.userData.roomId=r.id;floorMeshes.push(floor);
+ // The bocce selection polygon extends into the irregular south garden. Keep
+ // its pickable underlay neutral; the exact lawn polygons are drawn below.
+ const floorMaterial=(r.kind==='bocce'?stone:mats.tilefloor).clone();
+ const poly=r.polygon.map(world),floor=surface(r.polygon,floorMaterial,r.kind==='sun-deck'?.025:.045,0,group);floor.userData.roomId=r.id;floorMeshes.push(floor);
  const outline=new T.Line(new T.BufferGeometry().setFromPoints([...poly,poly[0]].map(([x,z])=>new T.Vector3(x,.12,z))),new T.LineBasicMaterial({color:'#d1b674',depthTest:false}));outline.visible=false;outline.renderOrder=5;group.add(outline);
  const center=new T.Box3().setFromPoints(poly.map(([x,z])=>new T.Vector3(x,0,z))).getCenter(new T.Vector3());roomGroups.set(r.id,{group,floor,outline,center,poly});}
  for(let z=315;z<600;z+=48){surface(rect(733,z,174,23),mats.circulation,.06);surface(rect(1038,z,105,23),mats.circulation,.06);}
@@ -130,7 +133,90 @@ export function createLevel6Model(){
  pergola(209,641,106,42);pergola(520,641,98,42);pergola(844,991,97,58,-.7);pergola(1600,505,50,48,-.76);
  for(const z of [703,759,814]){const [a,b]=world([89,z]);cyl(props,a,.24,b,.85,.38,'oak');cyl(props,a,.47,b,.76,.17,'ivory');const canopy=new T.Mesh(new T.SphereGeometry(.88,16,10,0,Math.PI),mats.linen);canopy.position.set(a,.66,b);canopy.rotation.y=Math.PI/2;props.add(canopy);}
  const planter=(poly,trees=true)=>{surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z]);if(trees){tree(props,a,b,0,.7+((x+z)%13)/32);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.18,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6,.74,b+Math.cos(k*2.4)*.6,1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.32,0),k%2?'leaf':'leaflight',a+k*.2,.8,b,.8,.7,.8);}}}};
- for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51),rect(699,733,208,36),rect(643,283,14,305),rect(1143,287,35,210),[[1168,501],[1220,481],[1491,500],[1440,535],[1212,562]],[[695,937],[754,1004],[700,1090]],[[757,1080],[872,1148],[777,1225],[700,1134]]])planter(p);
+ for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51),rect(699,733,208,36),rect(643,283,14,305),rect(1143,287,35,210),[[1168,501],[1220,481],[1491,500],[1440,535],[1212,562]]])planter(p);
+ // Exact southern lawn and planter outlines traced from the authoritative
+ // overhead. The neutral room-selection underlay remains available for picking,
+ // while only these polygons receive grass.
+ surface(rect(698,769,210,64),grass,.08);
+ const southBocceLawn=[[698,834],[908,834],[908,856],[851,906],[871,928],[833,960],[784,908],[748,937],[698,881]];
+ const southWestLawn=[[698,936],[698,1140],[772.4,1217.2],[881.1,1134.2]];
+ surface(southBocceLawn,grass,.08);surface(southWestLawn,grass,.08);
+ // A single 1.5-trace (about 0.10 m) pale divider follows the lawn's straight
+ // shared edge with the timber walk. That edge is held parallel to the walk's
+ // southwest side, so the pale margin stays one divider wide over its whole run.
+ // The lawn's southeast edge is likewise held parallel to the slab edge
+ // (932,1128)-(691,1312), 26 trace units in, matching the floor plan's wedge.
+ line([698,936],[881.1,1134.2],.025,stone,.0975,.12);
+ // IMG_3991: the open-turf tree planter is a true square whose sides run parallel
+ // and square to the timber walk, not the lopsided quadrilateral traced before.
+ const southBeds=[
+  [[752,939],[784,912],[833,970],[802,997]],
+  [[854,906],[908,857],[908,921],[870,929]],
+  [[821,1034],[908,1019],[908,1115]],
+  [[776.5,1024.2],[806.3,1056.5],[774,1086.3],[744.2,1054]],
+  [[637,958],[651,960],[651,1243],[665,1260],[639,1244]]
+ ];
+ const insidePolygon=(x,z,poly)=>{let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+  const [ax,az]=poly[i],[bx,bz]=poly[j];
+  if((az>z)!==(bz>z)&&x<(bx-ax)*(z-az)/(bz-az)+ax)inside=!inside;
+ }return inside;};
+ const southTreeAnchors=[
+  [[792,963]],[[890,893]],[[875,1067]],[[777,1055]],
+  [[644,995],[644,1072],[645,1150],[650,1225]]
+ ];
+ const southPlanter=(poly,treesAt=[])=>{
+  surface(poly,stone,.06,.58);surface(poly,soil,.66);
+  for(let i=0;i<poly.length;i++)line(poly[i],poly[(i+1)%poly.length],.2,stone,.18,.59);
+  const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));
+  const narrow=bounds.max.x-bounds.min.x<20,stepX=narrow?5:9,stepZ=narrow?12:9;
+  for(let x=bounds.min.x+3;x<bounds.max.x-2;x+=stepX)for(let z=bounds.min.y+3;z<bounds.max.y-2;z+=stepZ)if(insidePolygon(x,z,poly)){
+   const jitter=Math.sin(x*1.73+z*.91),[wx,wz]=world([x+jitter*1.2,z+Math.cos(x*.47-z)*1.2]);
+   const material=(Math.round(x+z)%5===0)?flower:(Math.round(x*2+z)%7===0)?lavender:(Math.round(x+z)%2?'leaflight':'leaf');
+   mesh(props,new T.IcosahedronGeometry(.13+(Math.abs(jitter)*.05),0),material,wx,.79+(Math.abs(jitter)*.06),wz,.9,.65,.9);
+  }
+  for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);tree(props,wx,wz,0,.62);}
+ };
+ southBeds.forEach((bed,i)=>southPlanter(bed,southTreeAnchors[i]));
+ // IMG_3991: the second user-marked object is a single black post light in
+ // open turf, not another raised planter. Its shallow cap carries a downlight.
+ {
+  const [x,z]=world([706,1062]);
+  cyl(props,x,1.32,z,.055,2.64,'black');
+  box(props,x,2.67,z,.64,.1,.2,'black');
+  box(props,x+.2,2.605,z,.16,.03,.12,'ivory');
+ }
+ // Repaint the existing diagonal route above the new lawn layers; no planting
+ // sits on this circulation band.
+ surface([[660,672],[697,672],[697,882],[911,1113],[883,1134],[660,893]],wood,.11);
+ // The east-edge shelter is a clipped quadrilateral in the overhead. Every
+ // rafter is clipped to the perimeter beams, and two crossbeams divide three
+ // supported bays; no roof member stops in mid-air.
+ const southPergola=[[802,1000],[908,921],[908,1019],[820,1034]];
+ surface(southPergola,mats.tilefloor,.125);
+ for(let i=0;i<4;i++)line(southPergola[i],southPergola[(i+1)%4],.18,metal,.18,2.82);
+ const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+ const pergolaSupports=[...southPergola];
+ for(const t of [1/3,2/3]){
+  const a=lerp(southPergola[0],southPergola[1],t),b=lerp(southPergola[3],southPergola[2],t);
+  line(a,b,.14,metal,.14,2.91);pergolaSupports.push(a,b);
+ }
+ for(const [x,z] of pergolaSupports){const [wx,wz]=world([x,z]);box(props,wx,1.45,wz,.16,2.9,.16,metal);}
+ const rafterLength=Math.hypot(106,79),rafterDirection=[106/rafterLength,-79/rafterLength];
+ const rafterNormal=[-rafterDirection[1],rafterDirection[0]];
+ const projection=(p,axis)=>p[0]*axis[0]+p[1]*axis[1];
+ const normalRange=southPergola.map(p=>projection(p,rafterNormal));
+ for(let offset=Math.min(...normalRange)+2;offset<Math.max(...normalRange)-1;offset+=4){
+  const hits=[];
+  for(let i=0;i<southPergola.length;i++){
+   const a=southPergola[i],b=southPergola[(i+1)%southPergola.length];
+   const an=projection(a,rafterNormal),bn=projection(b,rafterNormal);
+   if(Math.abs(bn-an)<1e-6||offset<Math.min(an,bn)-1e-6||offset>Math.max(an,bn)+1e-6)continue;
+   const t=(offset-an)/(bn-an);
+   if(t>=-1e-6&&t<=1+1e-6){const point=lerp(a,b,t),along=projection(point,rafterDirection);if(!hits.some(h=>Math.abs(h.along-along)<.01))hits.push({point,along});}
+  }
+  hits.sort((a,b)=>a.along-b.along);
+  if(hits.length>1)line(hits[0].point,hits[hits.length-1].point,.075,metal,.075,2.99);
+ }
  for(let i=0;i<23;i++){const x=1155+i*24,z=963-i*22;planter([[x,z],[x+18,z-17],[x+30,z-4],[x+12,z+13]],false);if(i%3===0){const [a,b]=world([x+10,z+2]);tree(props,a,b,0,1);}}
  const picnic=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.78,0,2.4,.09,.95,'oak');for(const xx of [-.8,.8])box(g,xx,.38,0,.18,.72,.65,metal);for(const zz of [-.8,.8]){box(g,0,.46,zz,2.5,.12,.35,'oak');for(const xx of [-.8,.8])box(g,xx,.23,zz,.1,.45,.28,metal);}};
  picnic(880,115,Math.PI/2);picnic(1600,505,-.76);
@@ -350,11 +436,6 @@ export function createLevel6Model(){
  for(const side of [-1,1]){const roof=box(house,side*.38,1.51,0,.88,.08,1.65,'oak');roof.rotation.z=side*.49;for(let z=-.74;z<.8;z+=.2){const slat=box(house,side*.38,1.565,z,.9,.025,.025,'walnut');slat.rotation.z=side*.49;}}
  cyl(house,0,1.8,0,.08,.25,'black');
  planter([[592,56],[856,31],[870,45],[660,104],[592,91]]);
- // Continuous southern lawns and diagonal timber walk.
- surface([[698,888],[903,1114],[903,928],[850,874]],grass,.08);
- surface([[698,917],[777,1002],[699,1084]],grass,.08);
- surface([[699,1100],[776,1223],[883,1139],[795,1047]],grass,.08);
- surface([[661,883],[691,873],[910,1111],[884,1134]],wood,.085);
  surface(rect(661,639,272,34),wood,.08);
  fire(691,1240);for(const [x,z,r] of [[673,1238,Math.PI/2],[694,1220,0],[710,1240,-Math.PI/2]]){const [a,b]=world([x,z]);chair(props,a,b,r,'linen');}
  // Full pavilion envelope, gravel roof and glazing visible in IMG_3984.
