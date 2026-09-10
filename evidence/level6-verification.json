@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "rooms": 13,
+  "photos": true,
+  "finite": true,
+  "exportBytes": 12587196,
+  "levelSwitch": true,
+  "deepLink": true,
+  "mobile": true,
+  "errors": []
+}

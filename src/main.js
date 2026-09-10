@@ -3,8 +3,12 @@ import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { createClubModel } from './model.js';
-import { rooms,categories,majorLabels,WALL_HEIGHT } from './rooms.js';
+import { rooms as level4Rooms,categories,majorLabels as level4Labels,WALL_HEIGHT } from './rooms.js';
 
+import { createLevel6Model,level6Rooms,level6Labels } from './level6.js';
+let activeLevel=location.hash.startsWith('#L6')||new URLSearchParams(location.search).get('level')==='6'?6:4;
+let rooms=activeLevel===6?level6Rooms:level4Rooms;
+const models=new Map();
 const $=id=>document.getElementById(id);
 const svg=(paths)=>`<svg class="room-symbol" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
 const icons={
@@ -61,11 +65,11 @@ $('search').addEventListener('input',renderList);$('category').addEventListener(
 setBrowser(!isMobile());renderList();
 
 function updatePhoto(){const r=rooms.find(r=>r.id===selected);if(!r)return;const has=r.photos.length>0;$('photo-wrap').hidden=!has;$('no-photo').hidden=has;
- if(has){$('room-photo').src=`${import.meta.env.BASE_URL}photos/${r.photos[photoIndex]}.webp`;$('room-photo').alt=`Club Gilmore photo reference for ${r.name}`;$('photo-count').textContent=`Photo reference ${photoIndex+1} / ${r.photos.length}`;$('previous-photo').disabled=r.photos.length<2;$('next-photo').disabled=r.photos.length<2;}}
+ if(has){$('room-photo').src=`${import.meta.env.BASE_URL}photos/${/\.(jpg|webp|png)$/.test(r.photos[photoIndex])?r.photos[photoIndex]:r.photos[photoIndex]+'.webp'}`;$('room-photo').alt=`Club Gilmore photo reference for ${r.name}`;$('photo-count').textContent=`Photo reference ${photoIndex+1} / ${r.photos.length}`;$('previous-photo').disabled=r.photos.length<2;$('next-photo').disabled=r.photos.length<2;}}
 function selectRoom(id,fromList=false){
  const r=rooms.find(r=>r.id===id);if(!r)return;selected=id;photoIndex=0;
- document.body.classList.add('has-detail');$('detail').hidden=false;$('detail-name').textContent=r.name;$('detail-category').textContent=r.category;
- $('detail-description').textContent=descriptions[r.kind]||`Explore ${r.name.toLowerCase()} and its position on the amenity floor.`;
+ document.body.classList.add('has-detail');$('detail').hidden=false;$('detail-name').textContent=r.name;$('detail-category').textContent=r.category;document.querySelector('.detail-location strong').textContent=`Club Gilmore · Level ${activeLevel}`;
+ $('detail-description').textContent=r.description||descriptions[r.kind]||`Explore ${r.name.toLowerCase()} and its position on the amenity floor.`;
  $('detail-measure').hidden=!r.measurement;$('detail-measure').textContent=r.measurement||'';
  const validUrl=r.bookingUrl&&/^https:\/\//.test(r.bookingUrl);$('booking-link').hidden=!validUrl;$('booking-note').hidden=!!validUrl;
  if(validUrl)$('booking-link').href=r.bookingUrl;else $('booking-link').removeAttribute('href');
@@ -136,6 +140,28 @@ function render(time){renderPending=false;if(!renderer)return;
 }
 function resize(){if(!renderer)return;vw=$('viewport').clientWidth;vh=$('viewport').clientHeight;renderer.setSize(vw,vh);camera.left=-frustumHeight*vw/vh/2;camera.right=frustumHeight*vw/vh/2;camera.top=frustumHeight/2;camera.bottom=-frustumHeight/2;updateViewOffset();requestRender();}
 
+function rebuildLabels(){
+ labels.clear();$('labels').replaceChildren();
+ for(const id of activeLevel===6?level6Labels:level4Labels){const r=rooms.find(r=>r.id===id),el=document.createElement('span');el.className='model-label';el.textContent=r.name==='Indoor pool & hydrotherapy'?'Indoor pools':r.name;$('labels').append(el);labels.set(id,el);}
+}
+function updateLevelUI(){
+ $('level-4').setAttribute('aria-pressed',String(activeLevel===4));$('level-6').setAttribute('aria-pressed',String(activeLevel===6));
+ $('level-meta').textContent=`LEVEL 0${activeLevel}`;document.title=`Club Gilmore · Explore Level ${activeLevel}`;
+ $('scale-distance').parentElement.hidden=activeLevel===6;
+ $('reference-links').hidden=activeLevel!==6;
+ $('walls').setAttribute('aria-pressed','false');
+ document.querySelector('.view-heading p').textContent=activeLevel===6?'Outdoor living, above it all. Explore Level 6.':'Find your space. Take a closer look.';
+}
+function switchLevel(level){
+ if(!model||activeLevel===level)return;
+ closeDetail(false);tween=null;scene.remove(model.root);activeLevel=level;rooms=level===6?level6Rooms:level4Rooms;
+ if(!models.has(level))models.set(level,level===6?createLevel6Model():createClubModel());
+ model=models.get(level);scene.add(model.root);scene.getObjectByName('Viewer ground').position.y=level===6?-5:-.43;[...model.wallGroups,...model.columnGroups].forEach(g=>g.scale.y=1.1/WALL_HEIGHT);
+ $('search').value='';$('category').value='All spaces';$('hover-label').hidden=true;rebuildLabels();renderList();updateLevelUI();home(true);
+ const url=new URL(location.href);url.searchParams.set('level',level);url.hash='';history.replaceState(null,'',url);$('announcement').textContent=`Level ${level} selected. ${rooms.filter(r=>r.category!=='Support').length} spaces available.`;
+}
+$('level-4').addEventListener('click',()=>switchLevel(4));$('level-6').addEventListener('click',()=>switchLevel(6));
+
 async function initialize(){try{
  scene=new T.Scene();scene.background=new T.Color('#202c36');
  renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFShadowMap;renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.04;
@@ -147,9 +173,9 @@ async function initialize(){try{
  const fill=new T.DirectionalLight('#d4e8f1',1.1);fill.position.set(80,60,-75);scene.add(fill);
  // Yield once so the loading state is visible during geometry creation.
  await new Promise(resolve=>requestAnimationFrame(resolve));
- model=createClubModel();scene.add(model.root);[...model.wallGroups,...model.columnGroups].forEach(g=>g.scale.y=1.1/WALL_HEIGHT);
- const ground=new T.Mesh(new T.PlaneGeometry(700,700),new T.MeshStandardMaterial({color:'#1b252e',roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.43;ground.receiveShadow=true;scene.add(ground);
- for(const id of majorLabels){const r=rooms.find(r=>r.id===id),el=document.createElement('span');el.className='model-label';el.textContent=r.name==='Indoor pool & hydrotherapy'?'Indoor pools':r.name;$('labels').append(el);labels.set(id,el);}
+ model=activeLevel===6?createLevel6Model():createClubModel();models.set(activeLevel,model);scene.add(model.root);[...model.wallGroups,...model.columnGroups].forEach(g=>g.scale.y=1.1/WALL_HEIGHT);
+ const ground=new T.Mesh(new T.PlaneGeometry(700,700),new T.MeshStandardMaterial({color:'#1b252e',roughness:1}));ground.rotation.x=-Math.PI/2;ground.name='Viewer ground';ground.position.y=activeLevel===6?-5:-.43;ground.receiveShadow=true;scene.add(ground);
+ rebuildLabels();updateLevelUI();
  new ResizeObserver(resize).observe($('viewport'));resize();home(true);
  let down=null,pointerCount=0;
  renderer.domElement.addEventListener('pointerdown',e=>{pointerCount++;down=pointerCount===1?{x:e.clientX,y:e.clientY,id:e.pointerId}:null;});
@@ -163,7 +189,7 @@ async function initialize(){try{
  $('loading').hidden=true;
  const initial=decodeURIComponent(location.hash.slice(1));if(rooms.some(r=>r.id===initial))selectRoom(initial);
  // Read-only evidence interface plus explicit actions for browser QA and export.
- window.clubGilmore={model,scene,camera,controls,renderer,rooms,selectRoom,home,requestRender,get selectedRoomId(){return selected;},get ready(){return true;}};
+ window.clubGilmore={get model(){return model;},scene,camera,controls,renderer,get rooms(){return rooms;},switchLevel,get activeLevel(){return activeLevel;},selectRoom,home,requestRender,get selectedRoomId(){return selected;},get ready(){return true;}};
  requestRender();
  }catch(error){console.error(error);$('loading').hidden=true;$('webgl-error').hidden=false;for(const id of ['download','view-3d','view-plan','zoom-in','zoom-out','reset','walls','label-toggle'])$(id).disabled=true;}
 }
@@ -171,7 +197,7 @@ async function initialize(){try{
 $('download').addEventListener('click',async()=>{
  if(!model)return;const b=$('download');b.disabled=true;const old=b.innerHTML;b.textContent='Preparing model…';
  try{const exporter=new GLTFExporter();model.root.updateMatrixWorld(true);const result=await exporter.parseAsync(model.root,{binary:true,onlyVisible:true,maxTextureSize:1024});
-  const url=URL.createObjectURL(new Blob([result],{type:'model/gltf-binary'})),a=document.createElement('a');a.href=url;a.download='Club-Gilmore-Level-4.glb';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);$('announcement').textContent='3D model downloaded.';
+  const url=URL.createObjectURL(new Blob([result],{type:'model/gltf-binary'})),a=document.createElement('a');a.href=url;a.download=`Club-Gilmore-Level-${activeLevel}.glb`;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);$('announcement').textContent='3D model downloaded.';
  }catch(e){console.error(e);$('announcement').textContent='The model could not be exported. Please try again.';}finally{b.disabled=false;b.innerHTML=old;}
 });
 initialize();

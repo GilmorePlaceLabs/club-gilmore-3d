@@ -309,3 +309,6 @@ export function createClubModel(){
  const bounds=new T.Box3().setFromObject(root);
  return {root,roomGroups,floorMeshes,wallGroups,columnGroups,bounds,mats};
 }
+
+// Shared architectural primitives for the outdoor amenity deck.
+export { box, cyl, rod, mesh, makeGroup, shapeGeometry, sofa, chair, table, coffee, tree, mergeRoomGeometry, mats, canvasTexture };

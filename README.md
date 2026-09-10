@@ -42,3 +42,9 @@ The `dist` directory is the static web build. Serve it over HTTP(S); opening ind
 ## Validation
 
 PASS for the reviewed desktop and mobile-emulated viewer scope, geometry sanity, 20 m pool, and GLB export/reimport. See QA.md. The inspection scripts use the workstation's bundled Playwright and Chrome paths; adapt those paths on another computer. The model has not been dimension-audited room by room, tested on physical phones, or connected to a booking account.
+
+### Level 6 outdoor amenities
+
+Use **L4 / L6** in the header to switch floors. Open `/?level=6` for Level 6, or `/#L6-play` for a selected outdoor space. Thirteen selectable zones include photo galleries and descriptions; original floor-plan/render links are at the bottom of the Level 6 browser. Download model exports the active floor. Level 6 has approximate scale, documented in MODEL-SOURCES.md.
+
+Run `node scripts/verify-level6.cjs` with the local server running. Override `PLAYWRIGHT_PATH` and `CHROME_PATH` if needed for your machine.
