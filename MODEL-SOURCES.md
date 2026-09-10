@@ -292,6 +292,12 @@ lawn with a 4.5-trace gap to the wall face at z=769 and nothing underneath.
 The plank now runs z=769-777 so its inboard edge meets the wall, on a pale bracket at z=769-773.
 The nine scattered bocce balls are removed; the photographed court is empty turf.
 
+The bocce-side bed at trace (699,733,208,36) is 36 units deep, so `planter`'s generic grid put its
+single tree row at z=743 — hard against the lounge terrace rather than in the bed — and the default
+0.7-1.1 canopy scale buried both terraces. `planter` gains optional `dz` and `treeScale` arguments,
+used only by this bed at 10 and 0.74, so the row sits at z=753 with smaller canopies. Every other
+planter is unchanged.
+
 Follow-up, same day: the three festoon poles stood in a straight line at z=819, down the middle of
 the lanes. The user's arrows put them on alternating sides — trace (727,751) and (876,751) in the
 planted edge, (802,852) out on the far turf. The string stays one continuous run linking all
