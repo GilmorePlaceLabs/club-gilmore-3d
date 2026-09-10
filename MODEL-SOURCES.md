@@ -283,6 +283,15 @@ existing `-Math.PI/2` already faces away from the planted east edge.
 Browser JPEG copies are `public/photos/site-4036.jpg` and `site-4037.jpg`, now leading the Outdoor
 fireplace & lounge gallery.
 
+### Bocce court benches and balls — user photograph, September 10, 2026
+
+The court photograph shows the plank seats cantilevered off the planter wall on a pale steel
+bracket, overhanging the turf. The model had them freestanding at z=776, floating 0.48 m above the
+lawn with a 4.5-trace gap to the wall face at z=769 and nothing underneath.
+
+The plank now runs z=769-777 so its inboard edge meets the wall, on a pale bracket at z=769-773.
+The nine scattered bocce balls are removed; the photographed court is empty turf.
+
 ### Fire-terrace compact BBQs matched to the counter units — September 10, 2026
 
 The fire pit terrace's two freestanding BBQs read as plain black boxes: `compactGrill` built its

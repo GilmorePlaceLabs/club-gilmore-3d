@@ -453,8 +453,10 @@ export function createLevel6Model(){
  for(const [px,pz] of [[1046,630],[1051,630],[1056,630],[1061,630]]){const [a,b]=world([px,pz]);cyl(props,a,3.5,b,.06,.34,mats.metal);rod(props,[a,3.67,b],[a+.13,3.67,b],.035,mats.metal);}
  B(1068,625,8,11,.32,stairTrim,3.31);
  picnic(1112,570,Math.PI/2);
- // Bocce lanes, low edging, benches, balls and festoon lighting.
- for(const z of [783,833])B(803,z,207,3,.03,mats.white,.08);for(const x of [727,802,876]){B(x,776,23,5,.08,mats.oak,.48);const [a,b]=world([x,819]);cyl(props,a,1.65,b,.035,3.3,metal);}for(let i=0;i<9;i++){const [a,b]=world([728+i*17,794+(i%3)*9]);mesh(props,new T.SphereGeometry(.085,8,6),i%2?'red':'green',a,.14,b);}for(let i=0;i<20;i++){const [a,b]=world([727+i*7.85,819]);cyl(props,a,3.2-Math.sin(i/19*Math.PI)*.3,b,.035,.06,'ivory');}line([727,819],[876,819],.015,metal,.012,3.24);
+ // Bocce lanes, low edging, cantilevered wall benches and festoon lighting.
+ // IMG: the plank seats spring from the planter wall on a pale steel bracket and
+ // cantilever over the turf; they are not freestanding benches out on the lawn.
+ for(const z of [783,833])B(803,z,207,3,.03,mats.white,.08);for(const x of [727,802,876]){B(x,771,17,4,.44,mats.white,.02);B(x,773,23,8,.08,mats.oak,.46);const [a,b]=world([x,819]);cyl(props,a,1.65,b,.035,3.3,metal);}for(let i=0;i<20;i++){const [a,b]=world([727+i*7.85,819]);cyl(props,a,3.2-Math.sin(i/19*Math.PI)*.3,b,.035,.06,'ivory');}line([727,819],[876,819],.015,metal,.012,3.24);
  // Playground follows the built photograph: twin slides and faceted climbing pods.
  surface([[1170,512],[1240,493],[1470,502],[1504,554],[1298,778],[1170,638]],grass,.08);
  const circle=(x,z,r,material,y=.11)=>{const [a,b]=world([x,z]);mesh(props,new T.CylinderGeometry(r*U,r*U,.04,64),material,a,y,b);};circle(1293,635,89,stone);circle(1293,635,86,rubber,.14);circle(1386,586,63,stone);circle(1386,586,60,tan,.17);
