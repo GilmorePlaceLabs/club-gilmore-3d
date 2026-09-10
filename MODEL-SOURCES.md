@@ -292,6 +292,16 @@ lawn with a 4.5-trace gap to the wall face at z=769 and nothing underneath.
 The plank now runs z=769-777 so its inboard edge meets the wall, on a pale bracket at z=769-773.
 The nine scattered bocce balls are removed; the photographed court is empty turf.
 
+IMG_4018 and the user's marked overhead establish that the lanes are laid in putting turf and
+carry three flush cups — a pale collar ring with a dark hole, level with the surface. Their
+positions are read off that overhead against two known lines: the bench row at trace x=727/802/876
+and the two lane lines at z=783/833, which give a consistent 3 px per trace unit in both axes.
+Modelled at (716,801), (805,821) and (898,804).
+
+The zone keeps the id `L6-bocce` and the name "Bocce lawn". The lanes, boundary lines and court
+photographs still read as bocce, the putting cups sit within the same strips, and nothing supplied
+so far says the bocce use is gone.
+
 The bocce-side bed at trace (699,733,208,36) is 36 units deep, so `planter`'s generic grid put its
 single tree row at z=743 — hard against the lounge terrace rather than in the bed — and the default
 0.7-1.1 canopy scale buried both terraces. `planter` gains optional `dz` and `treeScale` arguments,
