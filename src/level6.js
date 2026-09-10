@@ -469,10 +469,19 @@ export function createLevel6Model(){
  surface(rect(696,130,146,108),grass,.08);
  const [nx,nz]=world([759,180]);mesh(props,new T.CylinderGeometry(3.05,3.05,.035,64),stone,nx,.11,nz);mesh(props,new T.CylinderGeometry(2.9,2.9,.035,64),tan,nx,.145,nz);
  const house=makeGroup(props,nx,nz);house.name='North toddler playhouse';
- for(const x of [-.62,.62])for(const z of [-.58,.58])box(house,x,.66,z,.095,1.32,.095,'oak');
- box(house,0,.36,.58,1.3,.55,.09,blue);box(house,-.62,.37,0,.09,.6,1.2,blue);box(house,.62,.37,0,.09,.6,1.2,blue);
- for(const side of [-1,1]){const roof=box(house,side*.38,1.51,0,.88,.08,1.65,'oak');roof.rotation.z=side*.49;for(let z=-.74;z<.8;z+=.2){const slat=box(house,side*.38,1.565,z,.9,.025,.025,'walnut');slat.rotation.z=side*.49;}}
- cyl(house,0,1.8,0,.08,.25,'black');
+ // IMG_4038/4040: an open shelter on navy posts, not an enclosed blue box, and it
+ // carries no chimney. A vertical timber chime wall and a graphic play panel run off
+ // the north gable; the sheltered end holds a play counter and a steering-wheel panel.
+ const navy=M('#26404f'),signRed=M('#b8352c');
+ for(const x of [-.62,.62])for(const z of [-.58,.58])box(house,x,.66,z,.1,1.32,.1,navy);
+ box(house,0,.42,.72,1.28,.62,.08,blue);box(house,-.05,.72,.4,.86,.06,.5,blue);
+ box(house,.6,.66,-.15,.07,.46,.8,blue);
+ for(const z of [-.36,.06])cyl(house,.64,.92,z,.13,.05,'black').rotation.z=Math.PI/2;
+ for(let z=-.86;z>-1.5;z-=.11)box(house,0,.45,z,1.16,.9,.07,'oak');
+ box(house,0,.5,-1.62,1.16,1,.07,blue);
+ for(const [x,z] of [[-.35,1.1],[.3,1.15]])cyl(house,x,.08,z,.2,.08,blue);
+ for(const side of [-1,1]){const roof=box(house,side*.38,1.51,0,.88,.08,1.65,'oak');roof.rotation.z=-side*.49;for(let z=-.74;z<.8;z+=.2){const slat=box(house,side*.38,1.565,z,.9,.025,.025,'walnut');slat.rotation.z=-side*.49;}}
+ box(house,0,1.5,.83,.6,.15,.04,signRed);
  planter([[592,56],[856,31],[870,45],[660,104],[592,91]]);
  surface(rect(661,639,272,34),wood,.08);
  fire(691,1240);for(const [x,z,r] of [[673,1238,Math.PI/2],[694,1220,0],[710,1240,-Math.PI/2]]){const [a,b]=world([x,z]);chair(props,a,b,r,'linen');}
