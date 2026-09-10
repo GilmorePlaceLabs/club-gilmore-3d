@@ -89,3 +89,8 @@ errors. Inspected a fresh Chrome 3D render against the user's marked aerial crop
 sofas in two facing pairs, two tables, length running toward the pool. Evidence refreshed in
 `evidence/level6-pool-enclosure.png` and `evidence/level6-pool-enclosure-plan.png`.
 
+North lounger row trim: production build passes and `scripts/verify-level6.cjs` returns **PASS**
+at 18,601,740 export bytes with zero page JavaScript errors. Inspected a fresh Chrome 3D render
+against the user's marked screenshot: both north rows now begin and end level with the pool.
+Evidence refreshed in `evidence/level6-pool-enclosure.png` and `-plan.png`.
+

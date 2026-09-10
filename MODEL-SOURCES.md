@@ -140,3 +140,12 @@ turned 90° from the previous modelling: their length runs across the deck towar
 along the fence line. Modelled as `deckPair` at trace (610,700) and (610,800). Pair spacing and
 the gap to the pool coping are proportional readings of the crop, not measurements.
 
+### North lounger rows trimmed to the pool
+
+The user's marked screenshot shows the north-side lounger rows running past the pool's west end
+rather than stopping level with the water. Both rows are now clamped to the pool's trace extent
+(x 236–565): the outer row starts at x=250 instead of x=133 and the inner row ends at x=543.
+Six loungers were removed. Row density remains an interpretation — no photograph fixes the exact
+count — but the rows no longer extend beyond the pool they serve. The separate hot-tub loungers
+west of x=236 are unchanged, as they front the hot tub rather than the pool.
+

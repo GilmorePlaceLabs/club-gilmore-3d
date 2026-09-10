@@ -75,7 +75,7 @@ export function createLevel6Model(){
  // Pools, inset water, coping, stair treads and stainless-steel ladders.
  for(const [x,z,w,d] of [[242,724,312,90],[137,724,69,90]]){B(x+w/2,z+d/2,w+9,d+9,.16,mats.pooltile);B(x+w/2,z+d/2,w,d,.18,water);for(let i=0;i<4;i++)B(x+w-4-i*3,z+d/2,3,d-8,.2+i*.035,mats.pooltile);for(const zz of [z+9,z+d-9]){const [a,b]=world([x+w-9,zz]);for(const off of [-.35,.35]){rod(props,[a-.5,.16,b+off],[a-.5,.95,b+off],.035);rod(props,[a-.5,.95,b+off],[a+.55,.95,b+off],.035);rod(props,[a+.55,.95,b+off],[a+.55,.15,b+off],.035);}}}
  const lounger=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.28,0,.73,.12,1.9,'oak');box(g,0,.39,.24,.65,.14,1.3,'linen');const back=box(g,0,.68,-.64,.65,.13,.8,'linen');back.rotation.x=.68;for(const xx of [-.28,.28])for(const zz of [-.7,.7])box(g,xx,.14,zz,.055,.28,.06,'oak');cyl(g,0,.52,.7,.12,.55,'white').rotation.z=Math.PI/2;};
- for(let x=270;x<585;x+=21){lounger(x,699);}for(const x of [278,294,373,389,468,484,550,566])lounger(x,852,Math.PI);for(const x of [145,170,207,230]){lounger(x,698);lounger(x,852,Math.PI);}for(let x=133;x<571;x+=20)if(x<311||x>362)lounger(x,639);
+ for(let x=270;x<560;x+=21){lounger(x,699);}for(const x of [278,294,373,389,468,484,550,566])lounger(x,852,Math.PI);for(const x of [145,170,207,230]){lounger(x,698);lounger(x,852,Math.PI);}for(let x=250;x<560;x+=20)if(x<311||x>362)lounger(x,639);
  // IMG_4026/4035: the south and east deck strips are timber-framed striped
  // modular sectionals around teak coffee tables, not rows of sun loungers.
  // Sun loungers remain on the pool's north edge, as those photographs show.
