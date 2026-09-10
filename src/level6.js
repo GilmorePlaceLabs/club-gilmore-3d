@@ -54,7 +54,7 @@ export function createLevel6Model(){
  slab([[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]]);
  // Individual slabs avoid filling the central light wells with a single polygon.
  surface(rect(40,596,620,305),stone,-.36,.34);
- surface([[660,275],[932,275],[932,1128],[691,1312],[636,1265],[636,914],[660,914]],stone,-.36,.34);
+ surface([[660,275],[932,275],[932,1128],[691,1312],[636,1265],[636,901],[660,901]],stone,-.36,.34);
  surface([[1037,259],[1193,259],[1193,471],[1352,471],[1352,488],[1539,488],[1539,470],[1619,470],[1648,444],[1706,444],[1728,425],[1728,371],[1780,423],[1140,1012],[1037,867]],stone,-.36,.34);
  // Fine paving modules and warm timber circulation bands.
  surface(rect(663,239,270,35),mats.woodfloor,.01);
@@ -120,7 +120,7 @@ export function createLevel6Model(){
  // also lands the glass run on a real corner.
  const parapet=M('#c9c6bd',.85);
  for(const [a,b] of [[[40,596],[265,596]],[[465,596],[660,596]]]){line(a,b,1.15,parapet,.34);line(a,b,.08,stone,.44,1.15);}
- poolFence([660,596],[660,644]);poolFence([660,668],[660,860]);poolFence([660,884],[660,901]);
+ poolFence([660,596],[660,644]);poolFence([660,668],[660,836]);poolFence([660,860],[660,901]);poolFence([660,901],[636,901]);
  const poolGate=z=>{
   const g=makeGroup(props,...world([660,z]),Math.PI/2);g.name='Pool enclosure gate';
   for(const side of [-1,1])box(g,side*.55,.95,0,.1,1.9,.1,fencePost);
@@ -128,7 +128,7 @@ export function createLevel6Model(){
   box(g,0,.97,0,1.02,1.56,.024,fenceGlass);
   cyl(g,.36,1,.08,.022,1.12,'metal');
  };
- poolGate(656);poolGate(872);
+ poolGate(656);poolGate(848);
  const pergola=(x,z,w,d,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);for(const xx of [-1,1])for(const zz of [-1,1])box(g,xx*w*U/2,1.45,zz*d*U/2,.16,2.9,.16,metal);for(const zz of [-1,1])box(g,0,2.91,zz*d*U/2,w*U+.22,.2,.18,metal);for(let xx=-w*U/2;xx<=w*U/2;xx+=.23)box(g,xx,3.02,0,.085,.14,d*U+.25,metal);};
  pergola(209,641,106,42);pergola(520,641,98,42);pergola(844,991,97,58,-.7);pergola(1600,505,50,48,-.76);
  for(const z of [703,759,814]){const [a,b]=world([89,z]);cyl(props,a,.24,b,.85,.38,'oak');cyl(props,a,.47,b,.76,.17,'ivory');const canopy=new T.Mesh(new T.SphereGeometry(.88,16,10,0,Math.PI),mats.linen);canopy.position.set(a,.66,b);canopy.rotation.y=Math.PI/2;props.add(canopy);}
