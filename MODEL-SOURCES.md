@@ -473,3 +473,254 @@ full representative height, while the internal privacy partitions are lower. The
 control remains disabled and the change-room shell stays out of `wallGroups`, so global wall
 scaling cannot stretch its fixtures. Plan view looks directly into every interior zone; orbiting
 to the pool side reveals the complete exterior elevation. All dimensions are illustrative.
+
+### Eastern garden raised beds — aerial attachment and IMG_3981/3982
+
+The user's September 10 aerial attachment and the site photographs `site-3981.jpg` and
+`site-3982.jpg` establish two raised planting rows flanking the pale diagonal walk. The outer row
+is divided by repeated access gaps; the inner row continues from the fire terrace and merges into
+a broad rear bed that curves around the blue and tan play surfaces and follows the stepped
+northeast slab. A paved break retains the pergola and picnic table, and the southwest end is cut
+back around the existing round table and curved benches. Concrete bed height and all plan
+dimensions are proportional estimates because no measured landscape plan was supplied.
+
+### Eastern garden section rebuilt from the supplied overhead render — September 10, 2026
+
+The user marked the diagonal garden on `public/references/level-6-render.png` and directed that it
+be extended and corrected against that image. The render's cross-section was measured numerically
+rather than estimated: the southeast deck edge was fitted to a straight line (residual < 0.5 px),
+every pixel of the wedge was classified as pale concrete, warm timber, dark or vegetation, and the
+class fractions were binned by perpendicular distance from that line. Two independent stretches —
+one southwest of the playground, one beside it — give the same profile. Converted at
+`trace = png x 1855/1920`, inward from the deck edge in trace units:
+
+| element | span | width |
+| --- | --- | --- |
+| railing cap and parapet fascia | 0-8 | 8 |
+| bed A, against the parapet | 9-29 | 20 |
+| pale concrete retaining wall | 30-33 | 4 |
+| bed B | 34-46 | 13 |
+| timber boardwalk (pure wood signature) | 47-74 | 27 |
+| pale concrete retaining wall | 75-77 | 3 |
+| playground-side bed | 78 to the play apron | — |
+
+Three raised beds, then, not the two the model carried, and a boardwalk in dark warm brown
+(sampled about `#7d6350`) rather than the pale `mats.woodfloor` it was using.
+
+The model's slab edge `[1156,1028]-[1779,460]` sits about 25 trace units outboard of the render's,
+because it was widened earlier from the user's aerial. That correction stands: the user asked for
+the aerial's full extent with "more than enough room for a person to walk all the way to the end",
+so the surplus went into the boardwalk, which is laid at offsets 49-83 — 34 trace units, about
+2.2 m, narrowing to 1.77 m only where a bench block is set into a wall. Beds are laid at fixed
+perpendicular offsets from that edge (10-31, 35-49 on the deck side; 87-100 on the playground
+side) by the `at()`/`band()` helpers in `createLevel6Model`.
+
+The playground-side bed stops at offset 100 because the play coping reaches offset 109; the
+9-unit gap is the turf apron the render and `site-3982.jpg` both show. The boardwalk terminates on
+the raised timber platform at the northeast, and everything beyond it is planted to the point,
+matching the render — no paving continues to the tip.
+
+**Planting colour follows the render over the photographs, at the user's explicit direction.**
+`site-3981.jpg` and `site-3982.jpg` show yellow rudbeckia drifts with purple accents; the render
+shows white flowering shrubs massed with rust and blue-grey. Asked which governed, the user chose
+the render. This inverts the usual order in the evidence hierarchy above — a site photograph
+normally outranks the marketing render — and is recorded here as a deliberate, user-confirmed
+exception rather than an oversight. The palette is scoped to the eastern garden; the rest of the
+deck keeps its photographed yellow and lavender.
+
+Known remaining defect: a wedge of roughly 2 m2 at the extreme northeast point renders as bare
+pale slab outside the `eastSlab` polygon. It is present in builds with the eastern garden removed
+entirely, so it predates this work and is not caused by the new beds; it has not been traced to
+its source.
+
+#### Second deck-side bed removed — user correction, September 10, 2026
+
+The section measured above reads two planting bands between the boardwalk and the parapet,
+separated by a concrete wall. The user struck out the inner of the two on a model capture: there
+is one raised bed on that side, against the glass railing, not two. The bed at offsets 35-49 and
+its wall are gone; the bed at 10-31 and the wall at 31-35 stay.
+
+The 14 trace units that band occupied went to the boardwalk rather than being left as an orphan
+strip of bare slab, so the walk now runs from offset 35 out to 83 — 48 units, about 3.1 m, or
+2.68 m clear where a bench block is set into a wall. The walk-side bench blocks moved from offset
+52 to 38 to stay against the railing-side bed's wall.
+
+This supersedes the two-band reading of the render for the deck side only. The playground-side bed,
+the boardwalk material and alignment, and the tip planting are unchanged.
+
+#### Northeast pergola picnic table removed — user correction, September 10, 2026
+
+`picnic(1600,505,-.76)` stood under the black slatted pergola at the northeast end of the walk.
+The user removed it on a model capture: nothing sits under that structure. The pergola itself, its
+raised timber platform and the two bench blocks set into the walls flanking the walk all stay. The
+earlier entry describing a "paved break retaining the pergola and picnic table" is superseded on
+the picnic table only.
+
+#### Northeast pergola squared onto the end of the walk — user correction, September 10, 2026
+
+The pergola stood at trace `[1600,505]` — offset 87 from the slab edge, so it sat inboard of the
+boardwalk over the planting beside it. The user marked the walk's terminus instead: it belongs at
+the end of the path, square on the walk. Moved to `[1634,513]`, which centres it on the walk's
+59-unit centreline with its far edge at t = 0.86, exactly where the walk ends and the tip bed
+begins. At 50 x 48 trace units it spans the walk's full 35-83 width; only the rafter overhang
+crosses the flanking walls. Its rotation is `-.8321`, exactly perpendicular to that slab
+edge — a second user correction: the eyeballed `-.76` left it four degrees out of square
+with the walk.
+
+The separate raised timber platform `eastPergolaPaving` went with it. It is redundant now: the
+part of it over the walk was coincident with the boardwalk surface 3 mm above it, and the rest sat
+buried inside the wedge bed's raised stone.
+
+#### Potting bench under the northeast pergola — IMG_4013, September 10, 2026
+
+The user supplied `IMG_4013.HEIC`, saved to the repository as `public/photos/site-4013.jpg` and
+cited by the `L6-garden` room. It is a ground-level photograph taken under this pergola, looking
+along the walk, and it shows a fixed potting bench standing against the far bay:
+
+- a bright galvanised sheet work surface with a folded edge, about counter height
+- a light weathered timber apron rail below it, through-bolted at the leg positions
+- an open lower shelf of timber slats running the bench's width
+- four square timber legs at the corners
+
+Modelled as `'metal'` (#aab2b4, the palette's galvanised finish) over `'oaklight'` framing, 1.85 m
+wide by 0.72 m deep with the top at 0.92 m and the shelf at 0.38 m. It sits at local z = -1.1 m in
+the pergola's frame, which places it against the northeast bay with its back 22.5 trace units from
+the pergola centre — inside the pergola's posts and clear of the tip bed.
+
+The same photograph also shows timber slat decking under the pergola and dark metal trough
+planters flanking the walk, neither of which is modelled. Both are recorded here as known
+omissions rather than contradictions.
+
+#### Playground-side bed removed — user correction, September 10, 2026
+
+The bed that ran at offsets 87-100 along the playground side of the walk is gone, with its
+retaining wall. The user marked the whole strip for removal. The walk now has planting on the
+parapet side only; the play-area lawn runs down to a pale paved margin at the walk's edge, its
+width varying because the lawn follows the play circles while the walk is straight.
+
+This overrides the section measured from `level-6-render.png`, which shows planting on both sides
+of the boardwalk, and the September 10 entry above that placed a bed there. The bench blocks that
+were set into that bed's wall remain, now standing at the open edge of the walk.
+
+The `L6-garden` description was also corrected in the same pass: it still referred to a "raised
+timber platform at the point", which went when the pergola moved onto the walk.
+
+#### Fire-terrace island squared onto the walk — user correction, September 10, 2026
+
+The planted island between the three-bay pergola and the fire-pit seating stopped short of the
+boardwalk and its walk-facing edge was not parallel to it: the two corners sat at perpendicular
+offsets 92.6 and 95.0 from the slab edge, against a walk whose inner face is at 83. Both were
+projected onto offset 83 at their existing along-positions — `[1239,827]` to `[1245,834]` and
+`[1185,873]` to `[1193,882]` — so the edge now meets the walk and runs parallel to it. The two
+corners away from the walk are unchanged, and the scatter bounds were widened to cover the larger
+polygon.
+
+Noted while measuring, not changed: the three-bay pergola's southeast corner post at
+`pergolaAt(75,24)` stands at offset 80.4, which is inside the boardwalk. That predates this work.
+
+#### Fire-terrace grills, island planting spill and a bench block — user corrections, September 10, 2026
+
+Four items marked on one model capture:
+
+- **West grill turned 180 degrees.** `compactGrill` puts its control panel and burner knobs on the
+  group's local +z face. At `Math.PI/2` that face pointed east, into the island's west wall, so the
+  grill was facing its own back to the terrace. Now `-Math.PI/2`.
+- **Southwest grill pulled out of the wall.** It stood at `[1165,852]`, 1.4 trace units *inside* the
+  island's southwest edge — its body was inside the planter rim. Moved to `[1160,857]`, which puts
+  it 5.7 units outside that edge, so its rear face meets the rim's outer face (rim half-width 1.23
+  plus grill half-depth 5.31). It now sits against the wall the same way the west grill does, which
+  is what the user asked for after seeing it standing free on the paving.
+- **Island planting kept inside its rim.** The island was calling the shared `planter()` helper,
+  whose coarse clumps are .32-radius icosahedra placed up to .4 m off their grid anchor — up to
+  .66 m of reach, enough to hang them over the paving beyond the rim. That call is replaced by the
+  two base surfaces it also drew; the island keeps its own dense scatter, now gated by an
+  `islandInset` test that requires anchors to be 6 trace units clear of every edge (the widest
+  planting reach is .19 m plus a .12 m mesh).
+- **Two bench blocks removed.** `i===2` landed against the three-bay pergola's southeast corner
+  post; `i===0` landed inside the fire-terrace round table's curved benches at `[1142,925]`.
+  Both are skipped rather than re-spacing the run, so the other eight keep their positions.
+
+#### Three-bay pergola squared onto the island rim — user correction, September 10, 2026
+
+Both southeast posts of the playground-side pergola stood on the boardwalk: at perpendicular
+offsets 80.4 and 82.4 from the slab edge, against a walk whose inner face is 83. At the other end
+of the same frame the near post line sat 3.8 trace units *inside* the island's rim rather than
+against it — the condition the old comment described as "the island planter's near edge cuts
+inside the pergola footprint". The user asked for the legs off the walkway, squared to the plant
+wall, and touching it without overlapping.
+
+Three changes, all to `pergolaCenter` / `pergolaAngle` and two new constants:
+
+- **Angle** `-.79` to `-.7803`, which is exactly parallel to the island's `[1151,741]-[1245,834]`
+  edge, so the frame is square to the wall rather than half a degree off it.
+- **Centre** `[1208,769]` to `[1212.4,764.5]`, shifted 6.29 units along that edge's outward normal.
+  The near post line now sits 2.46-2.50 units outside the edge: 1.23 for the rim's half-width plus
+  1.23 for the post's, so the posts meet the rim's outer face and stop there.
+- **Post reach** `PU` 75 to 71. The end posts move to offsets 84.6 and 87.1, both clear of the walk
+  edge at 83 plus the post's own 1.23 half-width. The bay posts at +/-25 and the beam, rafter and
+  dining-table positions all derive from `PU`/`PV` now instead of repeating 75, 150, 24 and 48.
+
+Checked by computing all eight post positions: minimum walk offset 84.6, and every near post
+2.46-2.50 from the rim line. The dining chairs reach offset 86.7, still clear of the walk.
+
+#### Island rim squared to the walk, pergola and dining run reset — user corrections, September 10, 2026
+
+The user asked for the pergola's southeast leg to line up with the walkway *and* its island-side
+legs to touch the rim without overlapping. Those two could not both hold: the island's
+`[1151,741]-[1245,834]` edge ran 2.1 degrees off perpendicular to the walk, so a frame square to
+the rim had its end 2.9 degrees off the walk, and its two end posts sat at different distances from
+it (84.6 and 87.1). Told to adjust dimensions as needed, the fix was to square the rim edge itself:
+
+- **Island corner** `[1151,741]` to `[1155.9,736.3]`, which puts that edge exactly perpendicular to
+  the walk while keeping `[1245,834]` where it already meets it.
+- **Pergola** angle `-.7803` to `-.832` (that perpendicular) and centre `[1212.4,764.5]` to
+  `[1216.18,763]`. Because the frame is now perpendicular to the walk, v no longer changes distance
+  from it, so both end posts share one offset. Computed on the built geometry: end post faces at
+  offset 83.04 against a walk edge of 83.00, and island-side post faces 1.28-1.36 from the rim's
+  centre line against a rim half-width of 1.23 — touching at both, overlapping at neither.
+- **Dining run** from `pergolaAt(u,-10)` to `pergolaAt(u,.61)`. The wall-side end chair's back
+  reaches 24.6 trace units off its table centre and the rim's outer face sits at v = 25.23, so
+  .61 brings the chair to the rim. It also centres the run between the two post lines, which the
+  old -10 offset (chosen to keep chairs off the planter) no longer needed once the pergola moved
+  outboard of the rim.
+
+#### Walk and south light-well floor recoloured — user correction, September 10, 2026
+
+Both now use `paveGrey`, a `mats.tilefloor` clone at `#777b79` — the same charcoal as the fire
+terrace's `fireCharcoal` band, which is the grey the user pointed at. The boardwalk was
+`deckwood` `#7d6350`, and the light-well floor at `rect(934,730,102,120)` was plain `mats.tilefloor`
+(reading near-white). `deckwood` has no remaining users and is deleted.
+
+This supersedes the boardwalk material recorded in the September 10 eastern-garden entry above,
+which took its dark warm brown from `level-6-render.png`. The render still shows timber there; the
+user's instruction overrides it, as with the planting palette.
+
+#### Playground-side bed restored flush to the walk — IMG_4047, September 10, 2026
+
+The user supplied `IMG_4047.HEIC`, saved as `public/photos/site-4047.jpg` and cited by the
+`L6-garden` room. Shot from above looking down onto this stretch, it settles the order of surfaces
+between the walkway and the play circles: pale walkway, then a planted border, then a green turf
+apron, then the circle coping. The earlier removal of this bed left the border out and the bare
+slab showing, which the user marked on both the model and the supplied render.
+
+The bed is back, but not as the old inset band at offsets 87-100:
+
+- **Outer edge** is the straight offset-83 line, so its retaining wall lines up with the grey
+  walkway rather than standing four units back from it. That was the user's stated requirement.
+- **Inner edge** is the play lawn's own southeast edge, `[1298,778]-[1504,554]`, taken straight from
+  the `grass` polygon at line 579 rather than measured again. The bed therefore fills exactly the
+  bare slab and stops where the turf begins, preserving the apron IMG_4047 shows at the coping.
+- Northeast of the lawn corner it continues along `[1504,554]-[1510,550]-[1554,506]` to meet the
+  wedge bed at `at(.77,83)`, closing the last of the bare slab on that side.
+
+The bed tapers because the two boundaries are not parallel. In its first form it ran the full
+length of the gap and pinched to 0.4 m at the southwest end; the user cut that tail back to
+t = .427, so it now starts 0.89 m wide and opens to 2.1 m at the northeast. Both end corners
+share that t value, which makes the new end square to the walk; the inner one, `[1356.9,713.9]`,
+is the point at that t along the lawn edge rather than a fresh guess. Southwest of it the lawn
+runs to the walk with no planting between.
+
+Planting follows `eastPalette` like the beds either side of it. Note that IMG_4047 shows this
+border as yellow rudbeckia with grasses, matching `site-3981`/`site-3982` rather than the render;
+the white-and-rust palette is kept here for consistency with the user's earlier direction that the
+eastern garden follows `level-6-render.png`.

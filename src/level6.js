@@ -17,7 +17,7 @@ export const level6Rooms=[
  room('lounge','Outdoor fireplace & lounge',rect(695,280,215,358),[site(4036),site(4037),site(4010),site(3990),site(3979),site(3978)],'A double-sided dark stone fireplace separates two intimate seating groups. Each side has two facing grey sofas with timber frames, a lounge chair and small round wooden tables. Four picnic tables and two planted islands flank the seating. A long dark stone BBQ counter closes each end of the terrace, each with two freestanding stainless grills standing against its front face.','Social'),
  room('bocce','Bocce lawn',[[698,769],[909,769],[909,875],[772,972],[698,884]],[site(3980),site(3983),'bocce-court.jpg','bocce-court-and-pool.jpg'],'Two adjacent green strips sit south of the lounge, laid in putting turf with three flush cups. Pale boundary lines, low concrete planter walls, cantilevered timber bench seats and overhead string lights follow the actual court photographs.'),
  room('play','Children’s play area',[[1170,515],[1220,487],[1453,499],[1519,562],[1300,778],[1170,638]],['childrens-playground.jpg',site(3981),site(3982)],'A blue rubber play surface and adjoining tan climbing area are set into the eastern garden. A curved blue slide and adjacent double slide descend from a guarded hexagonal platform. A bowed climbing cage, access stairs and overhead traverse bar connect the play equipment. Linked grey, navy and orange pentagonal climbing pods occupy the tan surface.'),
- room('garden','Urban garden plots',[[1110,968],[1718,412],[1769,423],[1140,1012]],[site(3982),site(3981),aerial],'A long diagonal garden walk follows the eastern terrace edge, with repeated raised planting plots, flowering borders and a pergola. Your September aerial photographs show the long raised beds, flowering borders and tree spacing.'),
+ room('garden','Urban garden plots',[[1110,968],[1728,392],[1795,439],[1156,1028]],[site(3982),site(3981),site(4047),site(4013),aerial],'A dark timber boardwalk runs the full southeast diagonal, from the fire terrace to a slatted pergola at the point. A raised bed behind a pale concrete retaining wall fills the strip between the walk and the glass-railed parapet, and a second runs flush along the playground side, its wall in line with the walk and its far edge stopping at the turf apron that rings the play surfaces. Dark bench blocks sit along both edges of the walk. The bed is massed with white flowering shrubs, rust and blue-grey accents and occasional small trees, and the whole tip beyond the pergola is planted. A potting bench with a galvanised work surface and an open slatted shelf stands under the pergola at the end of the walk.'),
  room('fire','Fire pit terrace',[[1037,674],[1160,674],[1298,788],[1138,962],[1037,867]],[site(4009),site(3989),site(3988),site(3980),site(3981),terrace],'Two groups of striped modular sofas sit around low grey fire bowls on the long paved terrace. A curved timber round table separates the lounges, with a second table beyond the far seating group. The playground-side edge has three connected open pergola bays, a long planted island, three timber dining tables with dark individual chairs, and two grills on the lounge-facing edge.','Social'),
  room('bbq-north','North terrace & playhouse',[[660,110],[858,38],[916,102],[932,244],[698,244],[698,278],[660,278]],[site(4038),site(4040),site(3985),site(3984),site(3978)],'An open timber play shelter on navy posts sits on a circular tan rubber pad ringed in pale concrete and set into green turf. A vertical timber chime wall and a teal graphic panel run off its gable, with a play counter, steering wheels and low disc seats under the roof. The adjoining dark-clad stair pavilion has a gravel roof, two rooftop vents and a glazed bridge entrance. A picnic table sits beside the pavilion; pale paving and timber-look bands follow the actual terrace.','Social'),
  room('bbq-central','Bocce-side fireplace lounges',rect(690,653,225,113),[site(3992),site(3979),site(3983)],'Two dark stone fireplaces anchor the ends of this terrace beside the bocce lawn. Each lounge has facing grey sofas, two striped armchairs and a low white round table. A dark slatted dining table and six striped chairs sit between the lounges.','Social'),
@@ -35,6 +35,13 @@ export function createLevel6Model(){
  const gravel=M('#a9aaa6');gravel.map=canvasTexture((c,n)=>{c.fillStyle='#919590';c.fillRect(0,0,n,n);let seed=83;for(let i=0;i<22000;i++){seed=(seed*1664525+1013904223)>>>0;const x=seed%n;seed=(seed*1664525+1013904223)>>>0;const y=seed%n;c.fillStyle=['#dadbd5','#575d58','#bfc2bc'][i%3];c.fillRect(x,y,2,2);}});
  const stripe=M('#d0d0c8');stripe.map=canvasTexture((c,n)=>{c.fillStyle='#d4d4cb';c.fillRect(0,0,n,n);for(let x=0;x<n;x+=24){c.fillStyle='#626a6d';c.fillRect(x,0,11,n);c.fillStyle='#9dabae';c.fillRect(x+13,0,3,n);}});mats.l6stripe=stripe;
  const flower=M('#d5ac25'),lavender=M('#a19aa7');
+ // level-6-render.png southeast wedge: white flowering shrubs with rust and
+ // blue-grey masses, over a dark timber boardwalk.
+ const bloom=M('#e5e2d6'),rust=M('#a5442a'),sage=M('#8fa2ab');
+ // User correction: the walk and the south light-well floor take the fire
+ // terrace's charcoal paving grey rather than timber and pale tile, so the two
+ // read as one material. This is the same #777b79 as fireCharcoal below.
+ const paveGrey=mats.tilefloor.clone();paveGrey.color.set('#777b79');
  const water=new T.MeshStandardMaterial({color:'#68c3d0',roughness:.19,metalness:.2,map:canvasTexture((c,s)=>{c.fillStyle='#8ddae0';c.fillRect(0,0,s,s);for(let i=0;i<180;i++){c.strokeStyle='rgba(255,255,255,.22)';c.beginPath();const x=(i*79)%s,y=(i*137)%s;c.ellipse(x,y,18,8,i,0,7);c.stroke();}})});
  const surface=(poly,material,y=0,depth=0,parent=props)=>{const o=new T.Mesh(shapeGeometry(poly.map(world),depth),material);o.position.y=y;o.receiveShadow=true;parent.add(o);return o;};
  const B=(x,z,w,d,h,material=stone,y=0,parent=props)=>{const [a,b]=world([x,z]);return box(parent,a,y+h/2,b,w*U,h,d*U,material);};
@@ -55,7 +62,8 @@ export function createLevel6Model(){
  // Individual slabs avoid filling the central light wells with a single polygon.
  surface(rect(40,596,620,305),stone,-.36,.34);
  surface([[660,275],[932,275],[932,1128],[691,1312],[636,1265],[636,901],[660,901]],stone,-.36,.34);
- surface([[1037,259],[1193,259],[1193,471],[1352,471],[1352,488],[1539,488],[1539,470],[1619,470],[1648,444],[1706,444],[1728,425],[1728,371],[1780,423],[1140,1012],[1037,867]],stone,-.36,.34);
+ const eastSlab=[[1037,259],[1193,259],[1193,471],[1352,471],[1352,488],[1539,488],[1539,470],[1619,470],[1648,444],[1706,444],[1728,425],[1728,371],[1795,439],[1779,460],[1156,1028],[1037,867]];
+ surface(eastSlab,stone,-.36,.34);
  // Fine paving modules and warm timber circulation bands.
  surface(rect(663,239,270,35),mats.woodfloor,.01);
  // IMG_3996: wood-look rectangular pavers span the full bridge and terrace landing.
@@ -67,7 +75,6 @@ export function createLevel6Model(){
  // Narrow metal threshold at the pavilion doorway.
  B(936,251,1.7,45,.035,mats.metal,.035);surface(rect(660,637,377,36),wood,.015);
  surface([[660,672],[697,672],[697,882],[911,1113],[883,1134],[660,893]],wood,.015);
- surface([[1120,975],[1735,416],[1750,430],[1135,995]],wood,.02);
  for(const r of level6Rooms){const group=new T.Group();group.name=r.name;group.userData={roomId:r.id,level:6,description:r.description};root.add(group);
  // The bocce selection polygon extends into the irregular south garden. Keep
  // its pickable underlay neutral; the exact lawn polygons are drawn below.
@@ -130,11 +137,29 @@ export function createLevel6Model(){
  };
  poolGate(656);poolGate(848);
  const pergola=(x,z,w,d,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);for(const xx of [-1,1])for(const zz of [-1,1])box(g,xx*w*U/2,1.45,zz*d*U/2,.16,2.9,.16,metal);for(const zz of [-1,1])box(g,0,2.91,zz*d*U/2,w*U+.22,.2,.18,metal);for(let xx=-w*U/2;xx<=w*U/2;xx+=.23)box(g,xx,3.02,0,.085,.14,d*U+.25,metal);};
- pergola(209,641,106,42);pergola(520,641,98,42);pergola(1600,505,50,48,-.76);
+ pergola(209,641,106,42);pergola(520,641,98,42);
+ // User correction: the northeast pergola stands at the very end of the walk,
+ // squared onto it. -.8321 is exactly perpendicular to the slab edge the walk
+ // follows, atan2(-edgeDir[0],edgeDir[1]); the eyeballed -.76 sat 4 degrees out.
+ // 38 across seats the posts at offsets 39.6 and 77.6, clear of the retaining
+ // walls at 35 and 83; at 50 they landed inside both. 46 along keeps the rafter
+ // overhang short of the tip bed.
+ pergola(1634,513,38,46,-.8321);
+ // IMG_4013: a potting bench stands against the pergola's northeast bay — a
+ // galvanised work surface over a light timber apron and legs, with an open
+ // slatted shelf beneath. Local z is the walk axis, negative toward the tip.
+ {
+  const [bx,bz]=world([1634,513]),bench=makeGroup(props,bx,bz,-.8321);bench.name='Gardening potting bench';
+  const z0=-1.1;
+  box(bench,0,.92,z0,1.85,.045,.72,'metal');
+  box(bench,0,.85,z0,1.76,.1,.64,'oaklight');
+  for(let i=0;i<4;i++)box(bench,0,.38,z0-.24+i*.16,1.68,.035,.12,'oak');
+  for(const xx of [-.84,.84])for(const zz of [-.27,.27])box(bench,xx,.44,z0+zz,.085,.88,.085,'oaklight');
+ }
  for(const z of [703,759,814]){const [a,b]=world([89,z]);cyl(props,a,.24,b,.85,.38,'oak');cyl(props,a,.47,b,.76,.17,'ivory');const canopy=new T.Mesh(new T.SphereGeometry(.88,16,10,0,Math.PI),mats.linen);canopy.position.set(a,.66,b);canopy.rotation.y=-Math.PI/2;props.add(canopy);}
  // dz nudges the planting anchor across a narrow bed; treeScale trims canopy size.
  const planter=(poly,trees=true,dz=0,treeScale=1)=>{surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){tree(props,a,b,0,(.7+((x+z)%13)/32)*treeScale);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.18,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6,.74,b+Math.cos(k*2.4)*.6,1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.32,0),k%2?'leaf':'leaflight',a+k*.2,.8,b,.8,.7,.8);}}}};
- for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51),rect(643,283,14,305),rect(1143,287,35,210),[[1168,501],[1220,481],[1491,500],[1440,535],[1212,562]]])planter(p);
+ for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51),rect(643,283,14,305),rect(1143,287,35,210)])planter(p);
  // User correction: the bocce-side bed's single tree row sat hard against the lounge
  // and its canopies swallowed both terraces. Nudged toward the court and cut back.
  planter(rect(699,733,208,36),true,10,.74);
@@ -168,14 +193,14 @@ export function createLevel6Model(){
   [[792,963]],[[890,893]],[[875,1067]],[[777,1055]],
   [[644,995],[644,1072],[645,1150],[650,1225]]
  ];
- const southPlanter=(poly,treesAt=[])=>{
+ const southPlanter=(poly,treesAt=[],palette=null,step=0)=>{
   surface(poly,stone,.06,.58);surface(poly,soil,.66);
   for(let i=0;i<poly.length;i++)line(poly[i],poly[(i+1)%poly.length],.2,stone,.18,.59);
   const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));
-  const narrow=bounds.max.x-bounds.min.x<20,stepX=narrow?5:9,stepZ=narrow?12:9;
+  const narrow=bounds.max.x-bounds.min.x<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9);
   for(let x=bounds.min.x+3;x<bounds.max.x-2;x+=stepX)for(let z=bounds.min.y+3;z<bounds.max.y-2;z+=stepZ)if(insidePolygon(x,z,poly)){
    const jitter=Math.sin(x*1.73+z*.91),[wx,wz]=world([x+jitter*1.2,z+Math.cos(x*.47-z)*1.2]);
-   const material=(Math.round(x+z)%5===0)?flower:(Math.round(x*2+z)%7===0)?lavender:(Math.round(x+z)%2?'leaflight':'leaf');
+   const material=palette?palette[Math.round(x*2+z)%palette.length]:(Math.round(x+z)%5===0)?flower:(Math.round(x*2+z)%7===0)?lavender:(Math.round(x+z)%2?'leaflight':'leaf');
    mesh(props,new T.IcosahedronGeometry(.13+(Math.abs(jitter)*.05),0),material,wx,.79+(Math.abs(jitter)*.06),wz,.9,.65,.9);
   }
   for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);tree(props,wx,wz,0,.62);}
@@ -221,9 +246,62 @@ export function createLevel6Model(){
   hits.sort((a,b)=>a.along-b.along);
   if(hits.length>1)line(hits[0].point,hits[hits.length-1].point,.075,metal,.075,2.99);
  }
- for(let i=0;i<23;i++){const x=1155+i*24,z=963-i*22;planter([[x,z],[x+18,z-17],[x+30,z-4],[x+12,z+13]],false);if(i%3===0){const [a,b]=world([x+10,z+2]);tree(props,a,b,0,1);}}
+ // level-6-render.png, southeast wedge: a dark timber boardwalk runs the whole
+ // diagonal with two raised beds between it and the parapet and one more on the
+ // playground side. Offsets below are perpendicular trace units inward from the
+ // slab edge; the measured profile is recorded in MODEL-SOURCES.md. The walk
+ // ends at the timber platform and everything past it is planting.
+ const edgeA=[1156,1028],edgeB=[1779,460],edgeLen=Math.hypot(edgeB[0]-edgeA[0],edgeB[1]-edgeA[1]);
+ const edgeDir=[(edgeB[0]-edgeA[0])/edgeLen,(edgeB[1]-edgeA[1])/edgeLen],edgeIn=[edgeDir[1],-edgeDir[0]];
+ const at=(t,off)=>[edgeA[0]+edgeDir[0]*edgeLen*t+edgeIn[0]*off,edgeA[1]+edgeDir[1]*edgeLen*t+edgeIn[1]*off];
+ const band=(t0,t1,o0,o1)=>[at(t0,o0),at(t1,o0),at(t1,o1),at(t0,o1)];
+ const eastPalette=[bloom,bloom,'leaf',rust,bloom,'leaflight',bloom,rust,sage,bloom,'leaf',bloom,rust,bloom];
+ const playZones=[[1293,635,89],[1386,586,63]];
+ const playClearance=(x,z,envelope)=>Math.min(...playZones.map(([cx,cz,r])=>Math.hypot(x-cx,z-cz)-r-envelope));
+ // User correction: there is no second deck-side bed. One raised bed against the
+ // glass railing, cut twice for cross-access; the walk runs out to meet its wall.
+ for(const [t0,t1] of [[.012,.36],[.375,.70],[.715,.86]])southPlanter(band(t0,t1,10,31),[],eastPalette,5);
+ // User correction (IMG_4047 and the marked render): the playground side of the
+ // walk carries planting again, but flush to the walk rather than the old inset
+ // band. Its outer edge is the straight offset-83 line, so the retaining wall
+ // lines up with the grey walkway; its inner edge is the play lawn's own
+ // southeast edge [1298,778]-[1504,554], so the bed fills exactly the bare slab
+ // between them and leaves the turf apron the photograph shows at the coping.
+ // User correction: the tapered southwest tail is cut off at t=.427. Both end
+ // corners share that t, so the new end runs square to the walk, 0.89 m wide.
+ southPlanter([at(.427,83),at(.77,83),[1554,506],[1510,550],[1504,554],[1356.9,713.9]],[],eastPalette,5);
+ // The render carries a few small trees in the parapet-side bed.
+ for(const t of [.28,.55,.8]){const [x,z]=world(at(t,20));tree(props,x,z,0,.6);}
+ surface(band(.012,.86,35,83),paveGrey,.075);
+ // Dark bench blocks alternate along the walk. Blocks 0 and 2 are skipped: 0
+ // landed inside the fire-terrace round table's curved benches, 2 against the
+ // three-bay pergola's corner post. The rest keep their spacing.
+ for(let i=0;i<10;i++){if(i===0||i===2)continue;const t=.05+i*.078,off=i%2?38:80;line(at(t,off),at(t+.028,off),.42,metal,.5,.075);}
+ const arcPoints=(cx,cz,r,start,end,count)=>Array.from({length:count},(_,i)=>{const a=start+(end-start)*i/(count-1);return [cx+Math.cos(a)*r,cz+Math.sin(a)*r];});
+ // Smooth inner edges follow the rear halves of the tan and blue coping. The
+ // western toe stops at the aerial's angled return, preserving the grass apron
+ // west and south of the blue play circle.
+ const tanRearArc=arcPoints(1386,586,63,0,-2.62,32);
+ const blueRearArc=arcPoints(1293,635,89,-1.126,-2.53,32).slice(1);
+ const rearBed=[
+  [1168,501],[1193,471],[1352,471],[1352,488],[1539,488],[1554,506],
+  [1510,550],[1460,575],...tanRearArc,...blueRearArc,[1190,574],[1168,545]
+ ];
+ // tree() spreads foliage about .76 m from its anchor at southPlanter's scale.
+ const rearTrees=[[1210,520],[1270,510],[1330,515],[1415,520],[1505,525]].filter(([x,z])=>playClearance(x,z,.76/U)>0);
+ southPlanter(rearBed,rearTrees,eastPalette,6);
+ // The walk runs out under the pergola to the tip bed; the separate raised
+ // platform is gone with the pergola's move onto the walk.
+ // The bed runs straight from [1706,444] to the north point: the slab's shallow
+ // [1728,425] notch is not worth a second polygon.
+ southPlanter([at(.86,10),at(.86,95),[1648,444],[1706,444],[1728,371],[1795,439],[1779,460]],[[1690,470],[1745,432]],eastPalette,6);
+ // Wedge between the walk and the stepped rear boundary, closing the bare slab
+ // between the rear bed and the tip.
+ southPlanter([at(.77,83),at(.86,83),[1648,444],[1619,470],[1539,470],[1539,488],[1554,506]],[],eastPalette,6);
  const picnic=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.78,0,2.4,.09,.95,'oak');for(const xx of [-.8,.8])box(g,xx,.38,0,.18,.72,.65,metal);for(const zz of [-.8,.8]){box(g,0,.46,zz,2.5,.12,.35,'oak');for(const xx of [-.8,.8])box(g,xx,.23,zz,.1,.45,.28,metal);}};
- picnic(880,115,Math.PI/2);picnic(1600,505,-.76);
+ // User correction: nothing sits under the northeast pergola — the picnic table
+ // that stood at the end of the walk is removed.
+ picnic(880,115,Math.PI/2);
  // IMG_4010/4036/4037: the appliances are freestanding stainless carts on casters
  // standing against the front face of a monolithic dark stone counter, not units
  // dropped into it. The counter top is the same dark stone, not a pale slab.
@@ -376,29 +454,54 @@ export function createLevel6Model(){
  // Authoritative overhead trace: the three connected bays run southeast along
  // the diagonal garden edge. The planted island is the clipped quadrilateral
  // between the pergola and the protected fire-pit seating.
- const pergolaCenter=[1208,769],pergolaAngle=-.79;
+ // User correction: the southeast end lines up with the walk and the island-side
+ // posts sit against the rim without overlapping it. Both hold only because the
+ // island's rim edge above was squared perpendicular to the walk first: -.832 is
+ // that perpendicular, so v (across the frame) no longer changes distance from the
+ // walk and both end posts share one offset. Measured on the built geometry: end
+ // post faces at offset 83.04 against a walk edge of 83, island-side post faces
+ // 1.28-1.36 from the rim's centre line against a rim half-width of 1.23.
+ const pergolaCenter=[1216.18,763],pergolaAngle=-.832,PU=71,PV=24;
  const pergolaAt=(u,v=0)=>[pergolaCenter[0]+Math.cos(pergolaAngle)*u+Math.sin(pergolaAngle)*v,pergolaCenter[1]-Math.sin(pergolaAngle)*u+Math.cos(pergolaAngle)*v];
  const [pgx,pgz]=world(pergolaCenter),playPergola=makeGroup(props,pgx,pgz,pergolaAngle);playPergola.name='Three-bay playground-side dining pergola';
- for(const u of [-75,-25,25,75])for(const v of [-24,24])box(playPergola,u*U,1.45,v*U,.16,2.9,.16,metal);
- for(const v of [-24,24])box(playPergola,0,2.91,v*U,150*U+.22,.2,.18,metal);
- for(const u of [-75,-25,25,75])box(playPergola,u*U,2.91,0,.18,.2,48*U+.22,metal);
- for(const bay of [-50,0,50])for(let u=-20;u<=20;u+=4)box(playPergola,(bay+u)*U,3.02,0,.075,.14,48*U+.25,metal);
+ for(const u of [-PU,-25,25,PU])for(const v of [-PV,PV])box(playPergola,u*U,1.45,v*U,.16,2.9,.16,metal);
+ for(const v of [-PV,PV])box(playPergola,0,2.91,v*U,2*PU*U+.22,.2,.18,metal);
+ for(const u of [-PU,-25,25,PU])box(playPergola,u*U,2.91,0,.18,.2,2*PV*U+.22,metal);
+ for(const bay of [-50,0,50])for(let u=-20;u<=20;u+=4)box(playPergola,(bay+u)*U,3.02,0,.075,.14,2*PV*U+.25,metal);
  const patioChair=(parent,x,z,rotation=0)=>{const g=makeGroup(parent,x,z,rotation);box(g,0,.43,0,.48,.1,.5,fireFrame);box(g,0,.72,-.22,.48,.52,.08,fireFrame);for(const sx of [-1,1])for(const sz of [-1,1])box(g,sx*.17,.18,sz*.17,.045,.35,.045,fireFrame);};
  // IMG_4009: each table sits across its bay, square to the three-bay run, not
- // end-to-end along it. The island planter's near edge cuts inside the pergola
- // footprint (v about 19 against a post line at 24), so the run is offset 10
- // trace units off that edge to keep the far end chairs clear of the planter.
+ // end-to-end along it. User correction: the wall-side end chair now meets the
+ // island rim. Its back reaches 24.6 trace units off the table centre and the
+ // rim's outer face sits at v = 25.23, so the run is centred at v = .61 rather
+ // than the old -10 — which also centres it between the two post lines.
  for(const u of [-50,0,50]){
-  const [tx,tz]=world(pergolaAt(u,-10)),dining=makeGroup(props,tx,tz,pergolaAngle+Math.PI/2);dining.name='Timber dining table with individual dark chairs';
+  const [tx,tz]=world(pergolaAt(u,.61)),dining=makeGroup(props,tx,tz,pergolaAngle+Math.PI/2);dining.name='Timber dining table with individual dark chairs';
   box(dining,0,.77,0,2.1,.09,.9,'oak');for(const x of [-.78,.78])box(dining,x,.38,0,.09,.72,.68,metal);
   for(const x of [-.64,.64]){patioChair(dining,x,-.79,0);patioChair(dining,x,.79,Math.PI);}patioChair(dining,-1.34,0,Math.PI/2);patioChair(dining,1.34,0,-Math.PI/2);
  }
- const island=[[1151,741],[1239,827],[1185,873],[1150,839]];planter(island,false);
+ // User correction: the island's walk-facing edge stopped 10-12 trace units
+ // short of the boardwalk and sloped away from it. Both corners now sit at
+ // offset 83, the walk's inner face, so the edge runs parallel to it.
+ // The pergola beside it must be square to the walk and flush to this rim at
+ // once, which the old [1151,741] corner made impossible: it left this edge
+ // 2.1 degrees off perpendicular to the walk. Corner squared, keeping [1245,834]
+ // where it already meets the walk.
+ const island=[[1155.9,736.3],[1245,834],[1193,882],[1150,839]];
+ // planter()'s coarse .32-radius clumps sit up to .66 m off their anchor, which
+ // hung them over the paving outside the rim. The island keeps only its own
+ // dense scatter below, inset from every edge.
+ surface(island,stone,.06,.58);surface(island,soil,.66);
  // A continuous pale concrete rim follows the traced planter, enclosing the
  // dense low planting rather than leaving a bare soil wedge.
  for(let i=0;i<island.length;i++)line(island[i],island[(i+1)%island.length],.22,stone,.16,.64);
  const insideIsland=(x,z)=>{let inside=false;for(let i=0,j=island.length-1;i<island.length;j=i++){const [ax,az]=island[i],[bx,bz]=island[j];if((az>z)!==(bz>z)&&x<(bx-ax)*(z-az)/(bz-az)+ax)inside=!inside;}return inside;};
- for(let x=1155;x<1235;x+=7)for(let z=746;z<869;z+=7)if(insideIsland(x,z)){
+ // 6 trace units clears the widest planting offset (.19 m plus a .12 m mesh).
+ const islandInset=(x,z,m)=>{if(!insideIsland(x,z))return false;
+  for(let i=0,j=island.length-1;i<island.length;j=i++){const [ax,az]=island[i],[bx,bz]=island[j],dx=bx-ax,dz=bz-az,l2=dx*dx+dz*dz;
+   const t=l2?Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/l2)):0;
+   if(Math.hypot(x-ax-t*dx,z-az-t*dz)<m)return false;}
+  return true;};
+ for(let x=1150;x<1250;x+=7)for(let z=738;z<884;z+=7)if(islandInset(x,z,6)){
   const [wx,wz]=world([x,z]);
   for(let i=0;i<4;i++){const a=i*1.57+x*.11+z*.07;mesh(props,new T.IcosahedronGeometry(.1+(i%2)*.055,0),i%3?'leaflight':flower,wx+Math.cos(a)*.19,.82+(i%2)*.06,wz+Math.sin(a)*.19,.75,.62,.75);}
  }
@@ -421,7 +524,11 @@ export function createLevel6Model(){
   rod(g,[-.34,1.03,.15],[.34,1.03,.15],.03,'black');
   for(const sx of [-.46,.46])for(const sz of [-.24,.24])cyl(g,sx,.07,sz,.065,.14,'black');
  };
- compactGrill(1145,803,Math.PI/2);compactGrill(1165,852,pergolaAngle);
+ // User correction: compactGrill's controls sit on its local +z face. At
+ // Math.PI/2 the west grill faced into the island wall, so it is turned 180.
+ // The second stood inside the rim; backed out onto the paving until its rear
+ // face meets the rim's outer face, matching how the west grill sits.
+ compactGrill(1145,803,-Math.PI/2);compactGrill(1160,857,pergolaAngle);
  // IMG_4007/4042: the long east light-well edge is an emergency-stair block,
  // with a centred picnic table instead of the previously inferred round table.
  const stairTaupe=M('#57524d',.72),stairDoor=M('#45423e',.66),stairTrim=M('#77716a',.58);
@@ -529,7 +636,7 @@ export function createLevel6Model(){
  // IMG_4015/4016 and the IMG_3979 aerial: the turf does not stop at the bridge. It
  // carries a short distance into the south well as an end zone closed by a goal line.
  // The end of that turf is the user's line drawn on the render, trace z=730.
- surface(rect(934,276,102,454),grass,-4.5);surface(rect(934,730,102,120),mats.tilefloor,-4.5);
+ surface(rect(934,276,102,454),grass,-4.5);surface(rect(934,730,102,120),paveGrey,-4.5);
  for(const x of [934,1035])line([x,276],[x,850],4.4,metal,.18,-4.5);
  for(const [z,label] of [[348,'30'],[454,'20'],[560,'10']]){surface(rect(935,z,100,2),mats.white,-4.46);const tex=canvasTexture((c,n)=>{c.clearRect(0,0,n,n);c.fillStyle='#ffffff';c.font='bold 210px sans-serif';c.textAlign='center';c.fillText(label,n/2,340);});const material=new T.MeshStandardMaterial({map:tex,transparent:true,depthWrite:false});const [a,b]=world([964,z-19]);const m=new T.Mesh(new T.PlaneGeometry(3.2,3.2),material);m.rotation.x=-Math.PI/2;m.position.set(a,-4.44,b);props.add(m);}
  // Goal line closing the end zone, and the inboard hash row every yard. The 10-yard
@@ -571,7 +678,8 @@ export function createLevel6Model(){
   [[933,276],[933,637]],[[1037,276],[1037,637]],
   [[933,676],[932,1128]],[[1037,676],[1037,868]],
   // East fireplace terrace: close the angled corner before the diagonal garden edge.
-  [[1037,868],[1140,1012]],[[1140,1012],[1780,423]],
+  [[1037,868],[1156,1028]],[[1156,1028],[1779,460]],
+  [[1779,460],[1795,439]],[[1795,439],[1728,371]],
   // South garden: wrap the pointed fire-pit terrace and its west return.
   [[932,1128],[691,1312]],[[691,1312],[636,1265]],
   [[636,1265],[636,900]],

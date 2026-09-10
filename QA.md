@@ -154,3 +154,102 @@ Pergola furniture pass, September 10, 2026: `node scripts/verify-level6.cjs` pas
 Chrome renders — south pergola now carries three round dining tables with four black chairs each
 (IMG_4021), fire-terrace tables sit across their bays (IMG_4009), and a render taken down a
 table's long axis confirms the end chairs face the table at both pergolas.
+
+Eastern garden section rebuild, September 10, 2026: `node scripts/verify-level6.cjs` passes
+(13 rooms, all photos resolve, finite geometry, valid GLB, level switching, deep link, mobile, no
+page errors). The section was validated by warping `public/references/level-6-render.png` into the
+app's own plan-view frame — the frame derived by projecting known trace points through
+`clubGilmore.camera` — and comparing the two directly. Confirmed in that comparison: three raised
+beds where there were two, the boardwalk in dark timber running unbroken from the fire terrace to
+the northeast platform, bench blocks set into the walls facing the walk, the turf apron retained
+between the playground-side bed and the play coping, and the tip beyond the platform fully
+planted. Walk width measured from the built geometry: 2.21 m clear, 1.77 m past a bench.
+Evidence: evidence/level6-eastern-garden-plan.png and evidence/level6-eastern-garden-3d.png.
+
+Not validated: the ~2 m2 bare pale wedge at the extreme northeast point (recorded in
+MODEL-SOURCES.md). It reproduces with the eastern garden removed, so it is pre-existing, but no
+fix has been rendered and confirmed.
+
+Deck-side bed removal, September 10, 2026: `node scripts/verify-level6.cjs` passes after deleting
+the walk-side bed and widening the boardwalk to meet the railing-side bed's wall. Plan and 3D
+captures confirm one bed against the glass railing, no orphan paved strip between it and the walk,
+benches sitting against the two walls that face the walk, and the playground-side bed, rear bed
+and tip planting unchanged. Walk measured from the built geometry: 3.12 m clear, 2.68 m past a
+bench. Evidence: evidence/level6-eastern-garden-plan.png and evidence/level6-eastern-garden-3d.png.
+
+Northeast pergola clearance, September 10, 2026: `node scripts/verify-level6.cjs` passes after
+removing the picnic table from under the pergola. Checked in a close Chrome render down the
+northeast end of the walk — the pergola frame, its platform and the walk-side bench blocks are
+intact and the ground under the structure is clear. No page errors.
+
+Northeast pergola relocation, September 10, 2026: `node scripts/verify-level6.cjs` passes. Plan
+view confirms the pergola square on the boardwalk at its terminus, spanning the walk width with
+the tip planting immediately beyond, and no bare slab left where the removed timber platform was.
+A low 3D render down the walk confirms the posts land on the walk, not in the beds. No page errors.
+
+Pergola squared to the walk, September 10, 2026: `node scripts/verify-level6.cjs` passes. Plan view
+confirms the pergola's edges now run parallel and perpendicular to the boardwalk. Checked
+numerically as well as visually: the group's local x axis dotted with the walk direction is
+-0.0005.
+
+Pergola posts brought inside the walls, September 10, 2026: `node scripts/verify-level6.cjs`
+passes. The posts stood at offsets 33.6 and 83.6, inside the retaining walls at 31-35 and 83-87.
+Narrowing the pergola from 50 to 38 trace units across seats them at 39.6 and 77.6, and the
+perimeter beam now spans 37.9-79.3, so the whole structure sits between the two walls. Confirmed
+in a close 3D render down the walk; the rafter overhang was shortened to stay clear of the tip bed.
+
+Potting bench added, September 10, 2026: `node scripts/verify-level6.cjs` passes, which includes
+its assertion that every photo referenced by every room resolves — covering the newly added
+`site-4013.jpg`. A 3D render up the walk confirms the bench under the pergola with its galvanised
+top, timber apron, slatted shelf and four legs, standing clear of the posts and the tip planting.
+Evidence: evidence/level6-potting-bench.png.
+
+Playground-side bed removal, September 10, 2026: `node scripts/verify-level6.cjs` passes. Plan
+view confirms the strip between the walk and the play lawn is clear of planting and its wall, the
+parapet-side bed and the tip planting are unchanged, and the pergola and potting bench are intact.
+The room description was re-read against the built model in the same pass and two stale claims
+were corrected. Not resolved: the pale paved margin left between the lawn edge and the walk widens
+toward the northeast; it has not been confirmed with the user as intended.
+
+Fire-terrace island extension, September 10, 2026: `node scripts/verify-level6.cjs` passes. Plan
+view confirms the island now meets the boardwalk with its edge parallel to it and no pale slab
+strip between, and that its planting, rim, clusters and two trees still sit inside the enlarged
+polygon. Not addressed: the three-bay pergola's southeast corner post stands on the boardwalk
+(recorded in MODEL-SOURCES.md); it is pre-existing and was not raised by the user.
+
+Fire-terrace grill and island pass, September 10, 2026: `node scripts/verify-level6.cjs` passes.
+Checked in a true plan view rather than the tilted 3D, so no camera parallax could hide a spill:
+the island's planting sits entirely inside its rim, both grills stand on the paving with their
+backs to the rim and their controls facing the terrace, and the bench block at the pergola corner
+is gone. A low 3D render confirms the two grills read the same way round as each other.
+
+Three-bay pergola and round-table bench, September 10, 2026: `node scripts/verify-level6.cjs`
+passes. The pergola's eight post positions were computed rather than eyeballed: all eight sit at
+walk-edge offsets of 84.6 or more (the walk ends at 83, posts are 1.23 half-width), and the four
+near posts sit 2.46-2.50 units off the island rim line, which is exactly rim half-width plus post
+half-width. Plan view confirms the frame parallel to the rim, its southeast end off the boardwalk,
+and no bench block under the round table at [1142,925].
+
+Pergola, dining run and grey paving, September 10, 2026: `node scripts/verify-level6.cjs` passes.
+Post and chair clearances were computed from the same formulas the builder uses and confirmed
+against a plan-view render; an attempt to assert them by walking the built scene graph did not
+work, because the props are merged before export and the individual post meshes are not
+addressable, so this is a computed-plus-visual check rather than a scene-graph one. Pixel-sampled
+the recoloured surfaces: the walk reads (117,122,113) against the fire terrace's charcoal band at
+(119,124,116) — the same material under slightly different light. The light-well floor samples
+much darker at (50,52,53) because it sits 4.5 m down in shadow; that is the same material, not a
+different colour.
+
+Playground-side bed restored, September 10, 2026: `node scripts/verify-level6.cjs` passes, which
+covers the newly added `site-4047.jpg` resolving. The bare strip was located by sampling a
+plan-view render on a grid in walk-offset space before the fix, which showed pale slab from offset
+83 inward to between 89 and 116 depending on position; the bed's inner edge was then taken from the
+lawn polygon itself rather than eyeballed. A plan render after the change shows the strip filled,
+the retaining wall running straight along the walkway, and the turf apron still present between the
+bed and both play circles. The room description was corrected in the same pass.
+
+Playground-side bed tail trimmed, September 10, 2026: `node scripts/verify-level6.cjs` passes. The
+user's red line was located by calibrating against the walk's bench blocks, whose positions are
+known exactly (the offset-80 blocks at t = .362, .518 and .674 fall 430 px apart in the supplied
+crop), putting the line at t = .427. Plan render confirms the tail gone, the new end square to the
+walk, and the lawn meeting the walk southwest of it.
