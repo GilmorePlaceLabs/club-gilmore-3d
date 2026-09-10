@@ -131,3 +131,12 @@ trace segments (40,596)–(265,596) and (465,596)–(660,596) are now a 1.15 m p
 stone cap, and the glass run extends to the corner at z=596 to meet it. Parapet height is
 proportional to the photograph, not a measured dimension.
 
+### Pool deck lounge layout — user's marked aerial crop
+
+The user's red-boxed crop of the site aerial settles the lounge composition, superseding both
+earlier attempts. The zone holds **four large sofas and two tables only** — there are no single
+armchair modules — arranged as two facing pairs, each pair sharing one table. The sofas are also
+turned 90° from the previous modelling: their length runs across the deck toward the pool, not
+along the fence line. Modelled as `deckPair` at trace (610,700) and (610,800). Pair spacing and
+the gap to the pool coping are proportional readings of the crop, not measurements.
+

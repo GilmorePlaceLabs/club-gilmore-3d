@@ -93,13 +93,13 @@ export function createLevel6Model(){
    for(let i=0;i<6;i++)box(g,side*(width/2+.205),.09+i*.062,0,.02,.036,.95,'walnut');}
  };
  const deckTable=(parent,x,z)=>{const g=makeGroup(parent,x,z);g.name='Teak coffee table';box(g,0,.42,0,1.55,.08,.8,teak);for(const xx of [-.64,.64])for(const zz of [-.31,.31])box(g,xx,.21,zz,.06,.42,.06,'walnut');};
- // Open-U group: a four-module run facing two single modules across the table.
- const deckLounge=(x,z,rotation=0)=>{
-  const [a,b]=world([x,z]),g=makeGroup(props,a,b,rotation);g.name='Pool deck lounge group';
-  deckSofa(g,0,-1.25,0,4);deckTable(g,0,0);
-  for(const side of [-1,1])deckSofa(g,side*.85,1.2,Math.PI,1);
+ // Site aerial: four large sofas and two tables only — no single modules — and
+ // the sofas are turned 90° so their length runs across the deck toward the pool.
+ const deckPair=(x,z)=>{
+  const [a,b]=world([x,z]),g=makeGroup(props,a,b,0);g.name='Pool deck lounge pair';
+  deckSofa(g,0,-1.6,0,4);deckTable(g,0,0);deckSofa(g,0,1.6,Math.PI,4);
  };
- for(const z of [690,760,830])deckLounge(612,z,Math.PI/2);
+ deckPair(610,700);deckPair(610,800);
  // IMG_4025/4026: a frameless glass safety fence encloses the pool deck along
  // the timber walkway, gated where that walkway meets the deck. Only this east
  // run is photographed; the remaining enclosure edges are not yet evidenced.

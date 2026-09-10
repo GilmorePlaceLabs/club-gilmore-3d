@@ -83,3 +83,9 @@ groups now face the pool, both gates read as separate openings, and the glass fe
 against the new north parapet rather than at an open post. Evidence refreshed in
 `evidence/level6-pool-enclosure.png` and `evidence/level6-pool-enclosure-plan.png`.
 
+Deck lounge layout correction (four sofas, two tables, rotated 90°): production build passes and
+`scripts/verify-level6.cjs` returns **PASS** at 18,678,208 export bytes with zero page JavaScript
+errors. Inspected a fresh Chrome 3D render against the user's marked aerial crop: four large
+sofas in two facing pairs, two tables, length running toward the pool. Evidence refreshed in
+`evidence/level6-pool-enclosure.png` and `evidence/level6-pool-enclosure-plan.png`.
+
