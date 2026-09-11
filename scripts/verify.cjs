@@ -1,8 +1,8 @@
-const {chromium}=require('C:/Users/Qazim/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {chromium}=require(process.env.PLAYWRIGHT_PATH||'/Users/kevin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const fs=require('node:fs');
 const assert=require('node:assert/strict');
 (async()=>{
- const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--enable-unsafe-swiftshader']});
+ const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--enable-webgl','--ignore-gpu-blocklist','--enable-unsafe-swiftshader']});
  const page=await browser.newPage({viewport:{width:1440,height:1000},acceptDownloads:true});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});await page.waitForFunction(()=>window.clubGilmore?.ready);
@@ -19,8 +19,10 @@ const assert=require('node:assert/strict');
  await page.locator('#show-whole').click();await page.locator('#view-3d').click();await page.waitForTimeout(800);
  const z=await page.evaluate(()=>window.clubGilmore.camera.zoom);await page.locator('#zoom-in').click();assert((await page.evaluate(()=>window.clubGilmore.camera.zoom))>z);await page.locator('#reset').click();await page.waitForTimeout(800);
  await page.locator('#about-button').click();assert(await page.locator('#about').isVisible());await page.keyboard.press('Escape');assert(await page.locator('#about').isHidden());
- const downloadPromise=page.waitForEvent('download',{timeout:60000});await page.locator('#download').click();const download=await downloadPromise;await download.saveAs('Club-Gilmore-Level-4.glb');
- const glb=fs.readFileSync('Club-Gilmore-Level-4.glb');assert.equal(glb.toString('ascii',0,4),'glTF');assert.equal(glb.readUInt32LE(4),2);assert.equal(glb.readUInt32LE(8),glb.length);const gltf=JSON.parse(glb.toString('utf8',20,20+glb.readUInt32LE(12)));assert(gltf.meshes.length>40);assert(gltf.nodes.some(n=>n.extras?.roomId));
+ const exportDirectory=fs.mkdtempSync(require('node:path').join(require('node:os').tmpdir(),'club-gilmore-export-'));
+ const exportPath=require('node:path').join(exportDirectory,'Club-Gilmore-Level-4.glb');
+ const downloadPromise=page.waitForEvent('download',{timeout:60000});await page.locator('#download').click();const download=await downloadPromise;await download.saveAs(exportPath);
+ const glb=fs.readFileSync(exportPath);assert.equal(glb.toString('ascii',0,4),'glTF');assert.equal(glb.readUInt32LE(4),2);assert.equal(glb.readUInt32LE(8),glb.length);const gltf=JSON.parse(glb.toString('utf8',20,20+glb.readUInt32LE(12)));assert(gltf.meshes.length>40);assert(gltf.nodes.some(n=>n.extras?.roomId));
  const reload=await page.evaluate(async()=>{const {checkExport}=await import('/scripts/roundtrip.js');return checkExport();});assert(reload.pool);assert(Math.abs(reload.pool[2]-20)<.0001);
  const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});await mobile.goto('http://127.0.0.1:4173/');await mobile.waitForFunction(()=>window.clubGilmore?.ready);await mobile.locator('#browser-toggle').click();await mobile.getByRole('button',{name:'Main gym',exact:true}).click();await mobile.keyboard.press('Escape');assert.equal(await mobile.evaluate(()=>document.activeElement.id),'browser-toggle');
  const targets=await mobile.locator('.camera-controls button').evaluateAll(bs=>bs.map(b=>({id:b.id,width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height})));assert(targets.every(b=>b.width>=44&&b.height>=44));assert(await mobile.evaluate(()=>document.documentElement.scrollWidth===innerWidth));assert.equal(errors.length,0);
