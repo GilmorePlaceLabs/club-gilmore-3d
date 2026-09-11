@@ -1270,3 +1270,16 @@ room's visible floor mesh (y=0.045). That floor covers the corner x 660–698 an
 z 244–278 and a band along the turf, so it hid the timber. The walk now sits at
 y=0.05 and runs flush to the slab edges (x=660, z=275) and the turf (z=238):
 x 660–933, z 238–275.
+
+### P18 split from the fire pit terrace — September 11, 2026
+
+This supersedes the P18 entry above, which had assigned P18 to the whole of `L6-fire`. The user
+clarified that "Fire pit terrace" is the name of the area, and that P18 – Firepit, Table & BBQ
+is only the part they circled in red. P18 is now its own selection, `L6-p18`: the south fire
+lounge (sofas and fire bowl at trace 1090, 850), the curved picnic table at 1142, 925, and the
+compact grill at 1160, 857. Its polygon runs across the terrace at z = 815, which keeps the north
+lounge and the west grill (1145, 803) outside, and follows the planter's southwest rim from
+(1150, 839) to (1193, 882) out to the terrace's southeast edge. P18 now holds the booking link,
+the four facility photos and the booking details. `L6-fire` keeps its id and remains a public,
+non-bookable area. Its gallery is now IMG_3989, the terrace render and the aerial. P18's pick
+floor sits 10 mm above the terrace floor so that hover and click land on P18 inside the overlap.
