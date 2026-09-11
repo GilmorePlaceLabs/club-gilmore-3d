@@ -60,6 +60,9 @@ const state = page => page.evaluate(() => ({
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>clubGilmore.firstPerson.paused);
   assert(await page.locator('#fp-pause-overlay').isVisible());
+  // toolbar must stay clickable above the pause overlay (pointer lock blocks it while walking)
+  await page.locator('#fp-speed').click({timeout:2000});assert.equal(await page.locator('#fp-speed').textContent(),'Fast');
+  await page.locator('#fp-speed').click();await page.locator('#fp-speed').click();
   const pausedPosition=await page.evaluate(()=>clubGilmore.firstPerson.position.toArray());
   await page.keyboard.press('ArrowUp');
   assert.deepEqual(await page.evaluate(()=>clubGilmore.firstPerson.position.toArray()),pausedPosition);

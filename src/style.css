@@ -8,7 +8,7 @@ body.first-person .room-browser,body.first-person .detail,body.first-person .vie
 #first-person-button[aria-pressed=true]{color:var(--gold)}
 #fp-hud{position:absolute;inset:0;pointer-events:none;z-index:5}
 .fp-crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff9;font:20px sans-serif;text-shadow:0 1px 3px #000}
-.fp-toolbar{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;gap:8px;pointer-events:auto}
+.fp-toolbar{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;gap:8px;pointer-events:auto;z-index:1}
 .fp-toolbar>span{font-size:11px;letter-spacing:.12em;color:var(--gold);margin-right:auto;padding:10px;background:#141a24dd}
 .fp-toolbar button,.fp-card button{background:var(--navy);border:1px solid var(--line);border-radius:3px;min-height:44px;padding:10px 14px;font-size:12px}
 .fp-toolbar button:hover,.fp-card button:hover{background:#303b47}
