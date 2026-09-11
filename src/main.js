@@ -103,7 +103,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!walking()&&selecte
 
 function syncFirstPersonUI(){
  const active=walking();
- document.body.classList.toggle('first-person',active);
+ document.body.classList.toggle('first-person',active);document.body.classList.toggle('fp-paused',active&&firstPerson.paused);
  $('first-person-button').setAttribute('aria-pressed',String(active));
  $('first-person-button').querySelector('span').textContent=active?'Exit first person':'Go into first person';
  $('fp-hud').hidden=!active;

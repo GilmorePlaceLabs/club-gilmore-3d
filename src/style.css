@@ -23,7 +23,8 @@ body.first-person .room-browser,body.first-person .detail,body.first-person .vie
 #fp-move-stick{left:max(28px,env(safe-area-inset-left))}#fp-look-stick{right:max(28px,env(safe-area-inset-right))}
 .stick-thumb{position:absolute;left:calc(50% - 23px);top:calc(50% - 23px);width:46px;height:46px;border-radius:50%;background:#d1b674aa;border:1px solid #f0d69e;pointer-events:none}
 .stick-label{position:absolute;left:0;right:0;bottom:7px;text-align:center;font-size:11px;color:#fff;pointer-events:none}
-@media(pointer:coarse){.fp-sticks{display:block}.fp-help{display:none}}
+@media not all and (pointer:coarse){#fp-pause,body:not(.fp-paused) .fp-toolbar button,body.fp-paused .fp-esc-note{display:none}}.fp-esc-note{font-size:12px;color:var(--muted);padding:0 6px}.fp-esc-note kbd{font:inherit;color:#fff;border:1px solid var(--line);border-radius:3px;padding:1px 5px}
+@media(pointer:coarse){.fp-sticks{display:block}.fp-help{display:none}.fp-esc-note{display:none}}
 @media(max-width:1100px){#first-person-button span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}#first-person-button{min-width:44px;min-height:44px;padding:10px}}
 @media(max-height:500px){body.first-person .topbar{height:52px}body.first-person #app{height:calc(100dvh - 52px)}.fp-toolbar{top:8px;left:12px;right:12px}.fp-toolbar button{padding:8px 10px}.fp-stick{width:108px;height:120px;bottom:max(14px,env(safe-area-inset-bottom))}.fp-card{padding:14px;max-width:450px}.fp-card h2{margin:6px}.fp-card p{margin:8px}}
 

@@ -57,9 +57,11 @@ const state = page => page.evaluate(() => ({
   await page.evaluate(() => clubGilmore.firstPerson.look(0, 1.4));
   await page.waitForTimeout(100);
   await page.screenshot({ path: 'evidence/first-person-look-down.png' });
+  assert(!await page.locator('#fp-speed').isVisible()&&await page.locator('.fp-esc-note').isVisible(),'desktop walking: only the Esc note');
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>clubGilmore.firstPerson.paused);
   assert(await page.locator('#fp-pause-overlay').isVisible());
+  assert(!await page.locator('#fp-pause').isVisible()&&!await page.locator('.fp-esc-note').isVisible(),'desktop paused: buttons replace the note, no Pause');
   // toolbar must stay clickable above the pause overlay (pointer lock blocks it while walking)
   await page.locator('#fp-speed').click({timeout:2000});assert.equal(await page.locator('#fp-speed').textContent(),'Fast');
   await page.locator('#fp-speed').click();await page.locator('#fp-speed').click();
@@ -122,6 +124,7 @@ const state = page => page.evaluate(() => ({
   await mobile.locator('#fp-speed').click();assert.equal(await mobile.locator('#fp-speed').textContent(),'Slow');
   await mobile.locator('#fp-speed').click();
   assert.equal(await mobile.locator('#fp-move-stick').isVisible(), true);
+  assert(await mobile.locator('#fp-pause').isVisible()&&!await mobile.locator('.fp-esc-note').isVisible(),'touch: Pause kept, no Esc note');
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   const portraitBox=await mobile.locator('#fp-move-stick').boundingBox(),portraitBefore=await mobile.evaluate(()=>clubGilmore.firstPerson.position.toArray());
   await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:portraitBox.x+portraitBox.width/2,y:portraitBox.y+portraitBox.height/2-32,id:1}]});
