@@ -167,40 +167,54 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  partitionWall(334,582,38,2,1.35);
  B(329,576,24,6,.42,timberDark,.1,interior);
 
- // Pool-facing elevation: the central entrance court projects roughly another
- // half metre into the building.  Its two entries are in the side walls; the
+ // Pool-facing elevation: the central entrance court is recessed about 3.7 metres
+ // into the building. Its three entries are in the side walls; the
  // front mouth stays open for circulation rather than becoming a front double
  // door.  The former glazed rear door is removed so it cannot read as that
  // incorrect front-door condition.
  const entranceGlass=M('#98b9c0',.16);entranceGlass.name='Recessed entry door glass';entranceGlass.transparent=true;entranceGlass.opacity=.48;entranceGlass.depthWrite=false;
- const sideGlassDoor=(x,z)=>{
+ const sideGlassDoor=(x,z,name,material=entranceGlass)=>{
   // Closed and flush in the orbit view. User request, September 10, 2026: they
   // swing open for the walk. The frame stays in the merged walls; only the leaf
   // and handle hang from a hinge at the north jamb, opposite the handle, and
-  // turn 90 degrees into the recess (openYaw, applied via walkModeGates).
+  // turn 90 degrees west: left doors into rooms, steam door into the court
+  // so its leaf cannot trap the user against the steam-room south partition.
   const [wx,wz]=world([x,z]),f=makeGroup(walls,wx,wz),west=x<381;
   // Dark jamb, head and sill frame a full-height glazed leaf.  The outer frame
   // overlaps its masonry opening by a few centimetres as a normal stop frame.
   for(const dz of [-.45,.45])box(f,0,1.16,dz,.082,2.34,.052,dark);
   box(f,0,2.3,0,.082,.06,.95,dark);box(f,0,.03,0,.082,.06,.95,dark);
   const g=makeGroup(walls,wx,wz-.44);
-  g.name=west?'West recessed-entry glass door':'East recessed-entry glass door';
-  box(g,0,1.16,.44,.052,2.28,.88,entranceGlass);
+  g.name=name;
+  box(g,0,1.16,.44,.052,2.28,.88,material);
   rod(g,[west?-.055:.055,.72,.66],[west?-.055:.055,1.32,.66],.022,steel);
-  g.userData.openYaw=west?Math.PI/2:-Math.PI/2;gates.push(g);
+  g.userData.openYaw=-Math.PI/2;gates.push(g);
   return g;
  };
  // The side walls run from the new rear wall to the existing facade, with a
  // side opening near the mouth on each side.  A short south return preserves
  // the crisp outer facade edge around each hinge.
- for(const x of [356,406]){
-  B(x,592.5,3,7,3,facade,0,walls);
-  B(x,610.25,3,1.5,3,facade,0,walls);
-  B(x,602.75,3,13.5,.66,facade,2.34,walls);
- }
- B(381,590,50,3,3,facade,0,walls);
- sideGlassDoor(356,602.75);sideGlassDoor(406,602.75);
- surface(rect(356,590,51,21),mats.tilefloor,.082,0,interior);
+ // Deeper court: near left = storage, far left = changing facilities, right
+ // = steam room. Build actual openings, not door meshes over solid walls.
+ // Join the court's rear wall to the wet-block back wall (z=552) rather
+ // than leaving an unusable strip between the two wall runs.
+ const entryRear=553;
+ const entryWall=(x,openings)=>{
+  let edge=entryRear;
+  for(const center of openings){
+   const start=center-6.75,end=center+6.75;
+   B(x,(edge+start)/2,3,start-edge,3,facade,0,walls);
+   B(x,center,3,13.5,.66,facade,2.34,walls);
+   edge=end;
+  }
+  B(x,(edge+611)/2,3,611-edge,3,facade,0,walls);
+ };
+ entryWall(356,[573,600]);entryWall(406,[573]);
+ B(381,entryRear,50,3,3,facade,0,walls);
+ sideGlassDoor(356,573,'Main change-room entry glass door');
+ sideGlassDoor(356,600,'Interior southwest storage door',timberDark);
+ sideGlassDoor(406,573,'East recessed-entry glass door');
+ surface(rect(356,entryRear,51,611-entryRear),mats.tilefloor,.082,0,interior);
 
  // Three stainless outdoor shower panels west of the entry, each with a rain
  // head, controls and a hanging hand-shower line.
@@ -253,8 +267,8 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  for(const x of [282,412,436])B(x,613.1,3.2,1.8,.26,dark,1.66,walls);
  // The centre sconce and plaque now mount on the solid rear wall of the
  // deeper court rather than floating in its open pool-facing mouth.
- B(365,591.7,3.2,.4,.26,dark,1.66,walls);
- for(const [x,z,y,w,h,mat] of [[302,613,2.5,22,.4,dark],[330,613,2.45,14,.55,dark],[389,591.7,1.78,5,.38,sign],[409,613,2.0,9,.8,sign],[419,613,1.72,8,.42,red],[433,613,2.18,3,.32,red]])
+ B(365,entryRear+1.7,3.2,.4,.26,dark,1.66,walls);
+ for(const [x,z,y,w,h,mat] of [[302,613,2.5,22,.4,dark],[330,613,2.45,14,.55,dark],[389,entryRear+1.7,1.78,5,.38,sign],[409,613,2.0,9,.8,sign],[419,613,1.72,8,.42,red],[433,613,2.18,3,.32,red]])
   B(x,z,w,1,h,mat,y-h/2,walls);
 
  return interior;
