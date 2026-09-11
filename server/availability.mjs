@@ -63,7 +63,10 @@ async function fetchSlots(facilityId) {
     if (!response.ok) throw new Error('Availability provider unavailable');
     slots.push(...parseSlots(await response.json(), now));
   }
-  return {slots:slots.slice(0,3), timeZone:zone, checkedAt:now.toISOString(), through};
+  // ponytail: first listed price only; every Club Gilmore facility lists one "Outdoor Seating" price.
+  const price = duration.Prices?.[0];
+  const fee = !price ? null : price.Amount > 0 ? price.DisplayAmount || `$${price.Amount.toFixed(2)}` : 'Free';
+  return {slots:slots.slice(0,3), fee, timeZone:zone, checkedAt:now.toISOString(), through};
 }
 
 export async function availabilityMiddleware(req, res, next) {

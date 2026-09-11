@@ -1283,3 +1283,8 @@ lounge and the west grill (1145, 803) outside, and follows the planter's southwe
 the four facility photos and the booking details. `L6-fire` keeps its id and remains a public,
 non-bookable area. Its gallery is now IMG_3989, the terrace render and the aerial. P18's pick
 floor sits 10 mm above the terrace floor so that hover and click land on P18 inside the overlap.
+
+Fees: the `services` data on the PerfectMind pages for P18 and for the P01–P03 BBQ bays each
+lists a single "Outdoor Seating" price with `Amount` 0 (`DisplayAmountOrAsFree` "Free"), as of
+September 11, 2026. The viewer does not store this. `/api/availability` returns a `fee` value read
+live from the same page, so the detail panel always shows the current fee.

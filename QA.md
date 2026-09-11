@@ -390,3 +390,22 @@ open west face at about 13° above horizontal, down from about 26°. That is sti
 `maxPolarAngle`, and it lets the grill under the pergola show above the table. A headless run
 selected each bay and measured the camera at 12.9° every time, with no page errors.
 `npm run build` passes. Stills: `evidence/level6-bbq-1-low-camera.png`, `-bbq-2-` and `-bbq-3-`.
+
+P18 split and booking fee, September 11, 2026: `L6-p18` (P18 – Firepit, Table & BBQ) is now
+its own zone inside the fire pit terrace, and it holds the P18 booking link, photos and times.
+`L6-fire` is now public and non-bookable. `/api/availability` now returns the fee live from
+PerfectMind. Checks that passed:
+- `curl` returned `"fee":"Free"` for P18 and for BBQ 1.
+- `npm run build` passes.
+- A headless Chrome check that:
+  - hovered trace (1100, 905) and (1075, 860) and got the P18 label, and hovered (1080, 745)
+    and got "Fire pit terrace";
+  - clicked inside P18 and selected `L6-p18`, with the booking link shown, "Fee: Free" and
+    booking times;
+  - selected `L6-fire` and showed the not-bookable note, with no fee row and no booking link;
+  - showed "Fee: Free" on BBQ 1, 2 and 3;
+  - logged no page errors.
+
+Evidence: `evidence/level6-p18-selected.png`, `evidence/level6-bbq-fee.png`. `verify-level6.cjs`
+has not been re-run. Its hardcoded counts of 13 list items and 13 GLB room ids were already out of
+date before this change, which brings Level 6 to 16 rooms.

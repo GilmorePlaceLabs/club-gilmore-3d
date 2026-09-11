@@ -3,6 +3,7 @@ export class BookingAvailability {
   async show(room) {
     this.request?.abort();
     const controller = new AbortController();this.request=controller;
+    const feeRow=document.getElementById('detail-fee-row');feeRow.hidden=true;
     this.element.replaceChildren();this.element.hidden=!room?.bookingUrl;
     if (!room?.bookingUrl) return;
     const heading=document.createElement('h3');heading.textContent='Next available times';
@@ -16,6 +17,7 @@ export class BookingAvailability {
       const data=await response.json();
       if(!Array.isArray(data.slots))throw new Error('Invalid response');
       if(this.request!==controller)return;
+      if(data.fee){feeRow.querySelector('strong').textContent=data.fee;feeRow.hidden=false;}
       const list=document.createElement('ol');
       const dateFormat=new Intl.DateTimeFormat('en-CA',{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'});
       const timeFormat=new Intl.DateTimeFormat('en-CA',{hour:'numeric',minute:'2-digit',timeZone:'UTC'});
