@@ -91,45 +91,60 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  // distinct objects rather than symbolic blocks.
  partitionWall(344,445.5,2,35);
  partitionWall(330,463,28,2);
- B(297,442,14,4,.42,timber,.3,interior);
+ // South wall closes up to a 1 m door between x=301 and 316 (west of that the
+ // first change cubicle's partition blocks the approach). Closed in orbit
+ // view, the leaf swings north into the room for the walk like the court doors.
+ partitionWall(292.75,463,16.5,2);
+ {const [wx,wz]=world([301,463]),g=makeGroup(interior,wx,wz);g.name='Accessible washroom door';
+  box(g,.4875,.72,0,.95,1.3,.05,partition);
+  for(const dz of [-.05,.05])rod(g,[.86,.8,dz],[.86,1.1,dz],.02,steel);
+  g.userData.openYaw=Math.PI/2;gates.push(g);
+  // Walk-only extension to 3 m, hinged with the leaf (main.js shows walkOnly gates).
+  const t=makeGroup(interior,wx,wz);box(t,.4875,2.185,0,.95,1.63,.05,partition);
+  t.visible=false;t.userData={openYaw:Math.PI/2,walkOnly:true};gates.push(t);}
+ // Fold seat, grab rails, WC and counter all back onto a wall face.
+ B(286.5,442,4,14,.42,timber,.3,interior);
  floorDrain(interior,302,454);showerHead(interior,299,429,'south');
- toilet(interior,334,439,Math.PI);
- B(338,457,8,5,.76,fixture,0,interior);
- for(const [x,z,w,d] of [[291,436,15,1],[288,442,1,16],[327,447,12,1]])B(x,z,w,d,.05,steel,1.05,interior);
+ toilet(interior,338.2,439,-Math.PI/2);
+ B(339,459.5,8,5,.76,fixture,0,interior);
+ for(const [x,z,w,d] of [[291,429,12,1],[285.2,442,1,16],[342.5,439,1,12]])B(x,z,w,d,.05,steel,1.05,interior);
 
  // Five north bathroom cubicles, matching the annotated row and the visible
  // angled doors. Each stall gets a recognisable toilet and a low privacy panel.
  const northXs=[344,360.6,377.2,393.8,410.4,427];
- partitionWall(385.5,463,83,2);
+ // The reference shows individual open door leaves, not a continuous wall
+ // across the aisle-facing mouths of the north stalls.
  for(const x of northXs)partitionWall(x,446,2,34);
  for(let i=0;i<5;i++){
   const cx=(northXs[i]+northXs[i+1])/2;
-  toilet(interior,cx,437,0);
-  const door=B(cx+4.8,461,10.5,1.4,1.38,partition,0,interior);door.rotation.y=-.48;
+  toilet(interior,cx,433.3,0);
+  leaf(cx+6.2,459,10.5,1.4,1.38,partition,-Math.PI/2);
  }
 
- // Six timber change cubicles open toward the central aisle on the west wall.
- // Their benches and coat hooks make the use clear in both plan and 3D views.
- const changeZ=[459,473.5,488,502.5,517,531.5,546];
- for(const z of changeZ)partitionWall(290.5,z,45,1.7,1.4);
- for(let i=0;i<6;i++){
+ // Five timber change cubicles open toward the central aisle on the west wall.
+ // Benches and coat hooks sit on the west wall; each cubicle's door leaf
+ // stands open inward along its north partition, like the WC leaves.
+ const changeZ=[464,480,495.5,511,526.5,543];
+ for(const z of changeZ)partitionWall(283.5,z,31,1.7,1.4);
+ for(let i=0;i<changeZ.length-1;i++){
   const cz=(changeZ[i]+changeZ[i+1])/2;
-  B(278.5,cz,18,5,.42,timber,.12,interior);
-  B(275,cz-4.8,1.2,1.2,.09,steel,1.2,interior);
-  B(275,cz,1.2,1.2,.09,steel,1.2,interior);
+  B(271,cz,5,12,.42,timber,.12,interior);
+  B(269,cz-3,1.2,1.2,.09,steel,1.25,interior);
+  B(269,cz+3,1.2,1.2,.09,steel,1.25,interior);
+  leaf(292.5,changeZ[i]+1.5,13,1.2,1.38,partition);
  }
 
- // Four individual shower rooms span the middle. The rain head and drain sit at
- // the closed north end; the timber dry bench sits by the door at the south.
+ // Four individual shower rooms span the middle. Their openings and timber
+ // seats face the north aisle in the supplied overhead; the wet fittings sit
+ // against the uninterrupted south back wall.
  const showerXs=[335,358.75,382.5,406.25,430];
- partitionWall(382.5,485,95,2);
  partitionWall(382.5,515,95,2);
  for(const x of showerXs)partitionWall(x,500,2,30);
  for(let i=0;i<4;i++){
   const cx=(showerXs[i]+showerXs[i+1])/2;
-  B(cx,508,16,5,.4,timber,.12,interior);
-  showerHead(interior,cx,486,'south');floorDrain(interior,cx,490);
-  B(cx+6.6,513,10,1.2,1.28,fenceGlass,0,interior).rotation.y=-.5;
+  B(showerXs[i]+3.5,491,5,10,.4,timber,.12,interior);
+  showerHead(interior,cx,514,'north');floorDrain(interior,cx,509);
+  leaf(showerXs[i+1]-2,491,10,1.2,1.28,fenceGlass,-Math.PI/2);
  }
 
  // The annotation points specifically to this separate two-head standing-shower
@@ -142,11 +157,11 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  // bowls face north and the access doors are on the north edge.
  const lowerXs=[363,376.2,389.4,402.6,415.8,429];
  partitionWall(396,552,66,2);
- for(const x of lowerXs)partitionWall(x,539,2,26,1.4);
+ for(const x of lowerXs)partitionWall(x,542,2,20,1.4);
  for(let i=0;i<5;i++){
   const cx=(lowerXs[i]+lowerXs[i+1])/2;
   toilet(interior,cx,546,Math.PI);
-  const door=B(cx+3.8,528,6.8,1.2,1.22,partition,0,interior);door.rotation.y=.52;
+  leaf(cx+5.8,535,6.8,1.2,1.22,partition,-Math.PI/2);
  }
 
  // Three-basin vanity along the east wall, with one continuous counter and
