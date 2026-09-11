@@ -12,7 +12,10 @@ const WALKABLE = [
   rectangle(40,596,620,305),
   polygon([[660,275],[932,275],[932,1128],[691,1312],[636,1265],[636,901],[660,901]]),
   polygon([[1037,259],[1193,259],[1193,471],[1352,471],[1352,488],[1539,488],[1539,470],[1619,470],[1648,444],[1706,444],[1728,425],[1728,371],[1795,439],[1779,460],[1156,1028],[1037,867]]),
-  rectangle(933,638,104,35),
+  // South bridge. Starts at x=932, not the slab's 933, to close the same
+  // one-unit seam as the north connector below; without it the join was
+  // impassable from both sides (IMG_4055, September 10, 2026).
+  rectangle(932,638,105,35),
   polygon([[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]]),
   // The bridge lands on the main slab at trace x=933 while that slab ends at
   // x=932.  This one-trace-unit (0.065m) connector closes only that authored

@@ -48,22 +48,14 @@ export function createLevel6Model(){
  const surface=(poly,material,y=0,depth=0,parent=props)=>{const o=new T.Mesh(shapeGeometry(poly.map(world),depth),material);o.position.y=y;o.receiveShadow=true;parent.add(o);return o;};
  const B=(x,z,w,d,h,material=stone,y=0,parent=props)=>{const [a,b]=world([x,z]);return box(parent,a,y+h/2,b,w*U,h,d*U,material);};
  const line=(a,b,height=.6,material=stone,width=.16,y=0)=>{const [x,z]=world(a),[xx,zz]=world(b),length=Math.hypot(xx-x,zz-z);return box(props,(x+xx)/2,y+height/2,(z+zz)/2,length,height,width,material,-Math.atan2(zz-z,xx-x));};
- const edge=(poly,h=.35,material=stone)=>poly.forEach((p,i)=>line(p,poly[(i+1)%poly.length],h,material));
- const slab=poly=>{surface(poly,stone,-.38,.36);edge(poly,.23);};
  // The two long rectangular gaps remain open, connected only by the two bridges.
+ // Curbs for the first three are drawn after insidePolygon below.
  const northSlab=[[590,55],[858,30],[930,103],[936,227],[1080,227],[1080,222],[1221,222],[1221,274],[933,274],[933,275],[660,275],[660,110],[590,94]];
- surface(northSlab,stone,-.38,.36);
- // No curb across the open connection from the bridge into the BBQ terrace.
- for(let i=0;i<northSlab.length;i++){
-  const a=northSlab[i],b=northSlab[(i+1)%northSlab.length];
-  if(a[1]===274&&b[1]===274){line([933,274],[1037,274],.23);continue;}
-  line(a,b,.23);
- }
- slab(rect(933,638,104,35));
- slab([[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]]);
+ const southBridge=rect(933,638,104,35),forecourt=[[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]];
+ for(const p of [northSlab,southBridge,forecourt])surface(p,stone,-.38,.36);
  // Individual slabs avoid filling the central light wells with a single polygon.
- surface(rect(40,596,620,305),stone,-.36,.34);
- surface([[660,275],[932,275],[932,1128],[691,1312],[636,1265],[636,901],[660,901]],stone,-.36,.34);
+ const sunDeck=rect(40,596,620,305),westSlab=[[660,275],[932,275],[932,1128],[691,1312],[636,1265],[636,901],[660,901]];
+ surface(sunDeck,stone,-.36,.34);surface(westSlab,stone,-.36,.34);
  const eastSlab=[[1037,259],[1193,259],[1193,471],[1352,471],[1352,488],[1539,488],[1539,470],[1619,470],[1648,444],[1706,444],[1728,425],[1728,371],[1795,439],[1779,460],[1156,1028],[1037,867]];
  surface(eastSlab,stone,-.36,.34);
  // Fine paving modules and warm timber circulation bands.
@@ -192,6 +184,19 @@ export function createLevel6Model(){
   const [ax,az]=poly[i],[bx,bz]=poly[j];
   if((az>z)!==(bz>z)&&x<(bx-ax)*(z-az)/(bz-az)+ax)inside=!inside;
  }return inside;};
+ // User correction, IMG_4055/4056: the 0.23 m curb stands only on exposed slab
+ // edges (light wells, deck perimeter). Where two slabs meet the join is flush,
+ // so each edge is sampled per trace unit and any run with another slab 2 units
+ // to either side is left out. Supersedes the hand-cut north-slab exception.
+ const decks=[northSlab,southBridge,forecourt,sunDeck,westSlab,eastSlab];
+ for(const poly of [northSlab,southBridge,forecourt])poly.forEach((a,i)=>{
+  const b=poly[(i+1)%poly.length],len=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.ceil(len),nx=(a[1]-b[1])/len*2,nz=(b[0]-a[0])/len*2;
+  const at=t=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];let s=null;
+  for(let k=0;k<=n;k++){
+   const [x,z]=at((k+.5)/n),open=k<n&&!decks.some(d=>d!==poly&&(insidePolygon(x+nx,z+nz,d)||insidePolygon(x-nx,z-nz,d)));
+   if(open&&s===null)s=k;else if(!open&&s!==null){line(at(s/n),at(k/n),.23);s=null;}
+  }
+ });
  const southTreeAnchors=[
   [[792,963]],[[890,893]],[[875,1067]],[[777,1055]],
   [[644,995],[644,1072],[645,1150],[650,1225]]

@@ -253,3 +253,16 @@ user's red line was located by calibrating against the walk's bench blocks, whos
 known exactly (the offset-80 blocks at t = .362, .518 and .674 fall 430 px apart in the supplied
 crop), putting the line at t = .427. Plan render confirms the tail gone, the new end square to the
 walk, and the lawn meeting the walk southwest of it.
+
+Flush slab joins, September 10, 2026: `node scripts/verify-level6.cjs`,
+`node scripts/verify-first-person.cjs` and `npm run build` pass. `node scripts/verify-walk-routes.cjs`
+passes; this is its first successful run. It previously failed on load with
+`THREE is not defined`, because it built a `THREE.Vector3` inside the page; it now clones the
+controller's vector. Its change-room forecourt zone now stops at z=594, because z 596–611 is shared
+with the open pool sun deck and was being counted as the forecourt. A south-bridge zone was
+added. A scratch probe walked across the south bridge's west join: before the navigation fix it
+stopped at x=927.2 heading east and 937.6 heading west; after it, it crossed to 1045.1 and 921.9,
+with no unsafe samples left on the bridge centre line. The z=275 north join was already crossable.
+First-person renders at both photographed joins, `evidence/level6-flush-joins-south-bridge.png`
+and `evidence/level6-flush-joins-north-seam.png`, show them flush, with the light-well curbs and
+railings still in place.
