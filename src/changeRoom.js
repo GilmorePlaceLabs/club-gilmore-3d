@@ -188,6 +188,17 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  B(458.75,541,.3,3.6,.05,dark,1.06,interior);
  B(458.75,541,.2,.6,.06,dark,1.4,interior);
 
+ // Closed door to Tower 2 on the inner face of the northeast step wall, with
+ // a text sign above it. It stays shut: the tower is outside this model.
+ {const [wx,wz]=world([445,453.5]),g=makeGroup(walls,wx,wz);g.name='Closed door to Tower 2';
+  for(const x of [-.5,.5])box(g,x,1.08,.03,.08,2.16,.06,dark);
+  box(g,0,2.16,.03,1.08,.08,.06,dark);
+  box(g,0,1.04,.02,.92,2.08,.04,timberDark);
+  rod(g,[.34,1,.04],[.34,1,.11],.02,steel);rod(g,[.34,1,.11],[.22,1,.11],.02,steel);
+  const tex=canvasTexture((c,n)=>{c.fillStyle='#dedbd0';c.fillRect(0,0,n,n);c.fillStyle='#252b2e';c.font=`600 ${n*.13}px sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('To Tower 2',n/2,n/2);});
+  tex.repeat.set(1,.25);tex.offset.set(0,.375);
+  mesh(g,new T.PlaneGeometry(.9,.225),new T.MeshStandardMaterial({map:tex,roughness:.7}),0,2.45,.035);}
+
  // Southeast steam room. Its glass door and L-shaped tiled benches distinguish
  // it from the neighbouring secondary cubicles.
  partitionWall(417.5,553,43,2,1.75);
