@@ -1,6 +1,7 @@
 import * as T from 'three';
 import {buildPlayground} from './playground.js';
 import {buildChangeRoom} from './changeRoom.js';
+import {createLevel6Navigation} from './firstPerson/NavigationWorld.js';
 import {box,cyl,rod,mesh,makeGroup,shapeGeometry,sofa,chair,table,tree,mergeRoomGeometry,mats,canvasTexture} from './model.js';
 // Trace coordinates correspond to the supplied overhead render at 1855 × 1344.
 // Scale is illustrative: no measured Level 6 survey was supplied.
@@ -29,6 +30,7 @@ export const level6Labels=['pool','hot-tub','lounge','bocce','play','garden','fi
 export function createLevel6Model(){
  const root=new T.Group();root.name='Club Gilmore — Level 6';root.userData={level:6,units:'metres',scale:'Approximate; traced from undimensioned supplied render',source:'User floor plan, overhead render and actual amenity photos'};
  const props=new T.Group();root.add(props);
+ const walkModeGates=[];
  const roomGroups=new Map(),floorMeshes=[],wallGroups=[],columnGroups=[];
  const M=(color,roughness=.8)=>new T.MeshStandardMaterial({color,roughness});
  const stone=M('#cbc9c0'),wood=M('#b79a82'),soil=M('#464735'),grass=mats.turf,metal=M('#3b4243'),blue=M('#2787a5'),rubber=M('#527f89'),tan=M('#a78765');
@@ -130,6 +132,7 @@ export function createLevel6Model(){
  poolFence([660,596],[660,644]);poolFence([660,668],[660,836]);poolFence([660,860],[660,901]);poolFence([660,901],[636,901]);
  const poolGate=z=>{
   const g=makeGroup(props,...world([660,z]),Math.PI/2);g.name='Pool enclosure gate';
+  walkModeGates.push(g);
   for(const side of [-1,1])box(g,side*.55,.95,0,.1,1.9,.1,fencePost);
   for(const y of [.14,1.8])box(g,0,y,0,1.1,.1,.1,fencePost);
   box(g,0,.97,0,1.02,1.56,.024,fenceGlass);
@@ -699,6 +702,8 @@ export function createLevel6Model(){
   }
  }
 
- mergeRoomGeometry(walls);walls.removeFromParent();mergeRoomGeometry(props);props.add(walls);
- root.updateMatrixWorld(true);return {root,roomGroups,floorMeshes,wallGroups,columnGroups,bounds:new T.Box3().setFromObject(root),mats};
+ // Keep gate geometry independent so the walking view can open the entrances.
+ for(const gate of walkModeGates){mergeRoomGeometry(gate);gate.removeFromParent();}
+ mergeRoomGeometry(walls);walls.removeFromParent();mergeRoomGeometry(props);props.add(walls,...walkModeGates);
+ root.updateMatrixWorld(true);return {root,roomGroups,floorMeshes,wallGroups,columnGroups,bounds:new T.Box3().setFromObject(root),mats,navigation:createLevel6Navigation(),walkModeGates};
 }
