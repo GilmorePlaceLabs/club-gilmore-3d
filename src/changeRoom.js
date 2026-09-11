@@ -26,7 +26,8 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  const partition=M('#d9dcda',.48),partitionTop=M('#f1f1ec',.38);
  const timber=M('#8d6846',.7),timberDark=M('#68482f',.74);
  const fixture=M('#f3f2eb',.3),steel=M('#aeb8ba',.24),dark=M('#252b2e',.48);
- const mirror=M('#b7d4d6',.15),orange=M('#ee6731',.55);
+ const mirror=M('#cfe2e4',.06),orange=M('#ee6731',.55);
+ const counter=M('#e4e1da',.32),sink=M('#cfd3d0',.2);
  const wetFloor=mats.tilefloor.clone();wetFloor.color.set('#c8d4d2');
  const steamFloor=mats.tilefloor.clone();steamFloor.color.set('#b8c2c0');
  const grout=M('#3d4244',.85),red=M('#c74438',.62),sign=M('#dedbd0',.75);
@@ -53,12 +54,16 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
   if(dz)head.rotation.x=Math.PI/2;else head.rotation.z=Math.PI/2;
   box(p,wx,1.06,wz+(dx?0:.012),dx?.05:.12,.18,dx?.12:.05,dark);
  };
+ // Undermount oval bowl read as a recessed dish in the counter, with a centre
+ // drain and a deck gooseneck mixer between bowl and east wall (+x).
  const basin=(p,x,z)=>{
   const [wx,wz]=world([x,z]);
-  const rim=mesh(p,new T.TorusGeometry(.19,.035,8,18),steel,wx,.92,wz);
-  rim.rotation.x=Math.PI/2;
-  cyl(p,wx,.89,wz,.15,.035,fixture);
-  rod(p,[wx,.94,wz-.13],[wx,.94,wz-.28],.025,steel);
+  const bowl=mesh(p,new T.CylinderGeometry(.2,.2,.008,28),sink,wx,.903,wz);bowl.scale.x=.72;
+  mesh(p,new T.CylinderGeometry(.025,.025,.004,12),steel,wx,.909,wz);
+  rod(p,[wx+.2,.9,wz],[wx+.2,1.12,wz],.018,steel);
+  rod(p,[wx+.2,1.12,wz],[wx+.06,1.12,wz],.016,steel);
+  rod(p,[wx+.06,1.12,wz],[wx+.06,1.06,wz],.014,steel);
+  rod(p,[wx+.2,1,wz],[wx+.2,1,wz+.08],.012,steel);
  };
  // `tall` holds each partition's extension to the 3 m shell height. It is only
  // shown in first person, so the orbit cutaway stays low but the walker cannot
@@ -165,13 +170,23 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
   leaf(cx+5.8,535,6.8,1.2,1.22,partition,-Math.PI/2);
  }
 
- // Three-basin vanity along the east wall, with one continuous counter and
- // individual mirrors and taps.
- B(455.5,513.5,11,39,.86,dark,.05,interior);
+ // Three-basin vanity on the east wall (inner face x=461): wall-hung timber
+ // cabinet, quartz counter and backsplash, framed mirror and soap dispenser
+ // over each basin, and a hand dryer just south of the run.
+ B(456.5,513.5,9,38,.54,timber,.3,interior);
+ B(456,513.5,10,40,.06,counter,.84,interior);
+ B(460.6,513.5,.8,40,.14,counter,.9,interior);
  for(const z of [500,513.5,527]){
-  basin(interior,456,z);
-  B(462, z,1,11,.72,mirror,1.03,interior);
+  basin(interior,455,z);
+  B(451.8,z,.3,4,.03,steel,.74,interior);
+  B(460.8,z,.4,12,.9,dark,1.07,interior);
+  B(460.7,z,.6,11,.8,mirror,1.12,interior);
  }
+ // Cabinet door seams, and a soap dispenser in each gap between mirrors.
+ for(const z of [506.75,520.25]){B(451.9,z,.2,.3,.48,dark,.33,interior);B(460.3,z,1.4,1.8,.26,steel,1.16,interior);}
+ B(459.9,541,2.2,5,.55,steel,1,interior);
+ B(458.75,541,.3,3.6,.05,dark,1.06,interior);
+ B(458.75,541,.2,.6,.06,dark,1.4,interior);
 
  // Southeast steam room. Its glass door and L-shaped tiled benches distinguish
  // it from the neighbouring secondary cubicles.
