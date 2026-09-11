@@ -81,9 +81,9 @@ The player will spawn on the marked east circulation path at approximately trace
 ## Mobile Experience
 
 - Detect touch/coarse-pointer capability instead of relying only on viewport width.
-- In portrait, pause movement and show **Rotate your device to walk**.
+- Walk in both portrait and landscape (revised: the earlier portrait "Rotate your device to walk" block was removed at the user's request).
 - Do not force orientation through browser APIs.
-- In landscape, display two vertical joysticks:
+- In either orientation, display two vertical joysticks:
   - Left: forward, backward, and strafing movement.
   - Right: yaw and pitch look.
 - Support simultaneous pointers, pointer capture, dead zones, clamped travel, safe-area insets, and automatic recentering.

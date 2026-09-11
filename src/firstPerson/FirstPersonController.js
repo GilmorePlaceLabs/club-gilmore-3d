@@ -11,7 +11,7 @@ export class FirstPersonController {
     this.onStateChange = onStateChange; this.requestRender = requestRender;
     this.camera = new PerspectiveCamera(68, 1, .05, 500);
     this._position = this.config.spawn.clone(); this.yaw = this.config.yaw; this.pitch = 0;
-    this._active = false; this._paused = false; this._portraitBlocked = false; this.avatar = null;
+    this._active = false; this._paused = false; this.avatar = null;
     this.motionSpeed = 0; this.walkPhase = 0;
     this.euler = new Euler(0, 0, 0, 'YXZ');
     this.input = new FirstPersonInput(domElement, { camera: this.camera, onLook: (x, y) => this.look(x, y), onPause: () => this.pause(), onActivity: () => this.requestRender?.(), onLockDenied: () => this.requestRender?.() });
@@ -38,9 +38,9 @@ export class FirstPersonController {
   }
   enter() {
     if (this._active) { this.resume(); return; }
-    this._active = true; this._paused = this._portraitBlocked; this._position.copy(this.config.spawn); this.yaw = this.config.yaw; this.pitch = 0; this.motionSpeed = 0;
-    this.input.setEnabled(!this._paused); if (this.avatar?.root) this.avatar.root.visible = true;
-    this.syncCamera(); this.emit(); if (!this._paused) this.input.requestLock(); this.requestRender?.();
+    this._active = true; this._paused = false; this._position.copy(this.config.spawn); this.yaw = this.config.yaw; this.pitch = 0; this.motionSpeed = 0;
+    this.input.setEnabled(true); if (this.avatar?.root) this.avatar.root.visible = true;
+    this.syncCamera(); this.emit(); this.input.requestLock(); this.requestRender?.();
   }
   exit() {
     if (!this._active) return;
@@ -54,7 +54,6 @@ export class FirstPersonController {
   }
   resume() {
     if (!this._active) return this.enter();
-    if (this._portraitBlocked) { this._paused = true; this.input.setEnabled(false); this.emit(); return; }
     this._paused = false; this.input.setEnabled(true); this.emit(); this.input.requestLock(); this.requestRender?.();
   }
   look(deltaYaw, deltaPitch) {
@@ -93,15 +92,13 @@ export class FirstPersonController {
   }
   resize(width, height) {
     this.camera.aspect = width / Math.max(1, height); this.camera.updateProjectionMatrix();
-    this._portraitBlocked = this.input.isCoarse && height > width;
-    if (this._active && this._portraitBlocked) this.pause();
   }
   syncCamera() {
     this.camera.position.copy(this._position); this.camera.position.y = this.config.floorHeight + this.config.eyeHeight;
     this.euler.set(this.pitch, this.yaw, 0, 'YXZ'); this.camera.quaternion.setFromEuler(this.euler);
   }
   reset() { this._position.copy(this.config.spawn); this.yaw = this.config.yaw; this.pitch = 0; this.motionSpeed = 0; this.syncCamera(); this.emit(); this.requestRender?.(); }
-  emit() { this.onStateChange?.({ active: this._active, paused: this._paused, portraitBlocked: this._portraitBlocked, position: this.position, yaw: this.yaw, camera: this.camera }); }
+  emit() { this.onStateChange?.({ active: this._active, paused: this._paused, position: this.position, yaw: this.yaw, camera: this.camera }); }
   dispose() { this.exit(); this.input.controls?.removeEventListener('change', this.handlePointerLockLook); this.input.dispose(); this.navigationWorld?.dispose?.(); this.avatar?.dispose?.(); if (this.avatar?.root?.parent) this.avatar.root.parent.remove(this.avatar.root); }
 }
 

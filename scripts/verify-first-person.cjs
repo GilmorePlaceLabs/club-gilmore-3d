@@ -113,15 +113,19 @@ const state = page => page.evaluate(() => ({
   await mobile.screenshot({ path: 'evidence/first-person-mobile-landscape.png' });
   await mobile.setViewportSize({ width: 390, height: 844 });
   await mobile.waitForTimeout(150);
-  assert.equal(await mobile.locator('#fp-rotate-overlay').isVisible(), true);
-  assert(await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  assert.equal(await mobile.locator('#fp-move-stick').isVisible(), true);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  const portraitBox=await mobile.locator('#fp-move-stick').boundingBox(),portraitBefore=await mobile.evaluate(()=>clubGilmore.firstPerson.position.toArray());
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:portraitBox.x+portraitBox.width/2,y:portraitBox.y+portraitBox.height/2-32,id:1}]});
+  await mobile.waitForTimeout(450);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  assert.notDeepEqual(await mobile.evaluate(()=>clubGilmore.firstPerson.position.toArray()),portraitBefore,'portrait walking');
   await mobile.screenshot({ path: 'evidence/first-person-mobile-portrait.png' });
   await mobile.setViewportSize({width:844,height:390});await mobile.waitForTimeout(150);
-  await mobile.locator('#fp-resume').click();assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
   await mobile.evaluate(()=>clubGilmore.switchLevel(4));assert.equal((await state(mobile)).mode,'orbit');
   await mobile.evaluate(()=>clubGilmore.switchLevel(6));await mobile.setViewportSize({width:390,height:844});
-  await mobile.locator('#first-person-button').click();assert(await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  await mobile.locator('#first-person-button').click();assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
 
   assert.deepEqual(errors.concat(mobileErrors), [], 'browser page errors');
   console.log('PASS first-person', JSON.stringify({ walked: beforeWalk.join(',') !== afterWalk.join(','), boundary, screenshots: 4 }));

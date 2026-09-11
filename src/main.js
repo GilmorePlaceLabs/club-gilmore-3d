@@ -10,6 +10,7 @@ import { FirstPersonController } from './firstPerson/FirstPersonController.js';
 import { FirstPersonAvatar } from './firstPerson/FirstPersonAvatar.js';
 import { NavigationWorld } from './firstPerson/NavigationWorld.js';
 let firstPerson=null,lastFrameTime=0;
+const speeds=[['Slow',2.2],['Medium',3.6],['Fast',5.4]];let speedIndex=1;
 const walking=()=>firstPerson?.active===true;
 let activeLevel=location.hash.startsWith('#L6')||new URLSearchParams(location.search).get('level')==='6'?6:4;
 let rooms=activeLevel===6?level6Rooms:level4Rooms;
@@ -108,11 +109,9 @@ function syncFirstPersonUI(){
  $('fp-hud').hidden=!active;
  controls.enabled=!active;
  if(active){
-  const portrait=firstPerson.input.isCoarse&&vh>vw;
   const wasPaused=!$('fp-pause-overlay').hidden;
-  $('fp-rotate-overlay').hidden=!portrait;
-  $('fp-pause-overlay').hidden=portrait||!firstPerson.paused;
-  if(firstPerson.paused&&!portrait&&!wasPaused&&document.hasFocus()&&!$('about').open)$('fp-resume').focus({preventScroll:true});
+  $('fp-pause-overlay').hidden=!firstPerson.paused;
+  if(firstPerson.paused&&!wasPaused&&document.hasFocus()&&!$('about').open)$('fp-resume').focus({preventScroll:true});
   if(!firstPerson.paused&&wasPaused)renderer.domElement.focus({preventScroll:true});
  }
  requestRender();
