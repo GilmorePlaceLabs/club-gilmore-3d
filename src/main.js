@@ -168,8 +168,8 @@ function updateViewOffset(){if(!camera)return;
  camera.setViewOffset(vw,vh,-(left-right)/2,-(top-bottom)/2,vw,vh);camera.updateProjectionMatrix();
  return {width:Math.max(160,vw-left-right-65),height:Math.max(140,vh-top-bottom-30)};
 }
-function frameBounds(bounds,instant=false,actualPoints=null){if(!camera)return;const center=bounds.getCenter(new T.Vector3());center.y=0;
- const direction=planView?new T.Vector3(0,1,.0001):new T.Vector3(isMobile()?.13:.42,1.95,1).normalize();
+function frameBounds(bounds,instant=false,actualPoints=null,viewDirection=null){if(!camera)return;const center=bounds.getCenter(new T.Vector3());center.y=0;
+ const direction=planView?new T.Vector3(0,1,.0001):(viewDirection?.clone()||new T.Vector3(isMobile()?.13:.42,1.95,1)).normalize();
  const to=center.clone().add(direction.multiplyScalar(170));
  const temp=new T.OrthographicCamera();temp.position.copy(to);temp.up.set(0,1,0);temp.lookAt(center);temp.updateMatrixWorld();
  const right=new T.Vector3().setFromMatrixColumn(temp.matrixWorld,0),up=new T.Vector3().setFromMatrixColumn(temp.matrixWorld,1);
@@ -200,7 +200,14 @@ function showRipple(entry){clearRipple();
 function clearRipple(){if(!ripple)return;ripple.group.removeFromParent();ripple.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});ripple=null;}
 function updateRipple(time){const px=(camera.right-camera.left)/(vw*camera.zoom);setBand(ripple.edge,-px,4*px);
  ripple.rings.forEach((r,k)=>{const f=(time/RIPPLE_MS+k/3)%1;setBand(r,(3+f*44)*px,(1+4*(1-f))*px);r.material.opacity=.6*(1-f)**1.6;});}
-function frameRoom(id,instant=false){const e=model.roomGroups.get(id);const b=new T.Box3().setFromPoints(e.poly.map(([x,z])=>new T.Vector3(x,0,z)));frameBounds(b,instant);}
+function frameRoom(id,instant=false){
+ const e=model.roomGroups.get(id);
+ const b=new T.Box3().setFromPoints(e.poly.map(([x,z])=>new T.Vector3(x,0,z)));
+ // Look low (~13°, inside maxPolarAngle) from the open west face so the grill
+ // under the pergola stays in view. Explicit plan view retains its overhead view.
+ const bbq=/^L6-bbq-[123]$/.test(id);
+ frameBounds(b,instant,null,bbq?new T.Vector3(-1,.23,.08):null);
+}
 function home(instant=false){if(!model)return;frameBounds(model.bounds,instant,[...model.roomGroups.values()].flatMap(e=>e.poly));}
 function setView(plan){if(!controls)return;planView=plan;$('view-plan').setAttribute('aria-pressed',String(plan));$('view-3d').setAttribute('aria-pressed',String(!plan));controls.enableRotate=!plan;selected?frameRoom(selected):home();}
 $('view-plan').addEventListener('click',()=>setView(true));$('view-3d').addEventListener('click',()=>setView(false));

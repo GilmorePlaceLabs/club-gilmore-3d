@@ -384,3 +384,9 @@ bounds, the ring opacities change between samples 400 ms apart, the ripple is re
 and the page logs no errors. `npm run build` passes. Stills: `evidence/level6-selection-ripple-bbq-1.png`,
 `-pool.png` and `evidence/level4-selection-ripple.png`. These are single frames, so the motion
 itself has only been checked by the opacity samples. `verify-level6.cjs` has not been re-run.
+
+Lower BBQ camera, September 11, 2026: `frameRoom()` now frames `L6-bbq-1`, `-2` and `-3` from the
+open west face at about 13° above horizontal, down from about 26°. That is still inside
+`maxPolarAngle`, and it lets the grill under the pergola show above the table. A headless run
+selected each bay and measured the camera at 12.9° every time, with no page errors.
+`npm run build` passes. Stills: `evidence/level6-bbq-1-low-camera.png`, `-bbq-2-` and `-bbq-3-`.
