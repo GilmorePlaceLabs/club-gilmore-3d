@@ -86,7 +86,7 @@ export function createLevel6Model(){
  // its pickable underlay neutral; the exact lawn polygons are drawn below.
  const floorMaterial=(r.kind==='bocce'?stone:mats.tilefloor).clone();
  const poly=r.polygon.map(world),floor=surface(r.polygon,floorMaterial,r.kind==='sun-deck'?.025:.045,0,group);floor.userData.roomId=r.id;floorMeshes.push(floor);
- const outline=new T.Line(new T.BufferGeometry().setFromPoints([...poly,poly[0]].map(([x,z])=>new T.Vector3(x,.12,z))),new T.LineBasicMaterial({color:'#d1b674',depthTest:false}));outline.visible=false;outline.renderOrder=5;group.add(outline);
+ const outline=new T.Line(new T.BufferGeometry().setFromPoints([...poly,poly[0]].map(([x,z])=>new T.Vector3(x,.12,z))),new T.LineBasicMaterial({color:'#d1b674',transparent:true,depthTest:false}));outline.visible=false;outline.renderOrder=5;group.add(outline);
  const center=new T.Box3().setFromPoints(poly.map(([x,z])=>new T.Vector3(x,0,z))).getCenter(new T.Vector3());roomGroups.set(r.id,{group,floor,outline,center,poly});}
  for(let z=315;z<600;z+=48){surface(rect(733,z,174,23),mats.circulation,.06);surface(rect(1038,z,105,23),mats.circulation,.06);}
  // Pools, inset water, coping, stair treads and stainless-steel ladders.

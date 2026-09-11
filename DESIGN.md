@@ -75,6 +75,7 @@ The palette is a dark architectural field with brass used as the single high-val
 
 ### Primary
 - **Gilmore Brass** (`#d1b674`): selected view state, selected room labels, compass, measurement detail, and the booking link.
+- **Deep Brass** (`#a8842c`): the selected room's 3D edge band and its outward ripple only. Darker so it holds contrast against the pale deck and floor finishes.
 
 ### Neutral
 - **Midnight Navy** (`#141a24`): header, panels, dialogs, and the principal application background.

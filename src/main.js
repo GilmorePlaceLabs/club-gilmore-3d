@@ -89,7 +89,7 @@ function selectRoom(id,fromList=false){
  updatePhoto();setBrowser(!isMobile());$('detail').scrollTop=0;
  for(const [rid,b] of buttons)b.setAttribute('aria-pressed',String(rid===id));
  if(model){for(const [rid,entry] of model.roomGroups){entry.outline.visible=rid===id;entry.floor.material.emissive.set(rid===id?0x6c5526:0x000000);entry.floor.material.emissiveIntensity=rid===id?.3:0;}
-  updateViewOffset();frameRoom(id);
+  showRipple(model.roomGroups.get(id));updateViewOffset();frameRoom(id);
  }
  $('announcement').textContent=`Selected ${r.name}. Room details and ${r.photos.length} photo references available.`;
  if(fromList)$('detail-name').focus({preventScroll:true});
@@ -98,7 +98,7 @@ function selectRoom(id,fromList=false){
  history.replaceState(null,'',`${location.pathname}${location.search}#${encodeURIComponent(id)}`);
 }
 function closeDetail(reset=false){const previous=selected;selected=null;document.body.classList.remove('has-detail');$('detail').hidden=true;
- bookingAvailability.show(null);
+ bookingAvailability.show(null);clearRipple();
  for(const b of buttons.values())b.setAttribute('aria-pressed','false');if(model)for(const e of model.roomGroups.values()){e.outline.visible=false;e.floor.material.emissive.set(0);}
  history.replaceState(null,'',location.pathname+location.search);updateViewOffset();if(reset)home();else requestRender();if(isMobile())$('browser-toggle').focus({preventScroll:true});else buttons.get(previous)?.focus({preventScroll:true});}
 $('close-detail').addEventListener('click',()=>closeDetail(false));$('show-whole').addEventListener('click',()=>closeDetail(true));
@@ -181,6 +181,25 @@ function frameBounds(bounds,instant=false,actualPoints=null){if(!camera)return;c
  if(instant||reduceMotion){camera.position.copy(to);controls.target.copy(center);camera.zoom=T.MathUtils.clamp(zoom,.35,12);camera.updateProjectionMatrix();controls.update();requestRender();return;}
  tween={start:performance.now(),from:camera.position.clone(),to,fromTarget:controls.target.clone(),target:center,fromZoom:camera.zoom,zoom:T.MathUtils.clamp(zoom,.35,12)};requestRender();
 }
+// Selection ripple: a deep-brass band on the room edge with rings waving outward from it.
+// Widths are in screen pixels, so it reads the same zoomed in on a bay or out on the pool deck.
+let ripple=null;const DEEP_BRASS=0xa8842c,RIPPLE_MS=2700;
+function miters(poly){const n=poly.length;let a=0;for(let i=0;i<n;i++){const [x,z]=poly[i],[X,Z]=poly[(i+1)%n];a+=x*Z-X*z;}const s=a<0?-1:1;
+ const normal=(p,q)=>{const dx=q[0]-p[0],dz=q[1]-p[1],l=Math.hypot(dx,dz)||1;return [s*dz/l,-s*dx/l];};
+ return poly.map((p,i)=>{const a=normal(poly[(i-1+n)%n],p),b=normal(p,poly[(i+1)%n]);let mx=a[0]+b[0],mz=a[1]+b[1];const l=Math.hypot(mx,mz);if(l<1e-6)return a;
+  mx/=l;mz/=l;const k=1/Math.max(mx*a[0]+mz*a[1],1/3);return [mx*k,mz*k];});} // miter capped at 3x on sharp corners
+function band(n,opacity){const idx=[];for(let i=0;i<n;i++){const j=(i+1)%n;idx.push(2*i,2*i+1,2*j,2*j,2*i+1,2*j+1);}
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(new Float32Array(n*6),3));g.setIndex(idx);
+ const b=new T.Mesh(g,new T.MeshBasicMaterial({color:DEEP_BRASS,transparent:true,opacity,depthTest:false,depthWrite:false,side:T.DoubleSide}));b.renderOrder=6;b.frustumCulled=false;return b;}
+function setBand(b,o,w){const {poly,m,y}=ripple,a=b.geometry.attributes.position;
+ poly.forEach(([x,z],i)=>{a.setXYZ(2*i,x+m[i][0]*o,y,z+m[i][1]*o);a.setXYZ(2*i+1,x+m[i][0]*(o+w),y,z+m[i][1]*(o+w));});a.needsUpdate=true;}
+function showRipple(entry){clearRipple();
+ const poly=entry.poly.filter((p,i,a)=>{const q=a[(i+1)%a.length];return p[0]!==q[0]||p[1]!==q[1];}),n=poly.length;
+ const group=new T.Group(),edge=band(n,.95),rings=reduceMotion?[]:[0,1,2].map(()=>band(n,0));group.add(edge,...rings);entry.group.add(group);
+ ripple={group,edge,rings,poly,m:miters(poly),y:entry.outline.geometry.attributes.position.getY(0)+.01,floor:entry.floor};}
+function clearRipple(){if(!ripple)return;ripple.group.removeFromParent();ripple.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});ripple=null;}
+function updateRipple(time){const px=(camera.right-camera.left)/(vw*camera.zoom);setBand(ripple.edge,-px,4*px);
+ ripple.rings.forEach((r,k)=>{const f=(time/RIPPLE_MS+k/3)%1;setBand(r,(3+f*44)*px,(1+4*(1-f))*px);r.material.opacity=.6*(1-f)**1.6;});}
 function frameRoom(id,instant=false){const e=model.roomGroups.get(id);const b=new T.Box3().setFromPoints(e.poly.map(([x,z])=>new T.Vector3(x,0,z)));frameBounds(b,instant);}
 function home(instant=false){if(!model)return;frameBounds(model.bounds,instant,[...model.roomGroups.values()].flatMap(e=>e.poly));}
 function setView(plan){if(!controls)return;planView=plan;$('view-plan').setAttribute('aria-pressed',String(plan));$('view-3d').setAttribute('aria-pressed',String(!plan));controls.enableRotate=!plan;selected?frameRoom(selected):home();}
@@ -209,6 +228,8 @@ function render(time){renderPending=false;if(!renderer)return;
  }
  lastFrameTime=0;
  if(tween){const t=Math.min(1,(time-tween.start)/650),e=1-Math.pow(1-t,4);camera.position.lerpVectors(tween.from,tween.to,e);controls.target.lerpVectors(tween.fromTarget,tween.target,e);camera.zoom=T.MathUtils.lerp(tween.fromZoom,tween.zoom,e);camera.updateProjectionMatrix();if(t===1)tween=null;else requestRender();}
+ // Selection ripple keeps frames coming only while a room is selected (a static edge under reduced motion).
+ if(ripple){updateRipple(time);if(!reduceMotion){ripple.floor.material.emissiveIntensity=.12+.3*(.5+.5*Math.sin(time/RIPPLE_MS*Math.PI*2));requestRender();}}
  controls.update();renderer.render(scene,camera);updateLabels();
 }
 function resize(){if(!renderer)return;vw=$('viewport').clientWidth;vh=$('viewport').clientHeight;renderer.setSize(vw,vh);camera.left=-frustumHeight*vw/vh/2;camera.right=frustumHeight*vw/vh/2;camera.top=frustumHeight/2;camera.bottom=-frustumHeight/2;updateViewOffset();firstPerson?.resize(vw,vh);if(walking())syncFirstPersonUI();requestRender();}
