@@ -119,8 +119,8 @@ function syncFirstPersonUI(){
 function enterFirstPerson(){
  if(!model?.navigation||walking())return;
  tween=null;controls.update();controls.enabled=false;controls.stopListenToKeyEvents();
- // Slide the representative gates clear of their openings for the walk.
- for(const gate of model.walkModeGates||[]){gate.userData.closedPosition??=gate.position.clone();gate.position.z=gate.userData.closedPosition.z+.95;}
+ // Slide the pool gates clear of their openings, and swing hinged doors (openYaw) open, for the walk.
+ for(const gate of model.walkModeGates||[]){const u=gate.userData;u.closedPosition??=gate.position.clone();u.closedYaw??=gate.rotation.y;if(u.openYaw==null)gate.position.z=u.closedPosition.z+.95;else gate.rotation.y=u.closedYaw+u.openYaw;}
  if(!firstPerson){
   const navigationWorld=new NavigationWorld(model,model.navigation);
   firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:{...model.navigation,walkSpeed:speeds[speedIndex][1]},onStateChange:syncFirstPersonUI,requestRender});
@@ -133,7 +133,7 @@ function enterFirstPerson(){
 function exitFirstPerson(){
  if(!walking())return;
  firstPerson.exit();controls.enabled=true;controls.listenToKeyEvents(renderer.domElement);
- for(const gate of model.walkModeGates||[])gate.position.copy(gate.userData.closedPosition);
+ for(const gate of model.walkModeGates||[]){gate.position.copy(gate.userData.closedPosition);gate.rotation.y=gate.userData.closedYaw;}
  syncFirstPersonUI();updateViewOffset();requestRender();$('first-person-button').focus({preventScroll:true});
 }
 $('first-person-button').addEventListener('click',()=>walking()?exitFirstPerson():enterFirstPerson());

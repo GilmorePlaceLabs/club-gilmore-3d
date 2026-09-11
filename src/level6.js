@@ -598,7 +598,7 @@ export function createLevel6Model(){
  // and photographed pool facade are substantially more detailed than this deck.
  const changeOutline=[[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]];
  surface(changeOutline,mats.tilefloor,.06);const walls=new T.Group();props.add(walls);
- buildChangeRoom({parent:props,walls,B,surface,world,mats,M,fenceGlass});
+ buildChangeRoom({parent:props,walls,B,surface,world,mats,M,fenceGlass,gates:walkModeGates});
  // IMG_3984/3985: flat turf and tan play circle, with a timber toddler house.
  surface([[662,112],[858,42],[914,104],[930,238],[845,238],[845,157],[698,157],[698,238],[662,238]],mats.woodfloor,.075);for(let x=665;x<831;x+=45)surface(rect(x,109,22,22),mats.tilefloor,.08);
  surface(rect(696,130,146,108),grass,.08);

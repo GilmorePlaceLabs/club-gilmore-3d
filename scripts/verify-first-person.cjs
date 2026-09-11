@@ -57,6 +57,8 @@ const state = page => page.evaluate(() => ({
   await page.evaluate(() => clubGilmore.firstPerson.look(0, 1.4));
   await page.waitForTimeout(100);
   await page.screenshot({ path: 'evidence/first-person-look-down.png' });
+  const doorsOpen=()=>page.evaluate(()=>clubGilmore.model.walkModeGates.filter(g=>g.userData.openYaw!=null).map(g=>Math.abs(g.rotation.y-g.userData.closedYaw-g.userData.openYaw)<1e-6));
+  assert.deepEqual(await doorsOpen(),[true,true],'both change-room doors swing open for the walk');
   await page.keyboard.press('Space');
   const jump=await page.evaluate(()=>new Promise(r=>{const fp=clubGilmore.firstPerson,t0=performance.now();let max=0;(function s(){max=Math.max(max,fp.jumpY);performance.now()-t0<2500?requestAnimationFrame(s):r({max,end:fp.jumpY})})()}));
   assert(jump.max>.5&&jump.max<=.915&&jump.end===0,'jump peaks under 3 ft and lands: '+JSON.stringify(jump));
@@ -73,6 +75,7 @@ const state = page => page.evaluate(() => ({
   assert.deepEqual(await page.evaluate(()=>clubGilmore.firstPerson.position.toArray()),pausedPosition);
 
   await page.locator('#fp-exit-paused').click();
+  assert.deepEqual(await page.evaluate(()=>clubGilmore.model.walkModeGates.map(g=>g.rotation.y===g.userData.closedYaw)),[true,true,true,true],'gates and doors restored on exit');
   await page.waitForFunction(() => clubGilmore.viewMode === 'orbit');
   assert.equal((await state(page)).camera, 'OrthographicCamera');
   assert.equal(await page.locator('#first-person-button').getAttribute('aria-pressed'), 'false');

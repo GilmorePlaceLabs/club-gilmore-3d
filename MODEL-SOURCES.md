@@ -756,3 +756,28 @@ while the west slab ends at x=932. That one-unit seam made the west end impassab
 sides; a probe walking east stopped at x=927.2 and walking west at x=937.6. The rectangle in
 `NavigationWorld.js` now starts at x=932, closing the same seam the north connector already
 closes.
+
+#### Change-room entry doors open for the walk — user request, September 10, 2026
+
+The user asked for the two recessed-entry glass doors (`sideGlassDoor(356,602.75)` and
+`(406,602.75)` in `src/changeRoom.js`) to stand open in first person, naturally, so the player can
+walk through. The orbit view is unchanged: they stay closed and flush there.
+
+The dark jambs, head and sill stay in the merged walls as the fixed frame. Only the glass leaf and
+its handle now hang from a hinge group, and that group joins `walkModeGates` alongside the two pool
+gates. `buildChangeRoom` takes a `gates` array for this. A gate carrying `userData.openYaw` swings
+by that angle while walking; the pool gates, which carry none, still slide. On exit, both position
+and rotation are restored.
+
+Two choices are inference; no photograph shows these doors open:
+
+- **Hinge at the north jamb (z≈596).** It is opposite the existing handle, which sits toward the
+  pool-facing mouth at z≈609.
+- **90° swing into the recess.** The west leaf opens toward +x and the east leaf toward −x, so each
+  ends up parallel to the rear wall and about 0.4 m in front of it, with about 1.5 m of the court
+  still clear between them. Swinging into the building instead would have crossed interior fit-out
+  that was not laid out for a door swing. The old concern recorded in the code, a swing path cutting
+  through the facade, does not arise, because the leaf never leaves the recess.
+
+With a leaf open, the doorway's clear width is about 0.84 m against the player's 0.6 m. The open
+leaves are solid to navigation, so the player walks around them rather than through the glass.

@@ -22,7 +22,8 @@ const zones = [
   zone('west circulation', 661, 280, 698, 890),
   zone('pool deck', 45, 600, 635, 895),
   // Stops at z=594: z 596-611 is shared with the (open) pool sun deck slab.
-  zone('change-room forecourt', 268, 455, 464, 594, false),
+  // Reachable since the recessed-entry doors swing open for the walk.
+  zone('change-room interior', 268, 455, 464, 594),
   zone('north pavilion interior', 847, 159, 930, 240, false),
 ];
 
@@ -39,7 +40,9 @@ const zones = [
   const result = await page.evaluate(({ zones }) => {
     const navigation = clubGilmore.firstPerson.navigationWorld;
     const start = clubGilmore.firstPerson.position;
-    const step = .4, minX = -58, maxX = 58, minZ = -43, maxZ = 43;
+    // .2 m, not .4: an open change-room doorway leaves only a .24 m band for the
+    // player's centre, which a .4 m grid can step straight over.
+    const step = .2, minX = -58, maxX = 58, minZ = -43, maxZ = 43;
     const width = Math.floor((maxX - minX) / step) + 1;
     const key = (x, z) => `${x},${z}`;
     // THREE is not a page global; clone the Vector3 the controller already hands out.

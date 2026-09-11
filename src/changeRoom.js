@@ -6,7 +6,7 @@ import {box,cyl,rod,mesh,makeGroup,canvasTexture} from './model.js';
 // can be compared directly with the 1855 x 1344 reference render.
 const rect=(x,z,w,d)=>[[x,z],[x+w,z],[x+w,z+d],[x,z+d]];
 
-export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass}){
+export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,gates=[]}){
  const stoneMap=canvasTexture((c,n)=>{
   c.fillStyle='#55595b';c.fillRect(0,0,n,n);
   for(let y=0;y<n;y+=64)for(let x=0;x<n;x+=128){
@@ -174,16 +174,20 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass}
  // incorrect front-door condition.
  const entranceGlass=M('#98b9c0',.16);entranceGlass.name='Recessed entry door glass';entranceGlass.transparent=true;entranceGlass.opacity=.48;entranceGlass.depthWrite=false;
  const sideGlassDoor=(x,z)=>{
-  // These are closed leaves, held in their side-wall openings.  Keeping them
-  // flush avoids a rendered swing path cutting through the facade or recess.
-  const [wx,wz]=world([x,z]),g=makeGroup(walls,wx,wz);
-  g.name=x<381?'West recessed-entry glass door':'East recessed-entry glass door';
+  // Closed and flush in the orbit view. User request, September 10, 2026: they
+  // swing open for the walk. The frame stays in the merged walls; only the leaf
+  // and handle hang from a hinge at the north jamb, opposite the handle, and
+  // turn 90 degrees into the recess (openYaw, applied via walkModeGates).
+  const [wx,wz]=world([x,z]),f=makeGroup(walls,wx,wz),west=x<381;
   // Dark jamb, head and sill frame a full-height glazed leaf.  The outer frame
   // overlaps its masonry opening by a few centimetres as a normal stop frame.
-  box(g,0,1.16,0,.052,2.28,.88,entranceGlass);
-  for(const dz of [-.45,.45])box(g,0,1.16,dz,.082,2.34,.052,dark);
-  box(g,0,2.3,0,.082,.06,.95,dark);box(g,0,.03,0,.082,.06,.95,dark);
-  rod(g,[x<381?-.055:.055,.72,.22],[x<381?-.055:.055,1.32,.22],.022,steel);
+  for(const dz of [-.45,.45])box(f,0,1.16,dz,.082,2.34,.052,dark);
+  box(f,0,2.3,0,.082,.06,.95,dark);box(f,0,.03,0,.082,.06,.95,dark);
+  const g=makeGroup(walls,wx,wz-.44);
+  g.name=west?'West recessed-entry glass door':'East recessed-entry glass door';
+  box(g,0,1.16,.44,.052,2.28,.88,entranceGlass);
+  rod(g,[west?-.055:.055,.72,.66],[west?-.055:.055,1.32,.66],.022,steel);
+  g.userData.openYaw=west?Math.PI/2:-Math.PI/2;gates.push(g);
   return g;
  };
  // The side walls run from the new rear wall to the existing facade, with a
