@@ -12,6 +12,7 @@ body.first-person .room-browser,body.first-person .detail,body.first-person .vie
 .fp-toolbar>span{font-size:11px;letter-spacing:.12em;color:var(--gold);margin-right:auto;padding:10px;background:#141a24dd}
 .fp-toolbar button,.fp-card button{background:var(--navy);border:1px solid var(--line);border-radius:3px;min-height:44px;padding:10px 14px;font-size:12px}
 .fp-toolbar button:hover,.fp-card button:hover{background:#303b47}
+@media(max-width:480px){.fp-toolbar>span{display:none}.fp-toolbar{justify-content:flex-end}}
 .fp-help{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:#141a24dd;padding:8px 14px;font-size:12px;white-space:nowrap}
 .fp-overlay{position:absolute;inset:0;background:#071018b8;display:grid;place-items:center;pointer-events:auto}
 .fp-card{max-width:390px;margin:20px;padding:26px;background:var(--navy);border:1px solid var(--line);border-radius:5px;text-align:center}

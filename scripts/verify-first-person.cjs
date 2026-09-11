@@ -114,6 +114,10 @@ const state = page => page.evaluate(() => ({
   await mobile.setViewportSize({ width: 390, height: 844 });
   await mobile.waitForTimeout(150);
   assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  assert.equal(await mobile.evaluate(()=>clubGilmore.firstPerson.config.walkSpeed),3.6,'medium default');
+  await mobile.locator('#fp-speed').click();assert.equal(await mobile.evaluate(()=>clubGilmore.firstPerson.config.walkSpeed),5.4);
+  await mobile.locator('#fp-speed').click();assert.equal(await mobile.locator('#fp-speed').textContent(),'Slow');
+  await mobile.locator('#fp-speed').click();
   assert.equal(await mobile.locator('#fp-move-stick').isVisible(), true);
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   const portraitBox=await mobile.locator('#fp-move-stick').boundingBox(),portraitBefore=await mobile.evaluate(()=>clubGilmore.firstPerson.position.toArray());
