@@ -999,6 +999,17 @@ pergola tables and connected to their supplied booking URLs. Facility JPEGs are
 stored as each gallery's photographic references; the supplied Level 6 PNG is
 kept as the final map image in each gallery.
 
+### P18 fire-pit booking details — September 11, 2026
+
+The PerfectMind page supplied by the user identifies `L6-fire` as P18 – Firepit,
+Table & BBQ. It lists BBQ, fire pit, patio couch, and picnic table; capacity is
+16 split equally between the BBQ and fire-pit spaces. Outdoor Seating is no fee
+for 170 minutes. The four facility JPEGs lead the gallery; the fifth supplied
+PNG map is intentionally excluded at the user's direction. The detail action
+opens the official scheduler under the clearer “View live times & availability”
+label, allowing current slots to remain authoritative without duplicating or
+caching booking data in the static viewer.
+
 User screenshot correction, 23:34: the plan shows the two inner court doors
 directly opposite each other. The east steam-room door moves from trace z=600 to
 z=573, facing the main west entry; the steam room's south partition now closes
