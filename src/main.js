@@ -1,4 +1,5 @@
 import './style.css';
+import { BookingAvailability } from './bookingAvailability.js';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
@@ -19,6 +20,7 @@ let activeLevel=levelParam?(levelParam==='4'?4:6):location.hash.startsWith('#L4'
 let rooms=activeLevel===6?level6Rooms:level4Rooms;
 const models=new Map();
 const $=id=>document.getElementById(id);
+const bookingAvailability=new BookingAvailability($('booking-availability'));
 const svg=(paths)=>`<svg class="room-symbol" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
 const icons={
  Fitness:svg('<path d="M3 9v6m3-8v10m12-10v10m3-8v6M6 12h12"/>'),
@@ -83,6 +85,7 @@ function selectRoom(id,fromList=false){
  $('detail-measure').hidden=!r.measurement;$('detail-measure').textContent=r.measurement||'';
  const validUrl=r.bookingUrl&&/^https:\/\//.test(r.bookingUrl);$('booking-link').hidden=!validUrl;$('booking-note').hidden=!!validUrl;
  if(validUrl)$('booking-link').href=r.bookingUrl;else $('booking-link').removeAttribute('href');
+ bookingAvailability.show(r);
  updatePhoto();setBrowser(!isMobile());$('detail').scrollTop=0;
  for(const [rid,b] of buttons)b.setAttribute('aria-pressed',String(rid===id));
  if(model){for(const [rid,entry] of model.roomGroups){entry.outline.visible=rid===id;entry.floor.material.emissive.set(rid===id?0x6c5526:0x000000);entry.floor.material.emissiveIntensity=rid===id?.3:0;}
@@ -95,6 +98,7 @@ function selectRoom(id,fromList=false){
  history.replaceState(null,'',`${location.pathname}${location.search}#${encodeURIComponent(id)}`);
 }
 function closeDetail(reset=false){const previous=selected;selected=null;document.body.classList.remove('has-detail');$('detail').hidden=true;
+ bookingAvailability.show(null);
  for(const b of buttons.values())b.setAttribute('aria-pressed','false');if(model)for(const e of model.roomGroups.values()){e.outline.visible=false;e.floor.material.emissive.set(0);}
  history.replaceState(null,'',location.pathname+location.search);updateViewOffset();if(reset)home();else requestRender();if(isMobile())$('browser-toggle').focus({preventScroll:true});else buttons.get(previous)?.focus({preventScroll:true});}
 $('close-detail').addEventListener('click',()=>closeDetail(false));$('show-whole').addEventListener('click',()=>closeDetail(true));
