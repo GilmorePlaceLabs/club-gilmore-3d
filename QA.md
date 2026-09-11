@@ -367,3 +367,45 @@ keeps the north pavilion interior closed.
 - **Monkey-bar entry.** `evidence/level6-playground-monkey-bars-entry.png` shows both rails meeting
   the mounting bar strung between edge 2's posts just above the deck. At that camera distance the
   rail-to-bar joint itself is small, so the top-down is the clearer evidence for the layout.
+
+Selection pulse, September 11, 2026: selecting a room now pulses its brass outline (opacity
+.3–1) and floor glow in `render()`. The pulse is skipped under `prefers-reduced-motion`, and
+frames only keep running while a room is selected. `npm run build` passes. A headless check that
+selected `L6-bbq-1` sampled the outline opacity every 150 ms and got `1.00 0.55 0.40 0.31 0.32
+0.42 0.59 0.79`, which shows it pulsing. `evidence/level6-selection-pulse.png` captures one frame
+near the low point of the pulse. `verify-level6.cjs` has not been re-run for this change.
+
+Selection ripple, September 11, 2026: this replaces the opacity pulse above. The selected room
+now gets a deep-brass (`#a8842c`) edge band about 5 px wide, plus three rings that spread out
+from it and fade, one every 2.7 s (slowed from 1.8 s at the user's request). Widths are set in screen pixels, so they look the same at any
+zoom. Under reduced motion only the static band is drawn. A headless check on `L6-bbq-1`,
+`L6-pool` and `L4-83` confirmed that the band is `a8842c`, the first ring sits outside the room's
+bounds, the ring opacities change between samples 400 ms apart, the ripple is removed on close,
+and the page logs no errors. `npm run build` passes. Stills: `evidence/level6-selection-ripple-bbq-1.png`,
+`-pool.png` and `evidence/level4-selection-ripple.png`. These are single frames, so the motion
+itself has only been checked by the opacity samples. `verify-level6.cjs` has not been re-run.
+
+Lower BBQ camera, September 11, 2026: `frameRoom()` now frames `L6-bbq-1`, `-2` and `-3` from the
+open west face at about 13° above horizontal, down from about 26°. That is still inside
+`maxPolarAngle`, and it lets the grill under the pergola show above the table. A headless run
+selected each bay and measured the camera at 12.9° every time, with no page errors.
+`npm run build` passes. Stills: `evidence/level6-bbq-1-low-camera.png`, `-bbq-2-` and `-bbq-3-`.
+
+P18 split and booking fee, September 11, 2026: `L6-p18` (P18 – Firepit, Table & BBQ) is now
+its own zone inside the fire pit terrace, and it holds the P18 booking link, photos and times.
+`L6-fire` is now public and non-bookable. `/api/availability` now returns the fee live from
+PerfectMind. Checks that passed:
+- `curl` returned `"fee":"Free"` for P18 and for BBQ 1.
+- `npm run build` passes.
+- A headless Chrome check that:
+  - hovered trace (1100, 905) and (1075, 860) and got the P18 label, and hovered (1080, 745)
+    and got "Fire pit terrace";
+  - clicked inside P18 and selected `L6-p18`, with the booking link shown, "Fee: Free" and
+    booking times;
+  - selected `L6-fire` and showed the not-bookable note, with no fee row and no booking link;
+  - showed "Fee: Free" on BBQ 1, 2 and 3;
+  - logged no page errors.
+
+Evidence: `evidence/level6-p18-selected.png`, `evidence/level6-bbq-fee.png`. `verify-level6.cjs`
+has not been re-run. Its hardcoded counts of 13 list items and 13 GLB room ids were already out of
+date before this change, which brings Level 6 to 16 rooms.

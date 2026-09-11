@@ -987,6 +987,29 @@ or surveyed architectural assessment.
 The 23:33 follow-up moves the court rear to trace z=553, joining the wet-block
 back wall directly and removing the narrow gap. Side-door positions stay fixed.
 
+### East pergola booking bays — September 11, 2026
+
+Club Gilmore's PerfectMind facility pages identify the three east-pergola bays
+as P01, P02 and P03 BBQ & Table. Each lists BBQ, table and chairs, a shade
+gazebo, a maximum of eight people, and a 170-minute Bookable Outdoor Seating
+duration. The note says children do not count toward the eight-person maximum.
+The former combined `L6-bbq-east` selection is split into `L6-bbq-1`,
+`L6-bbq-2`, and `L6-bbq-3`, aligned north-to-south with the three modeled
+pergola tables and connected to their supplied booking URLs. Facility JPEGs are
+stored as each gallery's photographic references; the supplied Level 6 PNG is
+kept as the final map image in each gallery.
+
+### P18 fire-pit booking details — September 11, 2026
+
+The PerfectMind page supplied by the user identifies `L6-fire` as P18 – Firepit,
+Table & BBQ. It lists BBQ, fire pit, patio couch, and picnic table; capacity is
+16 split equally between the BBQ and fire-pit spaces. Outdoor Seating is no fee
+for 170 minutes. The four facility JPEGs lead the gallery; the fifth supplied
+PNG map is intentionally excluded at the user's direction. The detail action
+opens the official scheduler under the clearer “View live times & availability”
+label, allowing current slots to remain authoritative without duplicating or
+caching booking data in the static viewer.
+
 User screenshot correction, 23:34: the plan shows the two inner court doors
 directly opposite each other. The east steam-room door moves from trace z=600 to
 z=573, facing the main west entry; the steam room's south partition now closes
@@ -1247,3 +1270,21 @@ room's visible floor mesh (y=0.045). That floor covers the corner x 660–698 an
 z 244–278 and a band along the turf, so it hid the timber. The walk now sits at
 y=0.05 and runs flush to the slab edges (x=660, z=275) and the turf (z=238):
 x 660–933, z 238–275.
+
+### P18 split from the fire pit terrace — September 11, 2026
+
+This supersedes the P18 entry above, which had assigned P18 to the whole of `L6-fire`. The user
+clarified that "Fire pit terrace" is the name of the area, and that P18 – Firepit, Table & BBQ
+is only the part they circled in red. P18 is now its own selection, `L6-p18`: the south fire
+lounge (sofas and fire bowl at trace 1090, 850), the curved picnic table at 1142, 925, and the
+compact grill at 1160, 857. Its polygon runs across the terrace at z = 815, which keeps the north
+lounge and the west grill (1145, 803) outside, and follows the planter's southwest rim from
+(1150, 839) to (1193, 882) out to the terrace's southeast edge. P18 now holds the booking link,
+the four facility photos and the booking details. `L6-fire` keeps its id and remains a public,
+non-bookable area. Its gallery is now IMG_3989, the terrace render and the aerial. P18's pick
+floor sits 10 mm above the terrace floor so that hover and click land on P18 inside the overlap.
+
+Fees: the `services` data on the PerfectMind pages for P18 and for the P01–P03 BBQ bays each
+lists a single "Outdoor Seating" price with `Amount` 0 (`DisplayAmountOrAsFree` "Free"), as of
+September 11, 2026. The viewer does not store this. `/api/availability` returns a `fee` value read
+live from the same page, so the detail panel always shows the current fee.
