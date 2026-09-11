@@ -83,7 +83,7 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  for(const [x,z,w,d] of [
   [275,456,16,3],[283,441.5,3,29],[356,427,146,3],[429,439.5,3,25],
   [445,452,32,3],[463,531.5,4,159],[267,533.5,3,155],
-  [311,610,88,3],[422.5,610,31,3],[462,610,6,3]
+  [311,610,88,3],[423,610,32,3],[462,610,6,3]
  ])B(x,z,w,d,3,facade,0,walls);
 
  // Northwest accessible shower and washroom. A wide south opening preserves
