@@ -6,7 +6,7 @@ import {box,cyl,rod,mesh,makeGroup,canvasTexture} from './model.js';
 // can be compared directly with the 1855 x 1344 reference render.
 const rect=(x,z,w,d)=>[[x,z],[x+w,z],[x+w,z+d],[x,z+d]];
 
-export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,gates=[]}){
+export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,gates=[],tall=new T.Group()}){
  const stoneMap=canvasTexture((c,n)=>{
   c.fillStyle='#55595b';c.fillRect(0,0,n,n);
   for(let y=0;y<n;y+=64)for(let x=0;x<n;x+=128){
@@ -26,7 +26,8 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  const partition=M('#d9dcda',.48),partitionTop=M('#f1f1ec',.38);
  const timber=M('#8d6846',.7),timberDark=M('#68482f',.74);
  const fixture=M('#f3f2eb',.3),steel=M('#aeb8ba',.24),dark=M('#252b2e',.48);
- const mirror=M('#b7d4d6',.15),orange=M('#ee6731',.55);
+ const mirror=M('#cfe2e4',.06),orange=M('#ee6731',.55);
+ const counter=M('#e4e1da',.32),sink=M('#cfd3d0',.2);
  const wetFloor=mats.tilefloor.clone();wetFloor.color.set('#c8d4d2');
  const steamFloor=mats.tilefloor.clone();steamFloor.color.set('#b8c2c0');
  const grout=M('#3d4244',.85),red=M('#c74438',.62),sign=M('#dedbd0',.75);
@@ -46,38 +47,48 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
   const [wx,wz]=world([x,z]);cyl(p,wx,.095,wz,.095,.018,steel);
  };
  const showerHead=(p,x,z,face='south')=>{
-  const [wx,wz]=world([x,z]),dz=face==='south'?.27:-.27;
+  const [wx,wz]=world([x,z]),[dx,dz]={south:[0,.27],north:[0,-.27],west:[-.27,0]}[face];
   rod(p,[wx,1.64,wz],[wx,1.85,wz],.025,steel);
-  rod(p,[wx,1.85,wz],[wx,1.85,wz+dz],.025,steel);
-  const head=mesh(p,new T.CylinderGeometry(.105,.105,.025,18),steel,wx,1.83,wz+dz);
-  head.rotation.x=Math.PI/2;
-  box(p,wx,1.06,wz+.012,.12,.18,.05,dark);
+  rod(p,[wx,1.85,wz],[wx+dx,1.85,wz+dz],.025,steel);
+  const head=mesh(p,new T.CylinderGeometry(.105,.105,.025,18),steel,wx+dx,1.83,wz+dz);
+  if(dz)head.rotation.x=Math.PI/2;else head.rotation.z=Math.PI/2;
+  box(p,wx,1.06,wz+(dx?0:.012),dx?.05:.12,.18,dx?.12:.05,dark);
  };
+ // Undermount oval bowl read as a recessed dish in the counter, with a centre
+ // drain and a deck gooseneck mixer between bowl and east wall (+x).
  const basin=(p,x,z)=>{
   const [wx,wz]=world([x,z]);
-  const rim=mesh(p,new T.TorusGeometry(.19,.035,8,18),steel,wx,.92,wz);
-  rim.rotation.x=Math.PI/2;
-  cyl(p,wx,.89,wz,.15,.035,fixture);
-  rod(p,[wx,.94,wz-.13],[wx,.94,wz-.28],.025,steel);
+  const bowl=mesh(p,new T.CylinderGeometry(.2,.2,.008,28),sink,wx,.903,wz);bowl.scale.x=.72;
+  mesh(p,new T.CylinderGeometry(.025,.025,.004,12),steel,wx,.909,wz);
+  rod(p,[wx+.2,.9,wz],[wx+.2,1.12,wz],.018,steel);
+  rod(p,[wx+.2,1.12,wz],[wx+.06,1.12,wz],.016,steel);
+  rod(p,[wx+.06,1.12,wz],[wx+.06,1.06,wz],.014,steel);
+  rod(p,[wx+.2,1,wz],[wx+.2,1,wz+.08],.012,steel);
  };
+ // `tall` holds each partition's extension to the 3 m shell height. It is only
+ // shown in first person, so the orbit cutaway stays low but the walker cannot
+ // see over the walls.
  const partitionWall=(x,z,w,d,h=1.55)=>{
   B(x,z,w,d,h,partition,0,interior);B(x,z,w+.5,d+.5,.035,partitionTop,h,interior);
+  B(x,z,w,d,3-h,partition,h,tall);
  };
+ // Door leaves get the same first-person extension to 3 m.
+ const leaf=(x,z,w,d,h,mat,r=0)=>{B(x,z,w,d,h,mat,0,interior).rotation.y=r;B(x,z,w,d,3-h,mat,h,tall).rotation.y=r;};
 
  // Pale tiled floors identify the wet zones without covering the common route.
  surface(rect(284,428,60,35),wetFloor,.072,0,interior);
  surface(rect(344,429,83,34),mats.tilefloor,.073,0,interior);
  surface(rect(335,485,95,30),wetFloor,.074,0,interior);
- surface(rect(341,522,21,30),wetFloor,.075,0,interior);
+ surface(rect(341,516,21,36),wetFloor,.075,0,interior);
  surface(rect(363,526,66,26),mats.tilefloor,.074,0,interior);
- surface(rect(396,553,43,48),steamFloor,.075,0,interior);
+ surface(rect(396,553,43,55.5),steamFloor,.075,0,interior);
 
  // Full roofless perimeter follows the stepped trace. The south side is split
  // around the recessed pool-entry court and the separate storage door.
  for(const [x,z,w,d] of [
   [275,456,16,3],[283,441.5,3,29],[356,427,146,3],[429,439.5,3,25],
   [445,452,32,3],[463,531.5,4,159],[267,533.5,3,155],
-  [311,610,88,3],[422.5,610,31,3],[462,610,6,3]
+  [311,610,88,3],[423,610,32,3],[462,610,6,3]
  ])B(x,z,w,d,3,facade,0,walls);
 
  // Northwest accessible shower and washroom. A wide south opening preserves
@@ -85,122 +96,181 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  // distinct objects rather than symbolic blocks.
  partitionWall(344,445.5,2,35);
  partitionWall(330,463,28,2);
- B(297,442,14,4,.42,timber,.3,interior);
+ // South wall closes up to a 1 m door between x=301 and 316 (west of that the
+ // first change cubicle's partition blocks the approach). Closed in orbit
+ // view, the leaf swings north into the room for the walk like the court doors.
+ partitionWall(292.75,463,16.5,2);
+ {const [wx,wz]=world([301,463]),g=makeGroup(interior,wx,wz);g.name='Accessible washroom door';
+  box(g,.4875,.72,0,.95,1.3,.05,partition);
+  for(const dz of [-.05,.05])rod(g,[.86,.8,dz],[.86,1.1,dz],.02,steel);
+  g.userData.openYaw=Math.PI/2;gates.push(g);
+  // Walk-only extension to 3 m, hinged with the leaf (main.js shows walkOnly gates).
+  const t=makeGroup(interior,wx,wz);box(t,.4875,2.185,0,.95,1.63,.05,partition);
+  t.visible=false;t.userData={openYaw:Math.PI/2,walkOnly:true};gates.push(t);}
+ // Fold seat, grab rails, WC and counter all back onto a wall face.
+ B(286.5,442,4,14,.42,timber,.3,interior);
  floorDrain(interior,302,454);showerHead(interior,299,429,'south');
- toilet(interior,334,439,Math.PI);
- B(338,457,8,5,.76,fixture,0,interior);
- for(const [x,z,w,d] of [[291,436,15,1],[288,442,1,16],[327,447,12,1]])B(x,z,w,d,.05,steel,1.05,interior);
+ toilet(interior,338.2,439,-Math.PI/2);
+ B(339,459.5,8,5,.76,fixture,0,interior);
+ for(const [x,z,w,d] of [[291,429,12,1],[285.2,442,1,16],[342.5,439,1,12]])B(x,z,w,d,.05,steel,1.05,interior);
 
  // Five north bathroom cubicles, matching the annotated row and the visible
  // angled doors. Each stall gets a recognisable toilet and a low privacy panel.
  const northXs=[344,360.6,377.2,393.8,410.4,427];
- partitionWall(385.5,463,83,2);
+ // The reference shows individual open door leaves, not a continuous wall
+ // across the aisle-facing mouths of the north stalls.
  for(const x of northXs)partitionWall(x,446,2,34);
  for(let i=0;i<5;i++){
   const cx=(northXs[i]+northXs[i+1])/2;
-  toilet(interior,cx,437,0);
-  const door=B(cx+4.8,461,10.5,1.4,1.38,partition,0,interior);door.rotation.y=-.48;
+  toilet(interior,cx,433.3,0);
+  leaf(cx+6.2,459,10.5,1.4,1.38,partition,-Math.PI/2);
  }
 
- // Six timber change cubicles open toward the central aisle on the west wall.
- // Their benches and coat hooks make the use clear in both plan and 3D views.
- const changeZ=[459,473.5,488,502.5,517,531.5,546];
- for(const z of changeZ)partitionWall(290.5,z,45,1.7,1.4);
- for(let i=0;i<6;i++){
+ // Five timber change cubicles open toward the central aisle on the west wall.
+ // Benches and coat hooks sit on the west wall; each cubicle's door leaf
+ // stands open inward along its north partition, like the WC leaves.
+ const changeZ=[464,480,495.5,511,526.5,543];
+ for(const z of changeZ)partitionWall(283.5,z,31,1.7,1.4);
+ for(let i=0;i<changeZ.length-1;i++){
   const cz=(changeZ[i]+changeZ[i+1])/2;
-  B(278.5,cz,18,5,.42,timber,.12,interior);
-  B(275,cz-4.8,1.2,1.2,.09,steel,1.2,interior);
-  B(275,cz,1.2,1.2,.09,steel,1.2,interior);
+  B(271,cz,5,12,.42,timber,.12,interior);
+  B(269,cz-3,1.2,1.2,.09,steel,1.25,interior);
+  B(269,cz+3,1.2,1.2,.09,steel,1.25,interior);
+  leaf(292.5,changeZ[i]+1.5,13,1.2,1.38,partition);
  }
 
- // Four individual shower rooms span the middle. The rain head and drain sit at
- // the closed north end; the timber dry bench sits by the door at the south.
+ // Four individual shower rooms span the middle. Their openings and timber
+ // seats face the north aisle in the supplied overhead; the wet fittings sit
+ // against the uninterrupted south back wall.
  const showerXs=[335,358.75,382.5,406.25,430];
- partitionWall(382.5,485,95,2);
  partitionWall(382.5,515,95,2);
  for(const x of showerXs)partitionWall(x,500,2,30);
  for(let i=0;i<4;i++){
   const cx=(showerXs[i]+showerXs[i+1])/2;
-  B(cx,508,16,5,.4,timber,.12,interior);
-  showerHead(interior,cx,486,'south');floorDrain(interior,cx,490);
-  B(cx+6.6,513,10,1.2,1.28,fenceGlass,0,interior).rotation.y=-.5;
+  B(showerXs[i]+3.5,491,5,10,.4,timber,.12,interior);
+  showerHead(interior,cx,514,'north');floorDrain(interior,cx,509);
+  leaf(showerXs[i+1]-2,491,10,1.2,1.28,fenceGlass,-Math.PI/2);
  }
 
  // The annotation points specifically to this separate two-head standing-shower
- // bay below and left of the enclosed showers.
- partitionWall(341,537,2,30);partitionWall(362,537,2,30);partitionWall(351.5,552,21,2);
- showerHead(interior,360.5,528,'south');showerHead(interior,360.5,543,'south');
+ // bay below and left of the enclosed showers. Both heads hang on its east
+ // wall, which runs up to the shower-block back wall; the west side is open.
+ partitionWall(362,533.5,2,37);partitionWall(351.5,552,21,2);
+ showerHead(interior,360.7,528,'west');showerHead(interior,360.7,543,'west');
  floorDrain(interior,351,528);floorDrain(interior,351,543);
 
  // Five lower-right toilet cubicles: tanks sit against the south back wall,
  // bowls face north and the access doors are on the north edge.
  const lowerXs=[363,376.2,389.4,402.6,415.8,429];
  partitionWall(396,552,66,2);
- for(const x of lowerXs)partitionWall(x,539,2,26,1.4);
+ for(const x of lowerXs)partitionWall(x,542,2,20,1.4);
  for(let i=0;i<5;i++){
   const cx=(lowerXs[i]+lowerXs[i+1])/2;
   toilet(interior,cx,546,Math.PI);
-  const door=B(cx+3.8,528,6.8,1.2,1.22,partition,0,interior);door.rotation.y=.52;
+  leaf(cx+5.8,535,6.8,1.2,1.22,partition,-Math.PI/2);
  }
 
- // Three-basin vanity along the east wall, with one continuous counter and
- // individual mirrors and taps.
- B(455.5,513.5,11,39,.86,dark,.05,interior);
+ // Three-basin vanity on the east wall (inner face x=461): wall-hung timber
+ // cabinet, quartz counter and backsplash, framed mirror and soap dispenser
+ // over each basin, and a hand dryer just south of the run.
+ B(456.5,513.5,9,38,.54,timber,.3,interior);
+ B(456,513.5,10,40,.06,counter,.84,interior);
+ B(460.6,513.5,.8,40,.14,counter,.9,interior);
  for(const z of [500,513.5,527]){
-  basin(interior,456,z);
-  B(462, z,1,11,.72,mirror,1.03,interior);
+  basin(interior,455,z);
+  B(451.8,z,.3,4,.03,steel,.74,interior);
+  B(460.8,z,.4,12,.9,dark,1.07,interior);
+  B(460.7,z,.6,11,.8,mirror,1.12,interior);
  }
+ // Cabinet door seams, and a soap dispenser in each gap between mirrors.
+ for(const z of [506.75,520.25]){B(451.9,z,.2,.3,.48,dark,.33,interior);B(460.3,z,1.4,1.8,.26,steel,1.16,interior);}
+ B(459.9,541,2.2,5,.55,steel,1,interior);
+ B(458.75,541,.3,3.6,.05,dark,1.06,interior);
+ B(458.75,541,.2,.6,.06,dark,1.4,interior);
+
+ // Closed door to Tower 2 on the inner face of the northeast step wall, with
+ // a text sign above it. It stays shut: the tower is outside this model.
+ {const [wx,wz]=world([445,453.5]),g=makeGroup(walls,wx,wz);g.name='Closed door to Tower 2';
+  for(const x of [-.5,.5])box(g,x,1.08,.03,.08,2.16,.06,dark);
+  box(g,0,2.16,.03,1.08,.08,.06,dark);
+  box(g,0,1.04,.02,.92,2.08,.04,timberDark);
+  rod(g,[.34,1,.04],[.34,1,.11],.02,steel);rod(g,[.34,1,.11],[.22,1,.11],.02,steel);
+  const tex=canvasTexture((c,n)=>{c.fillStyle='#dedbd0';c.fillRect(0,0,n,n);c.fillStyle='#252b2e';c.font=`600 ${n*.13}px sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('To Tower 2',n/2,n/2);});
+  tex.repeat.set(1,.25);tex.offset.set(0,.375);
+  mesh(g,new T.PlaneGeometry(.9,.225),new T.MeshStandardMaterial({map:tex,roughness:.7}),0,2.45,.035);}
 
  // Southeast steam room. Its glass door and L-shaped tiled benches distinguish
  // it from the neighbouring secondary cubicles.
  partitionWall(417.5,553,43,2,1.75);
- partitionWall(396,570.5,2,35,1.75);
- // The south wall stops short of the new east entry so the glazed side door
- // opens directly into a clear steam-room approach.
- partitionWall(429.5,601,19,2,1.75);
- B(439,577,3,48,1.75,partition,0,interior);
- B(432,577,11,40,.48,fixture,.08,interior);
+ // The steam room runs all the way south to the pool facade; its east wall
+ // closes onto that facade rather than a separate inner south partition.
+ partitionWall(439,580.25,3,56.5,1.75);
+ // L-bench: north run butts the east run, which reaches the facade.
+ B(435,581.25,5,54.5,.48,fixture,.08,interior);
+ B(420,556.5,25,5,.48,fixture,.08,interior);
 
- // A short service-alcove wall follows the visible lower-left jog while leaving
- // the central route from the recessed pool entrance open.
- partitionWall(315,564,2,36,1.35);
- partitionWall(334,582,38,2,1.35);
- B(329,576,24,6,.42,timberDark,.1,interior);
+ // Southwest storage is an L-shaped enclosed room in the supplied plan. The
+ // marked door is in its east return, separate from the exterior frosted door.
+ const storageWall=M('#777f80',.72);
+ const storagePartition=(x,z,w,d)=>{B(x,z,w,d,1.75,storageWall,0,interior);B(x,z,w,d,1.25,storageWall,1.75,tall);};
+ storagePartition(291.5,546,49,2);
+ storagePartition(315,564,2,36);
+ storagePartition(335.5,582,41,2);
+ // Southeast storage behind the frosted exterior door: its north wall runs
+ // from the steam room's east wall to the east perimeter.
+ // Spans face to face (steam wall east face 440.5, perimeter 461) so no
+ // coplanar faces overlap and flicker.
+ storagePartition(450.75,553,20.5,2);
+ surface([[268,547],[314,547],[314,583],[355,583],[355,609],[268,609]],mats.tilefloor,.077,0,interior);
 
- // Pool-facing elevation: the central entrance court projects roughly another
- // half metre into the building.  Its two entries are in the side walls; the
+ // Pool-facing elevation: the central entrance court is recessed about 3.7 metres
+ // into the building. Its three entries are in the side walls; the
  // front mouth stays open for circulation rather than becoming a front double
  // door.  The former glazed rear door is removed so it cannot read as that
  // incorrect front-door condition.
  const entranceGlass=M('#98b9c0',.16);entranceGlass.name='Recessed entry door glass';entranceGlass.transparent=true;entranceGlass.opacity=.48;entranceGlass.depthWrite=false;
- const sideGlassDoor=(x,z)=>{
+ const sideGlassDoor=(x,z,name,material=entranceGlass)=>{
   // Closed and flush in the orbit view. User request, September 10, 2026: they
   // swing open for the walk. The frame stays in the merged walls; only the leaf
   // and handle hang from a hinge at the north jamb, opposite the handle, and
-  // turn 90 degrees into the recess (openYaw, applied via walkModeGates).
+  // turn 90 degrees west: left doors into rooms, steam door into the court
+  // so its leaf cannot trap the user against the steam-room south partition.
   const [wx,wz]=world([x,z]),f=makeGroup(walls,wx,wz),west=x<381;
   // Dark jamb, head and sill frame a full-height glazed leaf.  The outer frame
   // overlaps its masonry opening by a few centimetres as a normal stop frame.
   for(const dz of [-.45,.45])box(f,0,1.16,dz,.082,2.34,.052,dark);
   box(f,0,2.3,0,.082,.06,.95,dark);box(f,0,.03,0,.082,.06,.95,dark);
   const g=makeGroup(walls,wx,wz-.44);
-  g.name=west?'West recessed-entry glass door':'East recessed-entry glass door';
-  box(g,0,1.16,.44,.052,2.28,.88,entranceGlass);
+  g.name=name;
+  box(g,0,1.16,.44,.052,2.28,.88,material);
   rod(g,[west?-.055:.055,.72,.66],[west?-.055:.055,1.32,.66],.022,steel);
-  g.userData.openYaw=west?Math.PI/2:-Math.PI/2;gates.push(g);
+  g.userData.openYaw=-Math.PI/2;gates.push(g);
   return g;
  };
  // The side walls run from the new rear wall to the existing facade, with a
  // side opening near the mouth on each side.  A short south return preserves
  // the crisp outer facade edge around each hinge.
- for(const x of [356,406]){
-  B(x,592.5,3,7,3,facade,0,walls);
-  B(x,610.25,3,1.5,3,facade,0,walls);
-  B(x,602.75,3,13.5,.66,facade,2.34,walls);
- }
- B(381,590,50,3,3,facade,0,walls);
- sideGlassDoor(356,602.75);sideGlassDoor(406,602.75);
- surface(rect(356,590,51,21),mats.tilefloor,.082,0,interior);
+ // Deeper court: near left = storage, far left = changing facilities, right
+ // = steam room. Build actual openings, not door meshes over solid walls.
+ // Join the court's rear wall to the wet-block back wall (z=552) rather
+ // than leaving an unusable strip between the two wall runs.
+ const entryRear=553;
+ const entryWall=(x,openings)=>{
+  let edge=entryRear;
+  for(const center of openings){
+   const start=center-6.75,end=center+6.75;
+   B(x,(edge+start)/2,3,start-edge,3,facade,0,walls);
+   B(x,center,3,13.5,.66,facade,2.34,walls);
+   edge=end;
+  }
+  B(x,(edge+611)/2,3,611-edge,3,facade,0,walls);
+ };
+ entryWall(356,[573,600]);entryWall(406,[573]);
+ B(381,entryRear,50,3,3,facade,0,walls);
+ sideGlassDoor(356,573,'Main change-room entry glass door');
+ sideGlassDoor(356,600,'Interior southwest storage door',timberDark);
+ sideGlassDoor(406,573,'East recessed-entry glass door');
+ surface(rect(356,entryRear,51,611-entryRear),mats.tilefloor,.082,0,interior);
 
  // Three stainless outdoor shower panels west of the entry, each with a rain
  // head, controls and a hanging hand-shower line.
@@ -253,8 +323,8 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  for(const x of [282,412,436])B(x,613.1,3.2,1.8,.26,dark,1.66,walls);
  // The centre sconce and plaque now mount on the solid rear wall of the
  // deeper court rather than floating in its open pool-facing mouth.
- B(365,591.7,3.2,.4,.26,dark,1.66,walls);
- for(const [x,z,y,w,h,mat] of [[302,613,2.5,22,.4,dark],[330,613,2.45,14,.55,dark],[389,591.7,1.78,5,.38,sign],[409,613,2.0,9,.8,sign],[419,613,1.72,8,.42,red],[433,613,2.18,3,.32,red]])
+ B(365,entryRear+1.7,3.2,.4,.26,dark,1.66,walls);
+ for(const [x,z,y,w,h,mat] of [[302,613,2.5,22,.4,dark],[330,613,2.45,14,.55,dark],[389,entryRear+1.7,1.78,5,.38,sign],[409,613,2.0,9,.8,sign],[419,613,1.72,8,.42,red],[433,613,2.18,3,.32,red]])
   B(x,z,w,1,h,mat,y-h/2,walls);
 
  return interior;

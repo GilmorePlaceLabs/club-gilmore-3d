@@ -12,7 +12,10 @@ import { NavigationWorld } from './firstPerson/NavigationWorld.js';
 let firstPerson=null,lastFrameTime=0;
 const speeds=[['Slow',2.2],['Medium',3.6],['Fast',5.4]];let speedIndex=1;
 const walking=()=>firstPerson?.active===true;
-let activeLevel=location.hash.startsWith('#L6')||new URLSearchParams(location.search).get('level')==='6'?6:4;
+// Level 6 is the default floor. ?level= wins; otherwise an #L4- room hash is a
+// Level 4 deep link.
+const levelParam=new URLSearchParams(location.search).get('level');
+let activeLevel=levelParam?(levelParam==='4'?4:6):location.hash.startsWith('#L4')?4:6;
 let rooms=activeLevel===6?level6Rooms:level4Rooms;
 const models=new Map();
 const $=id=>document.getElementById(id);
@@ -120,20 +123,22 @@ function enterFirstPerson(){
  if(!model?.navigation||walking())return;
  tween=null;controls.update();controls.enabled=false;controls.stopListenToKeyEvents();
  // Slide the pool gates clear of their openings, and swing hinged doors (openYaw) open, for the walk.
- for(const gate of model.walkModeGates||[]){const u=gate.userData;u.closedPosition??=gate.position.clone();u.closedYaw??=gate.rotation.y;if(u.openYaw==null)gate.position.z=u.closedPosition.z+.95;else gate.rotation.y=u.closedYaw+u.openYaw;}
+ for(const gate of model.walkModeGates||[]){const u=gate.userData;gate.visible=true;u.closedPosition??=gate.position.clone();u.closedYaw??=gate.rotation.y;if(u.openYaw==null)gate.position.z=u.closedPosition.z+.95;else gate.rotation.y=u.closedYaw+u.openYaw;}
+ if(model.walkModeWalls)model.walkModeWalls.visible=true;
  if(!firstPerson){
   const navigationWorld=new NavigationWorld(model,model.navigation);
-  firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:{...model.navigation,walkSpeed:speeds[speedIndex][1]},onStateChange:syncFirstPersonUI,requestRender});
+  firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:{...model.navigation,walkSpeed:speeds[speedIndex][1],sprintSpeed:speeds[2][1]},onStateChange:syncFirstPersonUI,requestRender});
   firstPerson.attachAvatar(new FirstPersonAvatar());
  }
  firstPerson.resize(vw,vh);firstPerson.enter();lastFrameTime=0;renderer.domElement.focus({preventScroll:true});
  $('hover-label').hidden=true;renderer.domElement.style.cursor='default';
- syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look, Space to jump. Escape to pause.';
+ syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look, Space to jump, hold Shift to run. Escape to pause.';
 }
 function exitFirstPerson(){
  if(!walking())return;
  firstPerson.exit();controls.enabled=true;controls.listenToKeyEvents(renderer.domElement);
- for(const gate of model.walkModeGates||[]){gate.position.copy(gate.userData.closedPosition);gate.rotation.y=gate.userData.closedYaw;}
+ for(const gate of model.walkModeGates||[]){gate.visible=!gate.userData.walkOnly;gate.position.copy(gate.userData.closedPosition);gate.rotation.y=gate.userData.closedYaw;}
+ if(model.walkModeWalls)model.walkModeWalls.visible=false;
  syncFirstPersonUI();updateViewOffset();requestRender();$('first-person-button').focus({preventScroll:true});
 }
 $('first-person-button').addEventListener('click',()=>walking()?exitFirstPerson():enterFirstPerson());

@@ -46,6 +46,14 @@ const state = page => page.evaluate(() => ({
   await page.keyboard.up('w');
   const afterWalk = await page.evaluate(() => clubGilmore.firstPerson.position.toArray());
   assert.notDeepEqual(afterWalk, beforeWalk, 'WASD movement should update the controller position');
+  // Held Shift runs at Fast, then drops back to the chosen setting (Medium) on release.
+  const dist=(a,b)=>Math.hypot(a[0]-b[0],a[2]-b[2]),walkDist=dist(beforeWalk,afterWalk);
+  await page.keyboard.down('Shift');assert(await page.evaluate(()=>clubGilmore.firstPerson.input.sprint),'Shift held sprints');
+  await page.keyboard.down('w');await page.waitForTimeout(450);await page.keyboard.up('w');
+  const afterSprint=await page.evaluate(()=>clubGilmore.firstPerson.position.toArray());
+  await page.keyboard.up('Shift');assert(!await page.evaluate(()=>clubGilmore.firstPerson.input.sprint),'Shift released');
+  assert(dist(afterWalk,afterSprint)>walkDist*1.2,`sprint ${dist(afterWalk,afterSprint).toFixed(2)} m vs walk ${walkDist.toFixed(2)} m`);
+  assert.equal(await page.evaluate(()=>clubGilmore.firstPerson.config.walkSpeed),3.6,'speed setting unchanged by sprint');
 
   const boundary = await page.evaluate(() => {
     const c = clubGilmore.firstPerson, p = c.position, far = p.clone();

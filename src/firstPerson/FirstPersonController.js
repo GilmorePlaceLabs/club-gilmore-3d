@@ -1,7 +1,7 @@
 import { Euler, PerspectiveCamera, Vector3 } from 'three';
 import { FirstPersonInput } from './FirstPersonInput.js';
 
-const DEFAULTS = { spawn: new Vector3(), yaw: 0, floorHeight: 0, eyeHeight: 1.68, walkSpeed: 2.2 };
+const DEFAULTS = { spawn: new Vector3(), yaw: 0, floorHeight: 0, eyeHeight: 1.68, walkSpeed: 2.2, sprintSpeed: 5.4 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 // Cosmetic hop: eye height only, navigation stays 2D so railings still block mid-air.
 const GRAVITY = 9.8, JUMP_HEIGHT = .9; // ~3 ft peak, below railing height
@@ -75,7 +75,8 @@ export class FirstPersonController {
     if (this.jumpY || this.jumpV) { this.jumpV -= GRAVITY * dt; this.jumpY = Math.max(0, this.jumpY + this.jumpV * dt); if (!this.jumpY && this.jumpV < 0) this.jumpV = 0; }
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const move = this.input.movement, intended = Math.hypot(move.x, move.z) > .001;
-    const targetSpeed = intended ? this.config.walkSpeed : 0;
+    // Held Shift runs at sprintSpeed without touching the chosen walkSpeed setting.
+    const targetSpeed = intended ? (this.input.sprint ? this.config.sprintSpeed : this.config.walkSpeed) : 0;
     this.motionSpeed += (targetSpeed - this.motionSpeed) * Math.min(1, dt * 10);
     let moving = false;
     if (this.motionSpeed > .001 && intended) {

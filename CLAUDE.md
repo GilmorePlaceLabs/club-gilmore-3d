@@ -43,7 +43,7 @@ A separate outdoor deck model with its own coordinate space: trace coords normal
 
 Orthographic camera + OrbitControls, **render-on-demand**: `requestRender()` sets a flag, there is no continuous rAF loop. Anything that changes the scene must call it or the frame never updates.
 
-Level state is module-level: `activeLevel`, a reassigned `rooms` binding, and a `models` Map that caches each built floor so switching back is instant. `switchLevel()` swaps `model.root` in the scene, moves the named `'Viewer ground'` plane (−0.43 for L4, −5 for L6), resets search/category, and calls `rebuildLabels()` + `renderList()` + `updateLevelUI()` + `home(true)`. Initial floor comes from `?level=6` or a `#L6-…` hash.
+Level state is module-level: `activeLevel`, a reassigned `rooms` binding, and a `models` Map that caches each built floor so switching back is instant. `switchLevel()` swaps `model.root` in the scene, moves the named `'Viewer ground'` plane (−0.43 for L4, −5 for L6), resets search/category, and calls `rebuildLabels()` + `renderList()` + `updateLevelUI()` + `home(true)`. Initial floor defaults to Level 6; `?level=4` or an `#L4-…` room hash opens Level 4, and `?level=` always wins.
 
 Camera moves go through `frameBounds()`, which projects corner points onto the camera basis to compute a fitting zoom, then either snaps (instant / `prefers-reduced-motion`) or drives a manual `tween` object stepped inside `render()`. `updateViewOffset()` offsets the camera frustum so the model centres in the space *not* covered by the browser/detail panels; its return value feeds the zoom fit, so panel widths appear both in CSS and in that function and must stay in sync.
 
