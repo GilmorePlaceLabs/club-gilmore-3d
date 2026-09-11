@@ -253,3 +253,30 @@ user's red line was located by calibrating against the walk's bench blocks, whos
 known exactly (the offset-80 blocks at t = .362, .518 and .674 fall 430 px apart in the supplied
 crop), putting the line at t = .427. Plan render confirms the tail gone, the new end square to the
 walk, and the lawn meeting the walk southwest of it.
+
+Flush slab joins, September 10, 2026: `node scripts/verify-level6.cjs`,
+`node scripts/verify-first-person.cjs` and `npm run build` pass. `node scripts/verify-walk-routes.cjs`
+passes; this is its first successful run. It previously failed on load with
+`THREE is not defined`, because it built a `THREE.Vector3` inside the page; it now clones the
+controller's vector. Its change-room forecourt zone now stops at z=594, because z 596–611 is shared
+with the open pool sun deck and was being counted as the forecourt. A south-bridge zone was
+added. A scratch probe walked across the south bridge's west join: before the navigation fix it
+stopped at x=927.2 heading east and 937.6 heading west; after it, it crossed to 1045.1 and 921.9,
+with no unsafe samples left on the bridge centre line. The z=275 north join was already crossable.
+First-person renders at both photographed joins, `evidence/level6-flush-joins-south-bridge.png`
+and `evidence/level6-flush-joins-north-seam.png`, show them flush, with the light-well curbs and
+railings still in place.
+
+Change-room doors open for the walk, September 10, 2026: `node scripts/verify-level6.cjs`,
+`node scripts/verify-first-person.cjs` and `npm run build` pass. The first-person script now
+asserts that both doors are swung to their `openYaw` while walking and that every gate and door is
+back at its closed rotation after exit. `node scripts/verify-walk-routes.cjs` passes, with the
+change-room interior now expected open, and reached at trace ≈ (415, 593). Its first run failed
+to reach it because the BFS used a 0.4 m grid, and an open doorway leaves only a 0.24 m band for
+the player's centre. The grid is now 0.2 m. The north pavilion interior still correctly reads
+closed at the finer grid. A scratch probe walked from the middle of the recess through each
+doorway: west to x=288.7, deep inside the block; east to x=415.5, where the steam room's south
+wall stops the approach as built. A walk in from the pool-deck mouth reached the rear of the
+recess. First-person renders, `evidence/level6-change-room-doors-west.png`, `-east.png` and
+`-from-inside.png`, show each leaf swung flat into the court with its handle and frame intact and
+the doorway clear. The orbit view, which keeps the doors closed, was not re-rendered.

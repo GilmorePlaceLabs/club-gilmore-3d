@@ -724,3 +724,60 @@ Planting follows `eastPalette` like the beds either side of it. Note that IMG_40
 border as yellow rudbeckia with grasses, matching `site-3981`/`site-3982` rather than the render;
 the white-and-rust palette is kept here for consistency with the user's earlier direction that the
 eastern garden follows `level-6-render.png`.
+
+#### Flush joins between slabs — user photographs IMG_4055/4056, September 10, 2026
+
+The user's `IMG_4055.HEIC` and `IMG_4056.HEIC` are phone photographs of the first-person view on
+screen, not site photographs, so they are not added to `public/photos`. They show raised white
+curbs crossing the walk wherever one slab meets the next. A player cannot step over them, and the
+site has no such strips.
+
+Cause: `slab()` drew the 0.23 m `edge()` curb round the whole outline of the north slab, the south
+bridge `rect(933,638,104,35)` and the change-room forecourt, including sides that butt against
+another slab. Only the north slab had a hand-cut exception (its z=274 run east of x=1037).
+
+Curbs are now derived rather than hand-cut. Each edge of those three slabs is sampled per trace
+unit, and any run with another slab (`decks`) 2 units to either side is left out. This replaces
+`edge()`, `slab()` and the north-slab exception. By construction:
+
+- **South bridge:** both ends are flush — x=933 onto the west slab and x=1037 onto the east slab
+  (IMG_4055). Both light-well sides keep their curb.
+- **North slab:** its z=275 edge along the west slab, x 660–933, is flush (IMG_4056). Its z=274 run
+  over the east slab, x 1037–1193, stays open as before; x 933–1037 over the light well keeps its
+  curb.
+- **Forecourt:** its z=611 edge and the side portions inside the pool sun deck (z 596–611) are flush.
+- **One addition:** the z=274 run at x 1193–1221, where the north slab extends past the east
+  slab's corner to an open edge, now has a curb. The old exception had dropped it along with the
+  rest of that run.
+
+Navigation, separately: the curbs never collided (0.23 m is under the 0.28 m collision cutoff).
+What actually stopped the player at the south bridge was its walkable rectangle starting at x=933
+while the west slab ends at x=932. That one-unit seam made the west end impassable from both
+sides; a probe walking east stopped at x=927.2 and walking west at x=937.6. The rectangle in
+`NavigationWorld.js` now starts at x=932, closing the same seam the north connector already
+closes.
+
+#### Change-room entry doors open for the walk — user request, September 10, 2026
+
+The user asked for the two recessed-entry glass doors (`sideGlassDoor(356,602.75)` and
+`(406,602.75)` in `src/changeRoom.js`) to stand open in first person, naturally, so the player can
+walk through. The orbit view is unchanged: they stay closed and flush there.
+
+The dark jambs, head and sill stay in the merged walls as the fixed frame. Only the glass leaf and
+its handle now hang from a hinge group, and that group joins `walkModeGates` alongside the two pool
+gates. `buildChangeRoom` takes a `gates` array for this. A gate carrying `userData.openYaw` swings
+by that angle while walking; the pool gates, which carry none, still slide. On exit, both position
+and rotation are restored.
+
+Two choices are inference; no photograph shows these doors open:
+
+- **Hinge at the north jamb (z≈596).** It is opposite the existing handle, which sits toward the
+  pool-facing mouth at z≈609.
+- **90° swing into the recess.** The west leaf opens toward +x and the east leaf toward −x, so each
+  ends up parallel to the rear wall and about 0.4 m in front of it, with about 1.5 m of the court
+  still clear between them. Swinging into the building instead would have crossed interior fit-out
+  that was not laid out for a door swing. The old concern recorded in the code, a swing path cutting
+  through the facade, does not arise, because the leaf never leaves the recess.
+
+With a leaf open, the doorway's clear width is about 0.84 m against the player's 0.6 m. The open
+leaves are solid to navigation, so the player walks around them rather than through the glass.

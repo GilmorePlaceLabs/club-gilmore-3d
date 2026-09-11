@@ -57,14 +57,25 @@ const state = page => page.evaluate(() => ({
   await page.evaluate(() => clubGilmore.firstPerson.look(0, 1.4));
   await page.waitForTimeout(100);
   await page.screenshot({ path: 'evidence/first-person-look-down.png' });
+  const doorsOpen=()=>page.evaluate(()=>clubGilmore.model.walkModeGates.filter(g=>g.userData.openYaw!=null).map(g=>Math.abs(g.rotation.y-g.userData.closedYaw-g.userData.openYaw)<1e-6));
+  assert.deepEqual(await doorsOpen(),[true,true],'both change-room doors swing open for the walk');
+  await page.keyboard.press('Space');
+  const jump=await page.evaluate(()=>new Promise(r=>{const fp=clubGilmore.firstPerson,t0=performance.now();let max=0;(function s(){max=Math.max(max,fp.jumpY);performance.now()-t0<2500?requestAnimationFrame(s):r({max,end:fp.jumpY})})()}));
+  assert(jump.max>.5&&jump.max<=.915&&jump.end===0,'jump peaks under 3 ft and lands: '+JSON.stringify(jump));
+  assert(!await page.locator('#fp-speed').isVisible()&&await page.locator('.fp-esc-note').isVisible(),'desktop walking: only the Esc note');
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>clubGilmore.firstPerson.paused);
   assert(await page.locator('#fp-pause-overlay').isVisible());
+  assert(!await page.locator('#fp-pause').isVisible()&&!await page.locator('.fp-esc-note').isVisible(),'desktop paused: buttons replace the note, no Pause');
+  // toolbar must stay clickable above the pause overlay (pointer lock blocks it while walking)
+  await page.locator('#fp-speed').click({timeout:2000});assert.equal(await page.locator('#fp-speed').textContent(),'Fast');
+  await page.locator('#fp-speed').click();await page.locator('#fp-speed').click();
   const pausedPosition=await page.evaluate(()=>clubGilmore.firstPerson.position.toArray());
   await page.keyboard.press('ArrowUp');
   assert.deepEqual(await page.evaluate(()=>clubGilmore.firstPerson.position.toArray()),pausedPosition);
 
   await page.locator('#fp-exit-paused').click();
+  assert.deepEqual(await page.evaluate(()=>clubGilmore.model.walkModeGates.map(g=>g.rotation.y===g.userData.closedYaw)),[true,true,true,true],'gates and doors restored on exit');
   await page.waitForFunction(() => clubGilmore.viewMode === 'orbit');
   assert.equal((await state(page)).camera, 'OrthographicCamera');
   assert.equal(await page.locator('#first-person-button').getAttribute('aria-pressed'), 'false');
@@ -113,15 +124,25 @@ const state = page => page.evaluate(() => ({
   await mobile.screenshot({ path: 'evidence/first-person-mobile-landscape.png' });
   await mobile.setViewportSize({ width: 390, height: 844 });
   await mobile.waitForTimeout(150);
-  assert.equal(await mobile.locator('#fp-rotate-overlay').isVisible(), true);
-  assert(await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  assert.equal(await mobile.evaluate(()=>clubGilmore.firstPerson.config.walkSpeed),3.6,'medium default');
+  await mobile.locator('#fp-speed').click();assert.equal(await mobile.evaluate(()=>clubGilmore.firstPerson.config.walkSpeed),5.4);
+  await mobile.locator('#fp-speed').click();assert.equal(await mobile.locator('#fp-speed').textContent(),'Slow');
+  await mobile.locator('#fp-speed').click();
+  assert.equal(await mobile.locator('#fp-move-stick').isVisible(), true);
+  assert(await mobile.locator('#fp-pause').isVisible()&&!await mobile.locator('.fp-esc-note').isVisible(),'touch: Pause kept, no Esc note');
+  await mobile.locator('#fp-jump').click();await mobile.waitForTimeout(150);assert(await mobile.evaluate(()=>clubGilmore.firstPerson.jumpY>0),'touch jump');
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  const portraitBox=await mobile.locator('#fp-move-stick').boundingBox(),portraitBefore=await mobile.evaluate(()=>clubGilmore.firstPerson.position.toArray());
+  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:portraitBox.x+portraitBox.width/2,y:portraitBox.y+portraitBox.height/2-32,id:1}]});
+  await mobile.waitForTimeout(450);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  assert.notDeepEqual(await mobile.evaluate(()=>clubGilmore.firstPerson.position.toArray()),portraitBefore,'portrait walking');
   await mobile.screenshot({ path: 'evidence/first-person-mobile-portrait.png' });
   await mobile.setViewportSize({width:844,height:390});await mobile.waitForTimeout(150);
-  await mobile.locator('#fp-resume').click();assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
   await mobile.evaluate(()=>clubGilmore.switchLevel(4));assert.equal((await state(mobile)).mode,'orbit');
   await mobile.evaluate(()=>clubGilmore.switchLevel(6));await mobile.setViewportSize({width:390,height:844});
-  await mobile.locator('#first-person-button').click();assert(await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
+  await mobile.locator('#first-person-button').click();assert(!await mobile.evaluate(()=>clubGilmore.firstPerson.paused));
 
   assert.deepEqual(errors.concat(mobileErrors), [], 'browser page errors');
   console.log('PASS first-person', JSON.stringify({ walked: beforeWalk.join(',') !== afterWalk.join(','), boundary, screenshots: 4 }));

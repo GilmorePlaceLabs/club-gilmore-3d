@@ -11,6 +11,7 @@ const zone = (name, x0, z0, x1, z1, expected = true) => ({ name, min: trace(x0, 
 const zones = [
   zone('north terrace', 660, 110, 845, 238),
   zone('north bridge', 1082, 228, 1215, 273),
+  zone('south bridge', 935, 640, 1035, 671),
   zone('east BBQ terrace', 1040, 280, 1160, 650),
   zone('play perimeter', 1170, 500, 1515, 775),
   zone('fire terrace', 1038, 675, 1295, 960),
@@ -20,7 +21,9 @@ const zones = [
   zone('central lounge terrace', 700, 315, 907, 630),
   zone('west circulation', 661, 280, 698, 890),
   zone('pool deck', 45, 600, 635, 895),
-  zone('change-room forecourt', 268, 455, 464, 610, false),
+  // Stops at z=594: z 596-611 is shared with the (open) pool sun deck slab.
+  // Reachable since the recessed-entry doors swing open for the walk.
+  zone('change-room interior', 268, 455, 464, 594),
   zone('north pavilion interior', 847, 159, 930, 240, false),
 ];
 
@@ -37,10 +40,13 @@ const zones = [
   const result = await page.evaluate(({ zones }) => {
     const navigation = clubGilmore.firstPerson.navigationWorld;
     const start = clubGilmore.firstPerson.position;
-    const step = .4, minX = -58, maxX = 58, minZ = -43, maxZ = 43;
+    // .2 m, not .4: an open change-room doorway leaves only a .24 m band for the
+    // player's centre, which a .4 m grid can step straight over.
+    const step = .2, minX = -58, maxX = 58, minZ = -43, maxZ = 43;
     const width = Math.floor((maxX - minX) / step) + 1;
     const key = (x, z) => `${x},${z}`;
-    const at = (x, z) => new THREE.Vector3(minX + x * step, navigation.config.floorHeight, minZ + z * step);
+    // THREE is not a page global; clone the Vector3 the controller already hands out.
+    const at = (x, z) => start.clone().set(minX + x * step, navigation.config.floorHeight, minZ + z * step);
     const safe = new Map();
     const isSafe = (x, z) => {
       const id = key(x, z); if (!safe.has(id)) safe.set(id, navigation.isSafe(at(x, z)));

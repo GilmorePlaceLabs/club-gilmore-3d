@@ -10,6 +10,7 @@ import { FirstPersonController } from './firstPerson/FirstPersonController.js';
 import { FirstPersonAvatar } from './firstPerson/FirstPersonAvatar.js';
 import { NavigationWorld } from './firstPerson/NavigationWorld.js';
 let firstPerson=null,lastFrameTime=0;
+const speeds=[['Slow',2.2],['Medium',3.6],['Fast',5.4]];let speedIndex=1;
 const walking=()=>firstPerson?.active===true;
 let activeLevel=location.hash.startsWith('#L6')||new URLSearchParams(location.search).get('level')==='6'?6:4;
 let rooms=activeLevel===6?level6Rooms:level4Rooms;
@@ -102,17 +103,15 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!walking()&&selecte
 
 function syncFirstPersonUI(){
  const active=walking();
- document.body.classList.toggle('first-person',active);
+ document.body.classList.toggle('first-person',active);document.body.classList.toggle('fp-paused',active&&firstPerson.paused);
  $('first-person-button').setAttribute('aria-pressed',String(active));
  $('first-person-button').querySelector('span').textContent=active?'Exit first person':'Go into first person';
  $('fp-hud').hidden=!active;
  controls.enabled=!active;
  if(active){
-  const portrait=firstPerson.input.isCoarse&&vh>vw;
   const wasPaused=!$('fp-pause-overlay').hidden;
-  $('fp-rotate-overlay').hidden=!portrait;
-  $('fp-pause-overlay').hidden=portrait||!firstPerson.paused;
-  if(firstPerson.paused&&!portrait&&!wasPaused&&document.hasFocus()&&!$('about').open)$('fp-resume').focus({preventScroll:true});
+  $('fp-pause-overlay').hidden=!firstPerson.paused;
+  if(firstPerson.paused&&!wasPaused&&document.hasFocus()&&!$('about').open)$('fp-resume').focus({preventScroll:true});
   if(!firstPerson.paused&&wasPaused)renderer.domElement.focus({preventScroll:true});
  }
  requestRender();
@@ -120,21 +119,21 @@ function syncFirstPersonUI(){
 function enterFirstPerson(){
  if(!model?.navigation||walking())return;
  tween=null;controls.update();controls.enabled=false;controls.stopListenToKeyEvents();
- // Slide the representative gates clear of their openings for the walk.
- for(const gate of model.walkModeGates||[]){gate.userData.closedPosition??=gate.position.clone();gate.position.z=gate.userData.closedPosition.z+.95;}
+ // Slide the pool gates clear of their openings, and swing hinged doors (openYaw) open, for the walk.
+ for(const gate of model.walkModeGates||[]){const u=gate.userData;u.closedPosition??=gate.position.clone();u.closedYaw??=gate.rotation.y;if(u.openYaw==null)gate.position.z=u.closedPosition.z+.95;else gate.rotation.y=u.closedYaw+u.openYaw;}
  if(!firstPerson){
   const navigationWorld=new NavigationWorld(model,model.navigation);
-  firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:model.navigation,onStateChange:syncFirstPersonUI,requestRender});
+  firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:{...model.navigation,walkSpeed:speeds[speedIndex][1]},onStateChange:syncFirstPersonUI,requestRender});
   firstPerson.attachAvatar(new FirstPersonAvatar());
  }
- firstPerson.resize(vw,vh);firstPerson.enter();lastFrameTime=0;
+ firstPerson.resize(vw,vh);firstPerson.enter();lastFrameTime=0;renderer.domElement.focus({preventScroll:true});
  $('hover-label').hidden=true;renderer.domElement.style.cursor='default';
- syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look. Escape to pause.';
+ syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look, Space to jump. Escape to pause.';
 }
 function exitFirstPerson(){
  if(!walking())return;
  firstPerson.exit();controls.enabled=true;controls.listenToKeyEvents(renderer.domElement);
- for(const gate of model.walkModeGates||[])gate.position.copy(gate.userData.closedPosition);
+ for(const gate of model.walkModeGates||[]){gate.position.copy(gate.userData.closedPosition);gate.rotation.y=gate.userData.closedYaw;}
  syncFirstPersonUI();updateViewOffset();requestRender();$('first-person-button').focus({preventScroll:true});
 }
 $('first-person-button').addEventListener('click',()=>walking()?exitFirstPerson():enterFirstPerson());
@@ -143,6 +142,8 @@ $('fp-exit-paused').addEventListener('click',exitFirstPerson);
 $('fp-resume').addEventListener('click',()=>firstPerson?.resume());
 $('fp-pause').addEventListener('click',()=>firstPerson?.pause());
 $('fp-reset').addEventListener('click',()=>firstPerson?.reset());
+$('fp-jump').addEventListener('pointerdown',e=>{e.preventDefault();firstPerson?.jump()});$('fp-jump').addEventListener('click',()=>firstPerson?.jump());
+$('fp-speed').addEventListener('click',()=>{speedIndex=(speedIndex+1)%speeds.length;const[n,v]=speeds[speedIndex];if(firstPerson)firstPerson.config.walkSpeed=v;$('fp-speed').textContent=n;$('fp-speed').setAttribute('aria-label',`Walking speed: ${n}. Tap to change`)});
 $('about-button').addEventListener('click',()=>{if(walking())firstPerson.pause();});
 document.addEventListener('keydown',event=>{
  if(event.key!=='Tab'||!walking()||$('fp-pause-overlay').hidden||$('about').open)return;

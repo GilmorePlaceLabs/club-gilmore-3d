@@ -3,6 +3,8 @@ import { FirstPersonInput } from './FirstPersonInput.js';
 
 const DEFAULTS = { spawn: new Vector3(), yaw: 0, floorHeight: 0, eyeHeight: 1.68, walkSpeed: 2.2 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+// Cosmetic hop: eye height only, navigation stays 2D so railings still block mid-air.
+const GRAVITY = 9.8, JUMP_HEIGHT = .9; // ~3 ft peak, below railing height
 
 export class FirstPersonController {
   constructor({ scene, domElement, navigationWorld, config = {}, onStateChange, requestRender, avatar } = {}) {
@@ -11,10 +13,10 @@ export class FirstPersonController {
     this.onStateChange = onStateChange; this.requestRender = requestRender;
     this.camera = new PerspectiveCamera(68, 1, .05, 500);
     this._position = this.config.spawn.clone(); this.yaw = this.config.yaw; this.pitch = 0;
-    this._active = false; this._paused = false; this._portraitBlocked = false; this.avatar = null;
-    this.motionSpeed = 0; this.walkPhase = 0;
+    this._active = false; this._paused = false; this.avatar = null;
+    this.motionSpeed = 0; this.walkPhase = 0; this.jumpY = 0; this.jumpV = 0;
     this.euler = new Euler(0, 0, 0, 'YXZ');
-    this.input = new FirstPersonInput(domElement, { camera: this.camera, onLook: (x, y) => this.look(x, y), onPause: () => this.pause(), onActivity: () => this.requestRender?.(), onLockDenied: () => this.requestRender?.() });
+    this.input = new FirstPersonInput(domElement, { camera: this.camera, onLook: (x, y) => this.look(x, y), onPause: () => this.pause(), onJump: () => this.jump(), onActivity: () => this.requestRender?.(), onLockDenied: () => this.requestRender?.() });
     this.handlePointerLockLook = () => {
       if (!this._active || this._paused || !this.input.locked) return;
       this.euler.setFromQuaternion(this.camera.quaternion, 'YXZ');
@@ -38,9 +40,9 @@ export class FirstPersonController {
   }
   enter() {
     if (this._active) { this.resume(); return; }
-    this._active = true; this._paused = this._portraitBlocked; this._position.copy(this.config.spawn); this.yaw = this.config.yaw; this.pitch = 0; this.motionSpeed = 0;
-    this.input.setEnabled(!this._paused); if (this.avatar?.root) this.avatar.root.visible = true;
-    this.syncCamera(); this.emit(); if (!this._paused) this.input.requestLock(); this.requestRender?.();
+    this._active = true; this._paused = false; this.jumpY = this.jumpV = 0; this._position.copy(this.config.spawn); this.yaw = this.config.yaw; this.pitch = 0; this.motionSpeed = 0;
+    this.input.setEnabled(true); if (this.avatar?.root) this.avatar.root.visible = true;
+    this.syncCamera(); this.emit(); this.input.requestLock(); this.requestRender?.();
   }
   exit() {
     if (!this._active) return;
@@ -54,8 +56,11 @@ export class FirstPersonController {
   }
   resume() {
     if (!this._active) return this.enter();
-    if (this._portraitBlocked) { this._paused = true; this.input.setEnabled(false); this.emit(); return; }
     this._paused = false; this.input.setEnabled(true); this.emit(); this.input.requestLock(); this.requestRender?.();
+  }
+  jump() {
+    if (!this._active || this._paused || this.jumpY || this.jumpV) return;
+    this.jumpV = Math.sqrt(2 * GRAVITY * JUMP_HEIGHT); this.requestRender?.();
   }
   look(deltaYaw, deltaPitch) {
     if (!this._active || this._paused) return;
@@ -65,8 +70,9 @@ export class FirstPersonController {
   update(dt) {
     if (!this._active) return false;
     dt = Math.min(Math.max(dt || 0, 0), .1);
-    if (this._paused) { this.avatar?.update?.(dt, { position: this._position, yaw: this.yaw, moving: false, reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches }); return false; }
+    if (this._paused) { this.avatar?.update?.(dt, { position: new Vector3(0, this.jumpY, 0).add(this._position), yaw: this.yaw, moving: false, reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches }); return false; }
     this.input.update(dt);
+    if (this.jumpY || this.jumpV) { this.jumpV -= GRAVITY * dt; this.jumpY = Math.max(0, this.jumpY + this.jumpV * dt); if (!this.jumpY && this.jumpV < 0) this.jumpV = 0; }
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const move = this.input.movement, intended = Math.hypot(move.x, move.z) > .001;
     const targetSpeed = intended ? this.config.walkSpeed : 0;
@@ -87,21 +93,19 @@ export class FirstPersonController {
     if (moving && !reduceMotion) this.walkPhase += dt * (7 + this.motionSpeed * 2);
     this.syncCamera();
     if (moving && !reduceMotion) this.camera.position.y += Math.sin(this.walkPhase) * .018;
-    this.avatar?.update?.(dt, { position: this._position, yaw: this.yaw, moving, reducedMotion: reduceMotion });
+    this.avatar?.update?.(dt, { position: new Vector3(0, this.jumpY, 0).add(this._position), yaw: this.yaw, moving, reducedMotion: reduceMotion });
     if (moving) this.requestRender?.();
     return moving;
   }
   resize(width, height) {
     this.camera.aspect = width / Math.max(1, height); this.camera.updateProjectionMatrix();
-    this._portraitBlocked = this.input.isCoarse && height > width;
-    if (this._active && this._portraitBlocked) this.pause();
   }
   syncCamera() {
-    this.camera.position.copy(this._position); this.camera.position.y = this.config.floorHeight + this.config.eyeHeight;
+    this.camera.position.copy(this._position); this.camera.position.y = this.config.floorHeight + this.config.eyeHeight + this.jumpY;
     this.euler.set(this.pitch, this.yaw, 0, 'YXZ'); this.camera.quaternion.setFromEuler(this.euler);
   }
-  reset() { this._position.copy(this.config.spawn); this.yaw = this.config.yaw; this.pitch = 0; this.motionSpeed = 0; this.syncCamera(); this.emit(); this.requestRender?.(); }
-  emit() { this.onStateChange?.({ active: this._active, paused: this._paused, portraitBlocked: this._portraitBlocked, position: this.position, yaw: this.yaw, camera: this.camera }); }
+  reset() { this._position.copy(this.config.spawn); this.jumpY = this.jumpV = 0; this.yaw = this.config.yaw; this.pitch = 0; this.motionSpeed = 0; this.syncCamera(); this.emit(); this.requestRender?.(); }
+  emit() { this.onStateChange?.({ active: this._active, paused: this._paused, position: this.position, yaw: this.yaw, camera: this.camera }); }
   dispose() { this.exit(); this.input.controls?.removeEventListener('change', this.handlePointerLockLook); this.input.dispose(); this.navigationWorld?.dispose?.(); this.avatar?.dispose?.(); if (this.avatar?.root?.parent) this.avatar.root.parent.remove(this.avatar.root); }
 }
 

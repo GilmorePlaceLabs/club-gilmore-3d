@@ -20,11 +20,10 @@
    <div id="hover-label" hidden></div>
    <div id="fp-hud" hidden>
     <div class="fp-crosshair" aria-hidden="true">+</div>
-    <div class="fp-toolbar"><span>LEVEL 06 · WALK</span><button id="fp-reset">Back to start</button><button id="fp-pause">Pause</button><button id="fp-exit">Exit first person</button></div>
-    <p class="fp-help">WASD / arrows to walk · Mouse to look · Esc to pause</p>
-    <div class="fp-sticks"><div id="fp-move-stick" class="fp-stick" role="group" aria-label="Movement joystick"><span class="stick-thumb"></span><span class="stick-label">Move</span></div><div id="fp-look-stick" class="fp-stick" role="group" aria-label="Look joystick"><span class="stick-thumb"></span><span class="stick-label">Look</span></div></div>
-    <div id="fp-pause-overlay" class="fp-overlay" role="dialog" aria-modal="true" aria-labelledby="fp-pause-title" hidden><div class="fp-card"><h2 id="fp-pause-title">Take a moment.</h2><p>WASD or arrow keys to walk. Move your mouse to look around. If mouse capture is unavailable, drag to look.</p><button id="fp-resume">Resume walking</button><button id="fp-exit-paused">Return to model</button></div></div>
-    <div id="fp-rotate-overlay" class="fp-overlay" hidden><div class="fp-card"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M2 10V5h4m16 9v5h-4"/></svg><h2>Rotate your device to walk</h2><p>Hold your phone horizontally. Use the left stick to move and the right stick to look.</p></div></div>
+    <div class="fp-toolbar"><span>LEVEL 06 · WALK</span><small class="fp-esc-note">Press <kbd>Esc</kbd> for options</small><button id="fp-speed" aria-label="Walking speed: Medium. Tap to change">Medium</button><button id="fp-reset">Back to start</button><button id="fp-pause">Pause</button><button id="fp-exit">Exit first person</button></div>
+    <p class="fp-help">WASD / arrows to walk · Mouse to look · Space to jump · Esc to pause</p>
+    <div class="fp-sticks"><div id="fp-move-stick" class="fp-stick" role="group" aria-label="Movement joystick"><span class="stick-thumb"></span><span class="stick-label">Move</span></div><div id="fp-look-stick" class="fp-stick" role="group" aria-label="Look joystick"><span class="stick-thumb"></span><span class="stick-label">Look</span></div><button id="fp-jump" type="button">Jump</button></div>
+    <div id="fp-pause-overlay" class="fp-overlay" role="dialog" aria-modal="true" aria-labelledby="fp-pause-title" hidden><div class="fp-card"><h2 id="fp-pause-title">Take a moment.</h2><p>WASD or arrow keys to walk, Space to jump. Move your mouse to look around. If mouse capture is unavailable, drag to look.</p><button id="fp-resume">Resume walking</button><button id="fp-exit-paused">Return to model</button></div></div>
    </div>
    <div class="view-heading"><h1>Explore Club Gilmore.</h1><p>Find your space. Take a closer look.</p></div>
    <div id="loading" role="status"><span class="loading-ring"></span><p>Preparing your view…</p></div>
