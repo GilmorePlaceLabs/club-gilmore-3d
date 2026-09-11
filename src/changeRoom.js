@@ -46,12 +46,12 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
   const [wx,wz]=world([x,z]);cyl(p,wx,.095,wz,.095,.018,steel);
  };
  const showerHead=(p,x,z,face='south')=>{
-  const [wx,wz]=world([x,z]),dz=face==='south'?.27:-.27;
+  const [wx,wz]=world([x,z]),[dx,dz]={south:[0,.27],north:[0,-.27],west:[-.27,0]}[face];
   rod(p,[wx,1.64,wz],[wx,1.85,wz],.025,steel);
-  rod(p,[wx,1.85,wz],[wx,1.85,wz+dz],.025,steel);
-  const head=mesh(p,new T.CylinderGeometry(.105,.105,.025,18),steel,wx,1.83,wz+dz);
-  head.rotation.x=Math.PI/2;
-  box(p,wx,1.06,wz+.012,.12,.18,.05,dark);
+  rod(p,[wx,1.85,wz],[wx+dx,1.85,wz+dz],.025,steel);
+  const head=mesh(p,new T.CylinderGeometry(.105,.105,.025,18),steel,wx+dx,1.83,wz+dz);
+  if(dz)head.rotation.x=Math.PI/2;else head.rotation.z=Math.PI/2;
+  box(p,wx,1.06,wz+(dx?0:.012),dx?.05:.12,.18,dx?.12:.05,dark);
  };
  const basin=(p,x,z)=>{
   const [wx,wz]=world([x,z]);
@@ -74,7 +74,7 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  surface(rect(284,428,60,35),wetFloor,.072,0,interior);
  surface(rect(344,429,83,34),mats.tilefloor,.073,0,interior);
  surface(rect(335,485,95,30),wetFloor,.074,0,interior);
- surface(rect(341,522,21,30),wetFloor,.075,0,interior);
+ surface(rect(341,516,21,36),wetFloor,.075,0,interior);
  surface(rect(363,526,66,26),mats.tilefloor,.074,0,interior);
  surface(rect(396,553,43,48),steamFloor,.075,0,interior);
 
@@ -148,9 +148,10 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  }
 
  // The annotation points specifically to this separate two-head standing-shower
- // bay below and left of the enclosed showers.
- partitionWall(341,537,2,30);partitionWall(362,537,2,30);partitionWall(351.5,552,21,2);
- showerHead(interior,360.5,528,'south');showerHead(interior,360.5,543,'south');
+ // bay below and left of the enclosed showers. Both heads hang on its east
+ // wall, which runs up to the shower-block back wall; the west side is open.
+ partitionWall(362,533.5,2,37);partitionWall(351.5,552,21,2);
+ showerHead(interior,360.7,528,'west');showerHead(interior,360.7,543,'west');
  floorDrain(interior,351,528);floorDrain(interior,351,543);
 
  // Five lower-right toilet cubicles: tanks sit against the south back wall,
