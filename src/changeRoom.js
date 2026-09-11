@@ -6,7 +6,7 @@ import {box,cyl,rod,mesh,makeGroup,canvasTexture} from './model.js';
 // can be compared directly with the 1855 x 1344 reference render.
 const rect=(x,z,w,d)=>[[x,z],[x+w,z],[x+w,z+d],[x,z+d]];
 
-export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,gates=[]}){
+export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,gates=[],tall=new T.Group()}){
  const stoneMap=canvasTexture((c,n)=>{
   c.fillStyle='#55595b';c.fillRect(0,0,n,n);
   for(let y=0;y<n;y+=64)for(let x=0;x<n;x+=128){
@@ -60,9 +60,15 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
   cyl(p,wx,.89,wz,.15,.035,fixture);
   rod(p,[wx,.94,wz-.13],[wx,.94,wz-.28],.025,steel);
  };
+ // `tall` holds each partition's extension to the 3 m shell height. It is only
+ // shown in first person, so the orbit cutaway stays low but the walker cannot
+ // see over the walls.
  const partitionWall=(x,z,w,d,h=1.55)=>{
   B(x,z,w,d,h,partition,0,interior);B(x,z,w+.5,d+.5,.035,partitionTop,h,interior);
+  B(x,z,w,d,3-h,partition,h,tall);
  };
+ // Door leaves get the same first-person extension to 3 m.
+ const leaf=(x,z,w,d,h,mat,r=0)=>{B(x,z,w,d,h,mat,0,interior).rotation.y=r;B(x,z,w,d,3-h,mat,h,tall).rotation.y=r;};
 
  // Pale tiled floors identify the wet zones without covering the common route.
  surface(rect(284,428,60,35),wetFloor,.072,0,interior);
