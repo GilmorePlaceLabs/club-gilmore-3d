@@ -6,6 +6,11 @@ import { createClubModel } from './model.js';
 import { rooms as level4Rooms,categories,majorLabels as level4Labels,WALL_HEIGHT } from './rooms.js';
 
 import { createLevel6Model,level6Rooms,level6Labels } from './level6.js';
+import { FirstPersonController } from './firstPerson/FirstPersonController.js';
+import { FirstPersonAvatar } from './firstPerson/FirstPersonAvatar.js';
+import { NavigationWorld } from './firstPerson/NavigationWorld.js';
+let firstPerson=null,lastFrameTime=0;
+const walking=()=>firstPerson?.active===true;
 let activeLevel=location.hash.startsWith('#L6')||new URLSearchParams(location.search).get('level')==='6'?6:4;
 let rooms=activeLevel===6?level6Rooms:level4Rooms;
 const models=new Map();
@@ -67,6 +72,7 @@ setBrowser(!isMobile());renderList();
 function updatePhoto(){const r=rooms.find(r=>r.id===selected);if(!r)return;const has=r.photos.length>0;$('photo-wrap').hidden=!has;$('no-photo').hidden=has;
  if(has){$('room-photo').src=`${import.meta.env.BASE_URL}photos/${/\.(jpg|webp|png)$/.test(r.photos[photoIndex])?r.photos[photoIndex]:r.photos[photoIndex]+'.webp'}`;$('room-photo').alt=`Club Gilmore photo reference for ${r.name}`;$('photo-count').textContent=`Photo reference ${photoIndex+1} / ${r.photos.length}`;$('previous-photo').disabled=r.photos.length<2;$('next-photo').disabled=r.photos.length<2;}}
 function selectRoom(id,fromList=false){
+ if(walking())exitFirstPerson();
  const r=rooms.find(r=>r.id===id);if(!r)return;selected=id;photoIndex=0;
  document.body.classList.add('has-detail');$('detail').hidden=false;$('detail-name').textContent=r.name;$('detail-category').textContent=r.category;document.querySelector('.detail-location strong').textContent=`Club Gilmore · Level ${activeLevel}`;
  $('detail-description').textContent=r.description||descriptions[r.kind]||`Explore ${r.name.toLowerCase()} and its position on the amenity floor.`;
@@ -92,7 +98,58 @@ $('previous-photo').addEventListener('click',()=>{const r=rooms.find(r=>r.id===s
 $('next-photo').addEventListener('click',()=>{const r=rooms.find(r=>r.id===selected);photoIndex=(photoIndex+1)%r.photos.length;updatePhoto();});
 $('about-button').addEventListener('click',()=>$('about').showModal());$('close-about').addEventListener('click',()=>$('about').close());
 $('about').addEventListener('click',e=>{if(e.target===$('about')){const b=$('about').getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)$('about').close();}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&selected&&!$('about').open)closeDetail(false);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!walking()&&selected&&!$('about').open)closeDetail(false);});
+
+function syncFirstPersonUI(){
+ const active=walking();
+ document.body.classList.toggle('first-person',active);
+ $('first-person-button').setAttribute('aria-pressed',String(active));
+ $('first-person-button').querySelector('span').textContent=active?'Exit first person':'Go into first person';
+ $('fp-hud').hidden=!active;
+ controls.enabled=!active;
+ if(active){
+  const portrait=firstPerson.input.isCoarse&&vh>vw;
+  const wasPaused=!$('fp-pause-overlay').hidden;
+  $('fp-rotate-overlay').hidden=!portrait;
+  $('fp-pause-overlay').hidden=portrait||!firstPerson.paused;
+  if(firstPerson.paused&&!portrait&&!wasPaused&&document.hasFocus()&&!$('about').open)$('fp-resume').focus({preventScroll:true});
+  if(!firstPerson.paused&&wasPaused)renderer.domElement.focus({preventScroll:true});
+ }
+ requestRender();
+}
+function enterFirstPerson(){
+ if(!model?.navigation||walking())return;
+ tween=null;controls.update();controls.enabled=false;controls.stopListenToKeyEvents();
+ // Slide the representative gates clear of their openings for the walk.
+ for(const gate of model.walkModeGates||[]){gate.userData.closedPosition??=gate.position.clone();gate.position.z=gate.userData.closedPosition.z+.95;}
+ if(!firstPerson){
+  const navigationWorld=new NavigationWorld(model,model.navigation);
+  firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:model.navigation,onStateChange:syncFirstPersonUI,requestRender});
+  firstPerson.attachAvatar(new FirstPersonAvatar());
+ }
+ firstPerson.resize(vw,vh);firstPerson.enter();lastFrameTime=0;
+ $('hover-label').hidden=true;renderer.domElement.style.cursor='default';
+ syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look. Escape to pause.';
+}
+function exitFirstPerson(){
+ if(!walking())return;
+ firstPerson.exit();controls.enabled=true;controls.listenToKeyEvents(renderer.domElement);
+ for(const gate of model.walkModeGates||[])gate.position.copy(gate.userData.closedPosition);
+ syncFirstPersonUI();updateViewOffset();requestRender();$('first-person-button').focus({preventScroll:true});
+}
+$('first-person-button').addEventListener('click',()=>walking()?exitFirstPerson():enterFirstPerson());
+$('fp-exit').addEventListener('click',exitFirstPerson);
+$('fp-exit-paused').addEventListener('click',exitFirstPerson);
+$('fp-resume').addEventListener('click',()=>firstPerson?.resume());
+$('fp-pause').addEventListener('click',()=>firstPerson?.pause());
+$('fp-reset').addEventListener('click',()=>firstPerson?.reset());
+$('about-button').addEventListener('click',()=>{if(walking())firstPerson.pause();});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Tab'||!walking()||$('fp-pause-overlay').hidden||$('about').open)return;
+ const first=$('fp-resume'),last=$('fp-exit-paused');
+ if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+ else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+});
 
 function requestRender(){if(!renderer||renderPending)return;renderPending=true;requestAnimationFrame(render);}
 function updateViewOffset(){if(!camera)return;
@@ -135,16 +192,23 @@ function updateLabels(){if(!model)return;const placed=[];
  $('scale-bar').style.width=`${scaleLength*pixelsPerMetre}px`;$('scale-distance').textContent=`${scaleLength} m`;
 }
 function render(time){renderPending=false;if(!renderer)return;
+ if(walking()){
+  const dt=lastFrameTime?Math.min((time-lastFrameTime)/1000,.05):0;lastFrameTime=time;
+  firstPerson.update(dt);renderer.render(scene,firstPerson.camera);
+  if(!firstPerson.paused)requestRender();return;
+ }
+ lastFrameTime=0;
  if(tween){const t=Math.min(1,(time-tween.start)/650),e=1-Math.pow(1-t,4);camera.position.lerpVectors(tween.from,tween.to,e);controls.target.lerpVectors(tween.fromTarget,tween.target,e);camera.zoom=T.MathUtils.lerp(tween.fromZoom,tween.zoom,e);camera.updateProjectionMatrix();if(t===1)tween=null;else requestRender();}
  controls.update();renderer.render(scene,camera);updateLabels();
 }
-function resize(){if(!renderer)return;vw=$('viewport').clientWidth;vh=$('viewport').clientHeight;renderer.setSize(vw,vh);camera.left=-frustumHeight*vw/vh/2;camera.right=frustumHeight*vw/vh/2;camera.top=frustumHeight/2;camera.bottom=-frustumHeight/2;updateViewOffset();requestRender();}
+function resize(){if(!renderer)return;vw=$('viewport').clientWidth;vh=$('viewport').clientHeight;renderer.setSize(vw,vh);camera.left=-frustumHeight*vw/vh/2;camera.right=frustumHeight*vw/vh/2;camera.top=frustumHeight/2;camera.bottom=-frustumHeight/2;updateViewOffset();firstPerson?.resize(vw,vh);if(walking())syncFirstPersonUI();requestRender();}
 
 function rebuildLabels(){
  labels.clear();$('labels').replaceChildren();
  for(const id of activeLevel===6?level6Labels:level4Labels){const r=rooms.find(r=>r.id===id),el=document.createElement('span');el.className='model-label';el.textContent=r.name==='Indoor pool & hydrotherapy'?'Indoor pools':r.name;$('labels').append(el);labels.set(id,el);}
 }
 function updateLevelUI(){
+ $('first-person-button').hidden=!model.navigation;
  $('level-4').setAttribute('aria-pressed',String(activeLevel===4));$('level-6').setAttribute('aria-pressed',String(activeLevel===6));
  $('level-meta').textContent=`LEVEL 0${activeLevel}`;document.title=`Club Gilmore · Explore Level ${activeLevel}`;
  $('scale-distance').parentElement.hidden=activeLevel===6;
@@ -154,6 +218,7 @@ function updateLevelUI(){
 }
 function switchLevel(level){
  if(!model||activeLevel===level)return;
+ exitFirstPerson();firstPerson?.dispose();firstPerson=null;
  closeDetail(false);tween=null;scene.remove(model.root);activeLevel=level;rooms=level===6?level6Rooms:level4Rooms;
  if(!models.has(level))models.set(level,level===6?createLevel6Model():createClubModel());
  model=models.get(level);scene.add(model.root);scene.getObjectByName('Viewer ground').position.y=level===6?-5:-.43;[...model.wallGroups,...model.columnGroups].forEach(g=>g.scale.y=1.1/WALL_HEIGHT);
@@ -181,7 +246,7 @@ async function initialize(){try{
  renderer.domElement.addEventListener('pointerdown',e=>{pointerCount++;down=pointerCount===1?{x:e.clientX,y:e.clientY,id:e.pointerId}:null;});
  renderer.domElement.addEventListener('pointercancel',()=>{pointerCount=Math.max(0,pointerCount-1);down=null;});
  renderer.domElement.addEventListener('pointerup',e=>{pointerCount=Math.max(0,pointerCount-1);if(!down||e.pointerId!==down.id||Math.hypot(e.clientX-down.x,e.clientY-down.y)>5||e.button!==0){down=null;return;}down=null;const hit=pick(e);if(hit)selectRoom(hit.object.userData.roomId);});
- function pick(e){const b=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1);ray.setFromCamera(mouse,camera);return ray.intersectObjects(model.floorMeshes,false)[0];}
+ function pick(e){if(walking())return null;const b=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-b.left)/b.width*2-1,-(e.clientY-b.top)/b.height*2+1);ray.setFromCamera(mouse,camera);return ray.intersectObjects(model.floorMeshes,false)[0];}
  renderer.domElement.addEventListener('pointermove',e=>{if(e.pointerType==='touch'||e.buttons){$('hover-label').hidden=true;return;}const hit=pick(e);renderer.domElement.style.cursor=hit?'pointer':'grab';if(hit){const r=rooms.find(r=>r.id===hit.object.userData.roomId);$('hover-label').textContent=r.name;const b=$('viewport').getBoundingClientRect();$('hover-label').style.left=`${Math.min(e.clientX-b.left+14,vw-210)}px`;$('hover-label').style.top=`${e.clientY-b.top+15}px`;$('hover-label').hidden=false;}else $('hover-label').hidden=true;});
  renderer.domElement.addEventListener('pointerleave',()=>{$('hover-label').hidden=true;});
  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();$('webgl-error').hidden=false;});
@@ -189,7 +254,7 @@ async function initialize(){try{
  $('loading').hidden=true;
  const initial=decodeURIComponent(location.hash.slice(1));if(rooms.some(r=>r.id===initial))selectRoom(initial);
  // Read-only evidence interface plus explicit actions for browser QA and export.
- window.clubGilmore={get model(){return model;},scene,camera,controls,renderer,get rooms(){return rooms;},switchLevel,get activeLevel(){return activeLevel;},selectRoom,home,requestRender,get selectedRoomId(){return selected;},get ready(){return true;}};
+ window.clubGilmore={get model(){return model;},scene,get camera(){return walking()?firstPerson.camera:camera;},get controls(){return walking()?firstPerson:controls;},renderer,get rooms(){return rooms;},switchLevel,get activeLevel(){return activeLevel;},selectRoom,home,requestRender,get selectedRoomId(){return selected;},get ready(){return true;},get viewMode(){return walking()?'first-person':'orbit';},get firstPerson(){return firstPerson;},enterFirstPerson,exitFirstPerson};
  requestRender();
  }catch(error){console.error(error);$('loading').hidden=true;$('webgl-error').hidden=false;for(const id of ['download','view-3d','view-plan','zoom-in','zoom-out','reset','walls','label-toggle'])$(id).disabled=true;}
 }
