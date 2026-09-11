@@ -987,6 +987,18 @@ or surveyed architectural assessment.
 The 23:33 follow-up moves the court rear to trace z=553, joining the wet-block
 back wall directly and removing the narrow gap. Side-door positions stay fixed.
 
+### East pergola booking bays — September 11, 2026
+
+Club Gilmore's PerfectMind facility pages identify the three east-pergola bays
+as P01, P02 and P03 BBQ & Table. Each lists BBQ, table and chairs, a shade
+gazebo, a maximum of eight people, and a 170-minute Bookable Outdoor Seating
+duration. The note says children do not count toward the eight-person maximum.
+The former combined `L6-bbq-east` selection is split into `L6-bbq-1`,
+`L6-bbq-2`, and `L6-bbq-3`, aligned north-to-south with the three modeled
+pergola tables and connected to their supplied booking URLs. Facility JPEGs are
+stored as each gallery's photographic references; the supplied Level 6 PNG is
+kept as the final map image in each gallery.
+
 User screenshot correction, 23:34: the plan shows the two inner court doors
 directly opposite each other. The east steam-room door moves from trace z=600 to
 z=573, facing the main west entry; the steam room's south partition now closes
