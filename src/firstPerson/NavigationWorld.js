@@ -27,7 +27,7 @@ const WALKABLE = [
 // The large planted islands are also named here; the remaining planters and all
 // furniture are collected from their vertical scene geometry below.
 const BLOCKED = [
-  rectangle(237,719,322,100), rectangle(132,719,79,100),
+  rectangle(237,719,322,100), rectangle(132,719,79,100), rectangle(156,713.5,31,6), // hot tub's north bay
   rectangle(40,596,25,304), rectangle(65,879,570,22),
   rectangle(699,280,208,32), rectangle(699,600,208,34),
   rectangle(699,357,32,201), rectangle(1127.3,287,15.7,196.2), polygon([[1175.5,287],[1193,287],[1193,471],[1175.5,492]]),

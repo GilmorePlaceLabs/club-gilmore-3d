@@ -12,7 +12,10 @@ import { NavigationWorld } from './firstPerson/NavigationWorld.js';
 let firstPerson=null,lastFrameTime=0;
 const speeds=[['Slow',2.2],['Medium',3.6],['Fast',5.4]];let speedIndex=1;
 const walking=()=>firstPerson?.active===true;
-let activeLevel=location.hash.startsWith('#L6')||new URLSearchParams(location.search).get('level')==='6'?6:4;
+// Level 6 is the default floor. ?level= wins; otherwise an #L4- room hash is a
+// Level 4 deep link.
+const levelParam=new URLSearchParams(location.search).get('level');
+let activeLevel=levelParam?(levelParam==='4'?4:6):location.hash.startsWith('#L4')?4:6;
 let rooms=activeLevel===6?level6Rooms:level4Rooms;
 const models=new Map();
 const $=id=>document.getElementById(id);

@@ -1,8 +1,8 @@
 # Club Gilmore — interactive amenity model
 
-A standalone, roofless 3D explorer for the Club Gilmore amenity floors. Two floors share one viewer: **Level 4** indoors and **Level 6** outdoors. Rooms are selectable from the model or from the list, with category and search filters, photo references, plan and 3D views, adjustable cutaway walls and GLB export.
+A standalone, roofless 3D explorer for the Club Gilmore amenity floors. Two floors share one viewer: **Level 4** indoors and **Level 6** outdoors. Rooms are selectable from the model or from the list, with category and search filters, photo references, plan and 3D views, adjustable cutaway walls, a first-person walk mode and GLB export.
 
-Use **L4 / L6** in the header to switch floors. Deep links work: `/?level=6` opens Level 6, `/#L6-play` opens it with a space already selected.
+The site opens on **Level 6**. Use **L4 / L6** in the header to switch floors. Deep links work: `/?level=4` opens Level 4, `/#L6-play` opens Level 6 with a space already selected, and an `#L4-…` room link opens Level 4 the same way. A `?level=` parameter always wins.
 
 ## Level 4 — indoor amenities
 
@@ -20,6 +20,8 @@ Zones are polygons in *trace units*: pixel coordinates read off the rendered 182
 
 Level 6 has **no measured drawing**. Its coordinates are normalised to a supplied 1855 × 1344 overhead render at `U = 0.065` m per unit, so scale, heights and dimensions are approximate — which is why the metre scale bar is hidden on this floor. Level 4's confirmed 20 m pool does not transfer.
 
+Much of the deck has been matched to site photographs: the change-room fit-out, the toddler playhouse, the pool and hot-tub entries, the pool-deck cubby unit and the lounge furniture. `MODEL-SOURCES.md` logs each correction with the photo or annotation behind it.
+
 ## Run it locally
 
 ```sh
@@ -29,6 +31,8 @@ npm run dev      # vite dev server, fixed at http://127.0.0.1:4173
 
 Drag to orbit, right-drag to pan, scroll or pinch to zoom. Keyboard users can select from the room list and use the view buttons; arrow keys pan when the canvas has focus. Below 760 px the viewer shows either the room browser or the detail sheet, never both, and touch targets stay at 44 px minimum.
 
+**Go into first person** walks Level 6 at a 1.68 m eye height: WASD or the arrow keys to walk, the mouse to look, Space to jump, Shift to run and Esc to pause. Pool gates slide and hinged doors swing open for the walk. The change-room partitions and stall doors rise to the full 3 m wall height so you cannot see over them; the orbit view keeps them low.
+
 ## How it is built
 
 Single-page Vite + Three.js, no framework. `index.html` owns the entire DOM and `main.js` only fills existing elements by id — it never creates panels.
@@ -36,6 +40,8 @@ Single-page Vite + Three.js, no framework. `index.html` owns the entire DOM and 
 The camera is orthographic with OrbitControls and renders **on demand**: `requestRender()` sets a flag and there is no continuous animation loop, so anything that changes the scene has to ask for a frame. Camera moves go through `frameBounds()`, which projects corner points onto the camera basis to compute a fitting zoom, then either snaps (instant, or when `prefers-reduced-motion` is set) or drives a manual tween stepped inside `render()`.
 
 Both floors are built procedurally. Textures come from 2D-canvas draws over a seeded RNG; furniture is assembled from `box` / `cyl` / `rod` primitives. Each floor is cached in a `models` map on first build, so switching back is instant.
+
+First-person collision comes from the scene geometry itself, plus explicit walkable slabs and blocked areas (water and planted islands) in `src/firstPerson/NavigationWorld.js`. Geometry that exists only for the walk — full-height partitions, door extensions — lives in groups the viewer shows on entering first person and hides again on exit.
 
 `window.clubGilmore` is the read-only surface the Playwright scripts drive. `ready` is their load gate; `model`, `rooms` and `activeLevel` are getters, because switching floors reassigns them.
 
@@ -57,12 +63,16 @@ Later corrections supersede earlier ones, and `MODEL-SOURCES.md` records the who
 A dev or preview server must already be running on port 4173.
 
 ```sh
-node scripts/verify-level6.cjs   # Level 6 + floor switching -> evidence/level6-*.png, level6-verification.json
-node scripts/verify.cjs          # Level 4 suite -> evidence/verification.json
-node scripts/inspect.cjs         # Level 4 screenshots + performance stats -> evidence/
+node scripts/verify-level6.cjs         # Level 6 + floor switching -> evidence/level6-*.png, level6-verification.json
+node scripts/verify-change-room.cjs    # walkable routes from the pool to all 25 change-room destinations
+node scripts/verify-walk-routes.cjs    # browser-level first-person route audit across Level 6
+node scripts/verify-first-person.cjs   # first-person desktop and mobile checks -> evidence/first-person-*.png
+node scripts/inspect-first-person.cjs  # first-person spawn and body screenshots -> evidence/
+node scripts/verify.cjs                # Level 4 suite -> evidence/verification.json
+node scripts/inspect.cjs               # Level 4 screenshots + performance stats -> evidence/
 ```
 
-There is no test framework; each script is a single `node:assert/strict` file. `verify-level6.cjs` runs as-is on macOS and takes `PLAYWRIGHT_PATH` and `CHROME_PATH` overrides. **`verify.cjs` and `inspect.cjs` still hardcode Windows paths** and will fail until edited — copy the env-override pattern from `verify-level6.cjs`. Note that `verify.cjs` also overwrites the root `Club-Gilmore-Level-4.glb` with a freshly exported model.
+There is no test framework; each script is a single `node:assert/strict` file. The Level 6 and first-person scripts run as-is on macOS and take `PLAYWRIGHT_PATH` and `CHROME_PATH` overrides. `verify.cjs` and `inspect.cjs` load `/?level=4`, since the site now opens on Level 6. **They still hardcode Windows paths** and will fail until edited — copy the env-override pattern from `verify-level6.cjs`. Note that `verify.cjs` also overwrites the root `Club-Gilmore-Level-4.glb` with a freshly exported model.
 
 `QA.md` is the validation record. It marks edits as "pending validation" wherever a render was never actually captured; a visual PASS is only ever claimed for a browser run that produced it. The model has not been dimension-audited room by room, tested on physical phones, or connected to a booking account.
 
@@ -75,11 +85,12 @@ There is no test framework; each script is a single `node:assert/strict` file. `
 | `src/level6.js` | Level 6 deck model, rooms and labels |
 | `src/playground.js` | Level 6 play equipment, split out only because the geometry is large |
 | `src/changeRoom.js` | Level 6 change-room shell, interior fit-out and pool-facing elevation |
-| `src/main.js` | Camera, selection, browsing, level switching, photography, GLB export |
+| `src/firstPerson/` | First-person walk: controller, input, avatar and Level 6 navigation areas |
+| `src/main.js` | Camera, selection, browsing, level switching, first-person mode, photography, GLB export |
 | `index.html`, `src/style.css` | Responsive viewer interface |
 | `public/photos` | Resized derivatives of supplied photographs; originals untouched |
 | `public/references` | Original floor plan and marketing render, linked from the Level 6 browser |
-| `docs` | Floor renders used above |
+| `docs` | Floor renders used above, and the first-person walk plan |
 | `evidence` | Browser screenshots and validation results |
 
 `MODEL-SOURCES.md` records every geometry assumption with its evidence, `DESIGN.md` is the frozen design system, `QA.md` the validation record and `SURFACE.md` the direction contract.

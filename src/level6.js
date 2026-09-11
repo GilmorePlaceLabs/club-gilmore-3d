@@ -18,7 +18,7 @@ export const level6Rooms=[
  room('lounge','Outdoor fireplace & lounge',rect(695,280,215,358),[site(4036),site(4037),site(4010),site(3990),site(3979),site(3978)],'A double-sided dark stone fireplace separates two intimate seating groups. Each side has two facing grey sofas with timber frames, a lounge chair and small round wooden tables. Four picnic tables and two planted islands flank the seating. A long dark stone BBQ counter closes each end of the terrace, each with two freestanding stainless grills standing against its front face.','Social'),
  room('bocce','Bocce lawn',[[698,769],[909,769],[909,875],[772,972],[698,884]],[site(3980),site(3983),'bocce-court.jpg','bocce-court-and-pool.jpg'],'Two adjacent green strips sit south of the lounge, laid in putting turf with three flush cups. Pale boundary lines, low concrete planter walls, cantilevered timber bench seats and overhead string lights follow the actual court photographs.'),
  room('play','Children’s play area',[[1170,515],[1220,487],[1453,499],[1519,562],[1300,778],[1170,638]],['childrens-playground.jpg',site(3981),site(3982)],'A blue rubber play surface and adjoining tan climbing area are set into the eastern garden. A curved blue slide and adjacent double slide descend from a guarded hexagonal platform. A bowed climbing cage, access stairs and overhead traverse bar connect the play equipment. Linked grey, navy and orange pentagonal climbing pods occupy the tan surface.'),
- room('garden','Urban garden plots',[[1110,968],[1728,392],[1795,439],[1156,1028]],[site(3982),site(3981),site(4047),site(4013),aerial],'A dark timber boardwalk runs the full southeast diagonal, from the fire terrace to a slatted pergola at the point. A raised bed behind a pale concrete retaining wall fills the strip between the walk and the glass-railed parapet, and a second runs flush along the playground side, its wall in line with the walk and its far edge stopping at the turf apron that rings the play surfaces. Dark bench blocks sit along both edges of the walk. The bed is massed with white flowering shrubs, rust and blue-grey accents and occasional small trees, and the whole tip beyond the pergola is planted. A potting bench with a galvanised work surface and an open slatted shelf stands under the pergola at the end of the walk.'),
+ room('garden','Urban garden plots',[[1110,968],[1672.2,444],[1706,444],[1728,425],[1728,392],[1795,439],[1156,1028]],[site(3982),site(3981),site(4047),site(4013),aerial],'A dark timber boardwalk runs the full southeast diagonal, from the fire terrace to a slatted pergola at the point. A raised bed behind a pale concrete retaining wall fills the strip between the walk and the glass-railed parapet, and a second runs flush along the playground side, its wall in line with the walk and its far edge stopping at the turf apron that rings the play surfaces. Dark bench blocks sit along both edges of the walk. The bed is massed with white flowering shrubs, rust and blue-grey accents and occasional small trees, and the whole tip beyond the pergola is planted. A potting bench with a galvanised work surface and an open slatted shelf stands under the pergola at the end of the walk.'),
  room('fire','Fire pit terrace',[[1037,674],[1160,674],[1298,788],[1138,962],[1037,867]],[site(4009),site(3989),site(3988),site(3980),site(3981),terrace],'Two groups of striped modular sofas sit around low grey fire bowls on the long paved terrace. A curved timber round table separates the lounges, with a second table beyond the far seating group. The playground-side edge has three connected open pergola bays, a long planted island, three timber dining tables with dark individual chairs, and two grills on the lounge-facing edge.','Social'),
  room('bbq-north','North terrace & playhouse',[[660,110],[858,38],[916,102],[932,244],[698,244],[698,278],[660,278]],[site(4038),site(4040),site(3985),site(3984),site(3978)],'An open timber play shelter on navy posts sits on a circular tan rubber pad ringed in pale concrete and set into green turf. A vertical timber chime wall and a teal graphic panel run off its gable, with a play counter, steering wheels and low disc seats under the roof. The adjoining dark-clad stair pavilion has a gravel roof, two rooftop vents and a glazed bridge entrance. A picnic table sits beside the pavilion; pale paving and timber-look bands follow the actual terrace.','Social'),
  room('bbq-central','Bocce-side fireplace lounges',rect(690,653,225,113),[site(3992),site(3979),site(3983)],'Two dark stone fireplaces anchor the ends of this terrace beside the bocce lawn. Each lounge has facing grey sofas, two striped armchairs and a low white round table. A dark slatted dining table and six striped chairs sit between the lounges.','Social'),
@@ -62,7 +62,10 @@ export function createLevel6Model(){
  const eastSlab=[[1037,259],[1193,259],[1193,471],[1352,471],[1352,488],[1539,488],[1539,470],[1619,470],[1648,444],[1706,444],[1728,425],[1728,371],[1795,439],[1779,460],[1156,1028],[1037,867]];
  surface(eastSlab,stone,-.36,.34);
  // Fine paving modules and warm timber circulation bands.
- surface(rect(663,239,270,35),mats.woodfloor,.01);
+ // User request 2026-09-11: the timber walk runs flush to the slab edge (x=660,
+ // z=275) and the turf (z=238), and sits above the North terrace room floor
+ // (y=.045), which used to hide its west end.
+ surface(rect(660,238,273,37),mats.woodfloor,.05);
  // IMG_3996: wood-look rectangular pavers span the full bridge and terrace landing.
  surface([[933,228],[1080,228],[1080,223],[1221,223],[1221,274],[933,274]],wood,.012);
  for(let x=934;x<1221;x+=15)for(let z=224;z<274;z+=8){
@@ -81,9 +84,37 @@ export function createLevel6Model(){
  const center=new T.Box3().setFromPoints(poly.map(([x,z])=>new T.Vector3(x,0,z))).getCenter(new T.Vector3());roomGroups.set(r.id,{group,floor,outline,center,poly});}
  for(let z=315;z<600;z+=48){surface(rect(733,z,174,23),mats.circulation,.06);surface(rect(1038,z,105,23),mats.circulation,.06);}
  // Pools, inset water, coping, stair treads and stainless-steel ladders.
- for(const [x,z,w,d] of [[242,724,312,90],[137,724,69,90]]){B(x+w/2,z+d/2,w+9,d+9,.16,mats.pooltile);B(x+w/2,z+d/2,w,d,.18,water);for(let i=0;i<4;i++)B(x+w-4-i*3,z+d/2,3,d-8,.2+i*.035,mats.pooltile);for(const zz of [z+9,z+d-9]){const [a,b]=world([x+w-9,zz]);for(const off of [-.35,.35]){rod(props,[a-.5,.16,b+off],[a-.5,.95,b+off],.035);rod(props,[a-.5,.95,b+off],[a+.55,.95,b+off],.035);rod(props,[a+.55,.95,b+off],[a+.55,.15,b+off],.035);}}}
+ for(const [x,z,w,d] of [[242,724,312,90],[137,724,69,90]]){B(x+w/2,z+d/2,w+9,d+9,.16,mats.pooltile);B(x+w/2,z+d/2,w,d,.18,water);}
+ // Reference render: the hot tub's coping and water step out in a small centred
+ // bay on its north edge. Both boxes abut, rather than overlap, the main ones.
+ B(171.5,716.5,31,6,.16,mats.pooltile);B(171.5,721,22,6,.18,water);
+ // IMG_4031: the hot tub is entered through that bay, not its east side.
+ // Submerged steps fill the bay, and a stainless grab rail stands on the coping
+ // either side of it, its top leaning in over the water.
+ B(171.5,719.75,22,3.5,.195,mats.pooltile);B(171.5,723,22,3,.187,mats.pooltile);
+ for(const x of [158.25,184.75]){const [a,b]=world([x,715]),[,c]=world([x,722]),i=x<171.5?.08:-.08;
+  rod(props,[a,.16,b],[a,.95,b],.035);rod(props,[a,.95,b],[a+i,.95,c],.035);rod(props,[a+i,.95,c],[a,.16,c],.035);}
+ // IMG_4028/4032 and the user's annotated plan: the main pool has three ladder
+ // pairs of curved stainless rails, each rising from the deck and sloping down
+ // to the coping. The pairs stand at the northwest corner (over a submerged
+ // corner step), mid-way along the north edge, and on the south edge just short
+ // of the southeast corner. (x,z) is the water edge; (dx,dz) points to the deck.
+ const poolRail=(x,z,dx,dz)=>{const [a,b]=world([x+dx*8.5,z+dz*8.5]),[c,d]=world([x+dx*1.2,z+dz*1.2]);
+  rod(props,[a,0,b],[a,.95,b],.035);rod(props,[a,.95,b],[c,.82,d],.035);rod(props,[c,.82,d],[c,.16,d],.035);};
+ B(252,734,20,20,.186,mats.pooltile);B(249,731,14,14,.196,mats.pooltile);
+ for(const z of [728,736.5])poolRail(242,z,-1,0);
+ for(const x of [393.8,402.2])poolRail(x,724,0,-1);
+ for(const x of [522.8,531.2])poolRail(x,814,0,1);
  const lounger=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.28,0,.73,.12,1.9,'oak');box(g,0,.39,.24,.65,.14,1.3,'linen');const back=box(g,0,.68,-.64,.65,.13,.8,'linen');back.rotation.x=.68;for(const xx of [-.28,.28])for(const zz of [-.7,.7])box(g,xx,.14,zz,.055,.28,.06,'oak');cyl(g,0,.52,.7,.12,.55,'white').rotation.z=Math.PI/2;};
- for(let x=270;x<560;x+=21){lounger(x,699);}for(const x of [278,294,373,389,468,484,550,566])lounger(x,852,Math.PI);for(const x of [145,170,207,230]){lounger(x,698);lounger(x,852,Math.PI);}for(let x=250;x<560;x+=20)if(x<267||x>465)lounger(x,639);
+ for(let x=270;x<560;x+=21){lounger(x,699);}
+ // South-side pairs, evenly spaced from the first (centre 286) so the last
+ // bed's east side lines up with the pool's east coping edge (x=558.5).
+ for(const c of [286,372.3,458.6,544.9])for(const d of [-8,8])lounger(c+d,852,Math.PI);for(const x of [145,198,249])lounger(x,698);for(const x of [145,170,207,230])lounger(x,852,Math.PI);
+ // Pergola loungers on the north edge. User requests 2026-09-11: three added
+ // beside the lone one under the west pergola; the east pergola's x=470 lounger
+ // (hard against the change-room storage door) is removed. Each group centres
+ // under its cover: west on x=209, east on x=520.
+ for(const x of [179,199,219,239,490,510,530,550])lounger(x,639);
  // IMG_4026/4035: the south and east deck strips are timber-framed striped
  // modular sectionals around teak coffee tables, not rows of sun loungers.
  // Sun loungers remain on the pool's north edge, as those photographs show.
@@ -105,9 +136,13 @@ export function createLevel6Model(){
  // the sofas are turned 90° so their length runs across the deck toward the pool.
  const deckPair=(x,z)=>{
   const [a,b]=world([x,z]),g=makeGroup(props,a,b,0);g.name='Pool deck lounge pair';
-  deckSofa(g,0,-1.6,0,4);deckTable(g,0,0);deckSofa(g,0,1.6,Math.PI,4);
+  deckSofa(g,0,-1.25,0,4);deckTable(g,0,0);deckSofa(g,0,1.25,Math.PI,4);
  };
- deckPair(610,700);deckPair(610,800);
+ // User requests 2026-09-11: each pair tightens (sofas 1.25 m from the table,
+ // .375 m legroom), and the gap between the pairs' back-to-back sofas is halved
+ // from ~1.85 m to ~.93 m (centres 67.3 units apart about z=750). That clears
+ // wide paths at both outer ends.
+ deckPair(610,716.33);deckPair(610,783.67);
  // IMG_4025/4026: a frameless glass safety fence encloses the pool deck along
  // the timber walkway, gated where that walkway meets the deck. Only this east
  // run is photographed; the remaining enclosure edges are not yet evidenced.
@@ -124,7 +159,8 @@ export function createLevel6Model(){
  // also lands the glass run on a real corner.
  const parapet=M('#c9c6bd',.85);
  for(const [a,b] of [[[40,596],[265,596]],[[465,596],[660,596]]]){line(a,b,1.15,parapet,.34);line(a,b,.08,stone,.44,1.15);}
- poolFence([660,596],[660,644]);poolFence([660,668],[660,836]);poolFence([660,860],[660,901]);poolFence([660,901],[636,901]);
+ // User request 2026-09-11: each gate sits one 24-unit panel further inward.
+ poolFence([660,596],[660,668]);poolFence([660,692],[660,812]);poolFence([660,836],[660,901]);poolFence([660,901],[636,901]);
  const poolGate=z=>{
   const g=makeGroup(props,...world([660,z]),Math.PI/2);g.name='Pool enclosure gate';
   walkModeGates.push(g);
@@ -133,9 +169,18 @@ export function createLevel6Model(){
   box(g,0,.97,0,1.02,1.56,.024,fenceGlass);
   cyl(g,.36,1,.08,.022,1.12,'metal');
  };
- poolGate(656);poolGate(848);
+ poolGate(680);poolGate(824);
  const pergola=(x,z,w,d,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);for(const xx of [-1,1])for(const zz of [-1,1])box(g,xx*w*U/2,1.45,zz*d*U/2,.16,2.9,.16,metal);for(const zz of [-1,1])box(g,0,2.91,zz*d*U/2,w*U+.22,.2,.18,metal);for(let xx=-w*U/2;xx<=w*U/2;xx+=.23)box(g,xx,3.02,0,.085,.14,d*U+.25,metal);};
  pergola(209,641,106,42);pergola(520,641,98,42);
+ // IMG_4030: a long black open-cubby unit (2 rows × 17 bays) on a stainless
+ // base stands against the north parapet, between the west planter and the
+ // west pergola, behind the pergola loungers.
+ {const k=M('#1d2022',.62),s=M('#b8bfc1',.28),x0=68,len=82,n=17,z=602.5;
+  B(x0+len/2,599.3,len,.6,.74,k,.14);
+  for(const y of [.14,.5,.86])B(x0+len/2,z,len,7,.03,k,y);
+  for(let i=0;i<=n;i++)B(x0+i*len/n,z,.5,7,.75,k,.14);
+  B(x0+len/2,605.8,len,.4,.05,s,.06);
+  for(let i=0;i<=4;i++)B(x0+1+i*(len-2)/4,z,.8,6,.14,s,0);}
  // User correction: the northeast pergola stands at the very end of the walk,
  // squared onto it. -.8321 is exactly perpendicular to the slab edge the walk
  // follows, atan2(-edgeDir[0],edgeDir[1]); the eyeballed -.76 sat 4 degrees out.
@@ -154,10 +199,22 @@ export function createLevel6Model(){
   for(let i=0;i<4;i++)box(bench,0,.38,z0-.24+i*.16,1.68,.035,.12,'oak');
   for(const xx of [-.84,.84])for(const zz of [-.27,.27])box(bench,xx,.44,z0+zz,.085,.88,.085,'oaklight');
  }
- for(const z of [703,759,814]){const [a,b]=world([89,z]);cyl(props,a,.24,b,.85,.38,'oak');cyl(props,a,.47,b,.76,.17,'ivory');const canopy=new T.Mesh(new T.SphereGeometry(.88,16,10,0,Math.PI),mats.linen);canopy.position.set(a,.66,b);canopy.rotation.y=-Math.PI/2;props.add(canopy);}
+ // Open fabric shells need an interior face when viewed from the pool or in
+ // first person. Clone linen so other furniture keeps its existing material.
+ const daybedCanopyMaterial=mats.linen.clone();
+ daybedCanopyMaterial.name='Double-sided daybed canopy';
+ daybedCanopyMaterial.side=T.DoubleSide;
+ for(const z of [703,759,814]){
+  const [a,b]=world([89,z]);
+  cyl(props,a,.24,b,.85,.38,'oak');
+  cyl(props,a,.47,b,.76,.17,'ivory');
+  const canopy=new T.Mesh(new T.SphereGeometry(.88,16,10,0,Math.PI),daybedCanopyMaterial);
+  canopy.position.set(a,.66,b);canopy.rotation.y=-Math.PI/2;
+  props.add(canopy);
+ }
  // dz nudges the planting anchor across a narrow bed; treeScale trims canopy size.
  const planter=(poly,trees=true,dz=0,treeScale=1)=>{surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){tree(props,a,b,0,(.7+((x+z)%13)/32)*treeScale);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.18,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6,.74,b+Math.cos(k*2.4)*.6,1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.32,0),k%2?'leaf':'leaflight',a+k*.2,.8,b,.8,.7,.8);}}}};
- for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51),rect(643,283,14,305)])planter(p);
+ for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51)])planter(p);
  // IMG_4005/IMG_4057 and the render crop: behind the pergola grills a paved walk
  // runs between two raised tree planters. The west bed's wall stands at
  // x=1127.3, touching the pergola posts' east face (1127.23) and clear of the
@@ -215,13 +272,14 @@ export function createLevel6Model(){
   [[792,963]],[[890,893]],[[875,1067]],[[777,1055]],
   [[644,995],[644,1072],[645,1150],[650,1225]]
  ];
- const southPlanter=(poly,treesAt=[],palette=null,step=0)=>{
+ const southPlanter=(poly,treesAt=[],palette=null,step=0,clearance=null)=>{
   surface(poly,stone,.06,.58);surface(poly,soil,.66);
   for(let i=0;i<poly.length;i++)line(poly[i],poly[(i+1)%poly.length],.2,stone,.18,.59);
   const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));
   const narrow=bounds.max.x-bounds.min.x<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9);
   for(let x=bounds.min.x+3;x<bounds.max.x-2;x+=stepX)for(let z=bounds.min.y+3;z<bounds.max.y-2;z+=stepZ)if(insidePolygon(x,z,poly)){
    const jitter=Math.sin(x*1.73+z*.91),[wx,wz]=world([x+jitter*1.2,z+Math.cos(x*.47-z)*1.2]);
+   if(clearance&&!clearance(x+jitter*1.2,z+Math.cos(x*.47-z)*1.2))continue;
    const material=palette?palette[Math.round(x*2+z)%palette.length]:(Math.round(x+z)%5===0)?flower:(Math.round(x*2+z)%7===0)?lavender:(Math.round(x+z)%2?'leaflight':'leaf');
    mesh(props,new T.IcosahedronGeometry(.13+(Math.abs(jitter)*.05),0),material,wx,.79+(Math.abs(jitter)*.06),wz,.9,.65,.9);
   }
@@ -281,17 +339,46 @@ export function createLevel6Model(){
  const playZones=[[1293,635,89],[1386,586,63]];
  const playClearance=(x,z,envelope)=>Math.min(...playZones.map(([cx,cz,r])=>Math.hypot(x-cx,z-cz)-r-envelope));
  // User correction: there is no second deck-side bed. One raised bed against the
- // glass railing, cut twice for cross-access; the walk runs out to meet its wall.
- for(const [t0,t1] of [[.012,.36],[.375,.70],[.715,.86]])southPlanter(band(t0,t1,10,31),[],eastPalette,5);
- // User correction (IMG_4047 and the marked render): the playground side of the
- // walk carries planting again, but flush to the walk rather than the old inset
- // band. Its outer edge is the straight offset-83 line, so the retaining wall
- // lines up with the grey walkway; its inner edge is the play lawn's own
- // southeast edge [1298,778]-[1504,554], so the bed fills exactly the bare slab
- // between them and leaves the turf apron the photograph shows at the coping.
- // User correction: the tapered southwest tail is cut off at t=.427. Both end
- // corners share that t, so the new end runs square to the walk, 0.89 m wide.
- southPlanter([at(.427,83),at(.77,83),[1554,506],[1510,550],[1504,554],[1356.9,713.9]],[],eastPalette,5);
+ // glass railing; the walk runs out to meet its wall. User requests 2026-09-11:
+ // no cross-access cuts, and it is merged into the playground planter below
+ // (its band(.012,.86,10,31) outline), so no wall divides the two at t=.86.
+ // User's red outline (2026-09-10 23:02): fill the turf gap and hug the play
+ // circles, matching the rear planter. Preserve the straight boardwalk edge
+ // and the existing square southwest return at t=.427.
+ const arcPoints=(cx,cz,r,start,end,count)=>Array.from({length:count},(_,i)=>{const a=start+(end-start)*i/(count-1);return [cx+Math.cos(a)*r,cz+Math.sin(a)*r];});
+ // Exact southeast intersection of the two coping circles. This is the join
+ // between their exposed arcs; it avoids drawing a wall through either pad.
+ const circleJoin=[1380.9243555860023,648.7952054999636];
+ const tanJoinAngle=Math.atan2(circleJoin[1]-586,circleJoin[0]-1386);
+ const blueJoinAngle=Math.atan2(circleJoin[1]-635,circleJoin[0]-1293);
+ const startOnWalk=at(.427,83),blueAlong=(1293-edgeA[0])*edgeDir[0]+(635-edgeA[1])*edgeDir[1];
+ const startAlong=.427*edgeLen,blueAcross=(1293-edgeA[0])*edgeIn[0]+(635-edgeA[1])*edgeIn[1];
+ const startAcross=blueAcross-Math.sqrt(89*89-(startAlong-blueAlong)**2);
+ const blueStart=at(.427,startAcross),blueStartAngle=Math.atan2(blueStart[1]-635,blueStart[0]-1293);
+ // One continuous bed wraps the playground and reaches the northeast tip.
+ // Only its exterior gets a rim; the former front/rear/wedge joins disappear.
+ // Southwest end follows the angled terrace railing [1037,868]–edgeA, 1.9 units
+ // inside it: half a post (.5) plus the rim's half-width (.09 m) touch the
+ // railing without overlapping it.
+ const railN=[160,-119].map(v=>v/Math.hypot(119,160)),dot=(a,b)=>a[0]*b[0]+a[1]*b[1];
+ const railEnd=o=>at((1.9-o*dot(edgeIn,railN))/dot(edgeDir,railN)/edgeLen,o);
+ // The railing side is inset the same 1.9 units all the way to the tip: corner
+ // b sits d1/d2 inside edges a-b and b-c (railings run with the slab on the left).
+ const unit=(a,b)=>{const l=Math.hypot(b[0]-a[0],b[1]-a[1]);return [(b[0]-a[0])/l,(b[1]-a[1])/l];};
+ const insetCorner=(a,b,c,d1=1.9,d2=d1)=>{const u=unit(a,b),v=unit(b,c),p=[b[0]+u[1]*d1,b[1]-u[0]*d1],q=[b[0]+v[1]*d2,b[1]-v[0]*d2],s=((q[0]-p[0])*v[1]-(q[1]-p[1])*v[0])/(u[0]*v[1]-u[1]*v[0]);return [p[0]+u[0]*s,p[1]+u[1]*s];};
+ const playgroundPlanter=[
+  startOnWalk,at(.86,83),at(.86,31),railEnd(31),railEnd(1.9),
+  insetCorner(edgeA,[1779,460],[1795,439]),insetCorner([1779,460],[1795,439],[1728,371]),
+  insetCorner([1795,439],[1728,371],[1728,425],1.9,0),[1728,425],[1706,444],[1648,444],[1619,470],[1539,470],
+  [1539,488],[1352,488],[1352,471],[1193,471],[1175.5,492],
+  [1175.5,554.9],[1190,574],
+  ...arcPoints(1293,635,89,-2.53,-1.1254717806294259,32),
+  ...arcPoints(1386,586,63,-2.6212915134338948,tanJoinAngle,92).slice(1),
+  ...arcPoints(1293,635,89,blueJoinAngle,blueStartAngle,24).slice(1)
+ ];
+ const playgroundTrees=[[1210,520],[1270,510],[1330,515],[1415,520],[1505,525],[1690,470],[1745,432]]
+  .filter(([x,z])=>playClearance(x,z,.76/U)>0);
+ southPlanter(playgroundPlanter,playgroundTrees,eastPalette,5,(x,z)=>playClearance(x,z,.19/U)>0);
  // The render carries a few small trees in the parapet-side bed.
  for(const t of [.28,.55,.8]){const [x,z]=world(at(t,20));tree(props,x,z,0,.6);}
  surface(band(.012,.86,35,83),paveGrey,.075);
@@ -299,29 +386,6 @@ export function createLevel6Model(){
  // landed inside the fire-terrace round table's curved benches, 2 against the
  // three-bay pergola's corner post. The rest keep their spacing.
  for(let i=0;i<10;i++){if(i===0||i===2)continue;const t=.05+i*.078,off=i%2?38:80;line(at(t,off),at(t+.028,off),.42,metal,.5,.075);}
- const arcPoints=(cx,cz,r,start,end,count)=>Array.from({length:count},(_,i)=>{const a=start+(end-start)*i/(count-1);return [cx+Math.cos(a)*r,cz+Math.sin(a)*r];});
- // Smooth inner edges follow the rear halves of the tan and blue coping. The
- // western toe stops at the aerial's angled return, preserving the grass apron
- // west and south of the blue play circle.
- const tanRearArc=arcPoints(1386,586,63,0,-2.62,32);
- const blueRearArc=arcPoints(1293,635,89,-1.126,-2.53,32).slice(1);
- // User correction: the bed's west end is cut back to x=1175.5, the east planter
- // wall's line, at the points where that line meets its old diagonal edges.
- const rearBed=[
-  [1175.5,492],[1193,471],[1352,471],[1352,488],[1539,488],[1554,506],
-  [1510,550],[1460,575],...tanRearArc,...blueRearArc,[1190,574],[1175.5,554.9]
- ];
- // tree() spreads foliage about .76 m from its anchor at southPlanter's scale.
- const rearTrees=[[1210,520],[1270,510],[1330,515],[1415,520],[1505,525]].filter(([x,z])=>playClearance(x,z,.76/U)>0);
- southPlanter(rearBed,rearTrees,eastPalette,6);
- // The walk runs out under the pergola to the tip bed; the separate raised
- // platform is gone with the pergola's move onto the walk.
- // The bed runs straight from [1706,444] to the north point: the slab's shallow
- // [1728,425] notch is not worth a second polygon.
- southPlanter([at(.86,10),at(.86,95),[1648,444],[1706,444],[1728,371],[1795,439],[1779,460]],[[1690,470],[1745,432]],eastPalette,6);
- // Wedge between the walk and the stepped rear boundary, closing the bare slab
- // between the rear bed and the tip.
- southPlanter([at(.77,83),at(.86,83),[1648,444],[1619,470],[1539,470],[1539,488],[1554,506]],[],eastPalette,6);
  const picnic=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.78,0,2.4,.09,.95,'oak');for(const xx of [-.8,.8])box(g,xx,.38,0,.18,.72,.65,metal);for(const zz of [-.8,.8]){box(g,0,.46,zz,2.5,.12,.35,'oak');for(const xx of [-.8,.8])box(g,xx,.23,zz,.1,.45,.28,metal);}};
  // User correction: nothing sits under the northeast pergola — the picnic table
  // that stood at the end of the walk is removed.
@@ -608,7 +672,11 @@ export function createLevel6Model(){
   for(let i=1;i<12;i++){const t=i/12,[a,b]=world([p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t]);cyl(props,a,3.2-Math.sin(t*Math.PI)*.28,b,.035,.06,'ivory');}}
  // Playground follows the built photograph: twin slides and faceted climbing pods.
  // West edge cut from x=1170 to 1175.5 to follow the east planter wall's line (user correction).
- surface([[1175.5,510.5],[1240,493],[1470,502],[1504,554],[1298,778],[1175.5,644]],grass,.08);
+ // User requests 2026-09-11: the turf runs right to the walkway edge (offset 83)
+ // up to the planter's start at t=.427, and on its west side out to the dining
+ // pergola, just clear of its turf-side post faces (v=-25.23), from the walk-end
+ // post line (u=72.23) to where that line meets the x=1175.5 west edge (u≈-88.2).
+ surface([[1175.5,510.5],[1240,493],[1470,502],[1504,554],at(.427,83),pergolaAt(72.23,-25.3),pergolaAt(-88.2,-25.3)],grass,.08);
  const circle=(x,z,r,material,y=.11)=>{const [a,b]=world([x,z]);mesh(props,new T.CylinderGeometry(r*U,r*U,.04,64),material,a,y,b);};circle(1293,635,89,stone);circle(1293,635,86,rubber,.14);circle(1386,586,63,stone);circle(1386,586,60,tan,.17);
  const [px,pz]=world([1286,626]),[podX,podZ]=world([1386,586]);buildPlayground(props,px,pz,podX,podZ);
  // Change-room geometry is kept in its own module because the annotated fit-out
@@ -618,23 +686,59 @@ export function createLevel6Model(){
  const walkModeWalls=new T.Group();walkModeWalls.name='Walk-mode full-height partitions';walkModeWalls.visible=false;
  buildChangeRoom({parent:props,walls,B,surface,world,mats,M,fenceGlass,gates:walkModeGates,tall:walkModeWalls});
  // IMG_3984/3985: flat turf and tan play circle, with a timber toddler house.
- surface([[662,112],[858,42],[914,104],[930,238],[845,238],[845,157],[698,157],[698,238],[662,238]],mats.woodfloor,.075);for(let x=665;x<831;x+=45)surface(rect(x,109,22,22),mats.tilefloor,.08);
+ surface([[662,112],[858,42],[914,104],[930,238],[845,238],[845,157],[698,157],[698,238],[662,238]],mats.woodfloor,.075);
  surface(rect(696,130,146,108),grass,.08);
  const [nx,nz]=world([759,180]);mesh(props,new T.CylinderGeometry(3.05,3.05,.035,64),stone,nx,.11,nz);mesh(props,new T.CylinderGeometry(2.9,2.9,.035,64),tan,nx,.145,nz);
  const house=makeGroup(props,nx,nz);house.name='North toddler playhouse';
- // IMG_4038/4040: an open shelter on navy posts, not an enclosed blue box, and it
- // carries no chimney. A vertical timber chime wall and a graphic play panel run off
- // the north gable; the sheltered end holds a play counter and a steering-wheel panel.
- const navy=M('#26404f'),signRed=M('#b8352c');
- for(const x of [-.62,.62])for(const z of [-.58,.58])box(house,x,.66,z,.1,1.32,.1,navy);
- box(house,0,.42,.72,1.28,.62,.08,blue);box(house,-.05,.72,.4,.86,.06,.5,blue);
- box(house,.6,.66,-.15,.07,.46,.8,blue);
- for(const z of [-.36,.06])cyl(house,.64,.92,z,.13,.05,'black').rotation.z=Math.PI/2;
- for(let z=-.86;z>-1.5;z-=.11)box(house,0,.45,z,1.16,.9,.07,'oak');
- box(house,0,.5,-1.62,1.16,1,.07,blue);
- for(const [x,z] of [[-.35,1.1],[.3,1.15]])cyl(house,x,.08,z,.2,.08,blue);
- for(const side of [-1,1]){const roof=box(house,side*.38,1.51,0,.88,.08,1.65,'oak');roof.rotation.z=-side*.49;for(let z=-.74;z<.8;z+=.2){const slat=box(house,side*.38,1.565,z,.9,.025,.025,'walnut');slat.rotation.z=-side*.49;}}
- box(house,0,1.5,.83,.6,.15,.04,signRed);
+ // IMG_4038/4040 (re-read September 11, 2026): an open gable shelter on navy
+ // posts, ridge east–west, a "KIDS ONLY" board on both gables. The north side
+ // carries the play counter (west half: table and disc stools outside, bench
+ // inside) and a stepped timber board wall (east half); a double-sided activity
+ // panel continues that line east on its own post, steering wheels facing the
+ // house and an airplane graphic facing north. The south side is open, with the
+ // oval Welcome sign on the southeast post and a black stovepipe on the south slope.
+ const navy=M('#26404f'),signRed=M('#b8352c'),playBlue=M('#5cb3d0',.55),benchBlue=M('#a9d4e1',.5),wheelGrey=M('#6b7176',.4),timber=M('#b3804f',.7),cream=M('#e9dfc8',.7);
+ const roofMats=[M('#b8804d',.7),M('#8e8272',.72),M('#c9975f',.7)],pad=.16,eave=1.62,ridge=2.32;
+ const a=Math.atan2(ridge-eave,.85),L=Math.hypot(.85,ridge-eave),rb=Math.atan2(ridge-eave,.55);
+ for(const [x,z] of [[-.8,.55],[.8,.55],[-.8,-.55],[0,-.55],[.8,-.55]])box(house,x,(pad+eave)/2,z,.08,eave-pad,.08,navy);
+ for(const z of [-.55,.55])box(house,0,eave,z,1.68,.08,.08,navy);
+ // Five planks per slope run along the ridge in alternating stains, with barge boards.
+ for(const s of [-1,1]){
+  for(let i=0;i<5;i++){const d=.11+i*.225;box(house,0,ridge-d*Math.sin(a),s*d*Math.cos(a),2.2,.035,.2,roofMats[(i+(s>0?0:1))%3]).rotation.x=s*a;}
+  for(const x of [-1.1,1.1])box(house,x,ridge-.35,s*.425,.04,.12,L,timber).rotation.x=s*a;
+ }
+ box(house,0,ridge+.02,0,2.24,.05,.1,timber);
+ const kids=canvasTexture((c,n)=>{c.fillStyle='#e9dfc8';c.fillRect(0,0,n,n);c.fillStyle='#b8352c';c.font=`bold italic ${n*.15}px sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('KIDS ONLY',n/2,n/2);});
+ kids.repeat.set(1,.25);kids.offset.set(0,.375);const kidsMat=new T.MeshStandardMaterial({map:kids,roughness:.7});
+ for(const s of [-1,1]){const x=s*.8;
+  box(house,x,eave+.04,0,.06,.1,1.2,timber);
+  for(const z of [-1,1])box(house,x,(eave+ridge)/2,z*.275,.05,.08,Math.hypot(.55,ridge-eave),timber).rotation.x=z*rb;
+  box(house,x,ridge-.34,0,.035,.13,.46,cream);
+  mesh(house,new T.PlaneGeometry(.44,.11),kidsMat,x+s*.02,ridge-.34,0).rotation.y=s*Math.PI/2;
+ }
+ {const x=-.5,z=.3,y=ridge-z*Math.tan(a);rod(house,[x,y-.05,z],[x,y+.3,z],.045,'black');rod(house,[x,y+.3,z],[x,y+.38,z-.07],.045,'black');cyl(house,x,y+.42,z-.07,.075,.04,'black');}
+ // Counter: teal panel with raised ends, bench inside, oval table and disc stools outside.
+ box(house,-.4,pad+.3,-.55,.72,.6,.045,playBlue);
+ for(const x of [-.72,-.08])box(house,x,pad+.7,-.55,.12,.2,.045,playBlue);
+ box(house,-.42,pad+.18,-.4,.66,.04,.26,benchBlue);
+ mesh(house,new T.CylinderGeometry(.45,.45,.04,28),navy,-.48,pad+.44,-.86,1.1,1,.58);
+ box(house,-.48,pad+.21,-.7,.06,.42,.24,navy);
+ for(const [x,z] of [[-.9,-1.28],[-.2,-1.24]])cyl(house,x,pad+.08,z,.17,.16,playBlue);
+ // Stepped timber board wall between the middle and northeast posts.
+ [.95,1.12,1,1.18,.9,1.06,.98].forEach((h,i)=>box(house,.09+i*.104,pad+.06+h/2,-.55,.088,h,.035,[timber,'walnut','oak'][i%3]));
+ for(const y of [pad+.25,pad+.9])box(house,.4,y,-.53,.78,.035,.015,navy);
+ // Activity panel on its own post: wheels and dial icons south, airplane north.
+ box(house,1.8,pad+.55,-.55,.08,1.1,.08,navy);
+ box(house,1.3,pad+.5,-.55,.92,.84,.04,playBlue);
+ for(const x of [1.08,1.48]){mesh(house,new T.TorusGeometry(.11,.018,8,20),wheelGrey,x,pad+.72,-.5);box(house,x,pad+.72,-.5,.2,.02,.02,wheelGrey);box(house,x,pad+.72,-.5,.02,.2,.02,wheelGrey);cyl(house,x,pad+.72,-.515,.03,.04,wheelGrey).rotation.x=Math.PI/2;}
+ const decal=(draw,z,rot)=>{const t=canvasTexture((c,n)=>{c.clearRect(0,0,n,n);draw(c,n);});mesh(house,new T.PlaneGeometry(.88,.8),new T.MeshStandardMaterial({map:t,transparent:true,depthWrite:false,roughness:.6}),1.3,pad+.5,z).rotation.y=rot;};
+ decal((c,n)=>{c.strokeStyle=c.fillStyle='#1f3a4a';c.lineWidth=n*.012;for(const x of [.2,.5,.8]){c.beginPath();c.arc(x*n,.72*n,n*.07,0,7);c.stroke();}c.beginPath();c.arc(.5*n,.72*n,n*.025,0,7);c.fill();for(const x of [.3,.45,.6,.75]){c.fillRect(x*n,.84*n,n*.012,n*.1);c.fillRect(x*n-n*.02,(.86+x*.06)*n,n*.052,n*.02);}},-.528,0);
+ decal((c,n)=>{c.strokeStyle='#ffffff';c.lineWidth=n*.02;c.lineJoin='round';const P=[[.2,.55],[.45,.5],[.62,.3],[.68,.33],[.58,.52],[.8,.5],[.86,.42],[.9,.44],[.86,.6],[.58,.62],[.66,.8],[.6,.82],[.44,.64],[.2,.62]];c.beginPath();P.forEach(([x,y],i)=>c[i?'lineTo':'moveTo'](x*n,y*n));c.closePath();c.stroke();for(const [x,y,r] of [[.25,.2,.06],[.33,.18,.08],[.42,.21,.05],[.72,.85,.05],[.8,.83,.07]]){c.beginPath();c.arc(x*n,y*n,r*n,Math.PI,0);c.stroke();}},-.572,Math.PI);
+ // Oval double-sided Welcome sign on the southeast post.
+ {const oval=(r,h,m)=>{mesh(house,new T.CylinderGeometry(r,r,h,32),m,.8,1.2,.6,1,1,1.6).rotation.x=Math.PI/2;};oval(.17,.018,navy);oval(.155,.022,cream);
+  const w=canvasTexture((c,n)=>{c.clearRect(0,0,n,n);c.translate(n/2,n/2);c.rotate(-Math.PI/2);c.fillStyle='#1f3a4a';c.font=`600 ${n*.16}px sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText('Welcome',0,0);});
+  const wm=new T.MeshStandardMaterial({map:w,transparent:true,depthWrite:false});
+  for(const s of [1,-1])mesh(house,new T.PlaneGeometry(.26,.44),wm,.8,1.2,.6+s*.013).rotation.y=s>0?0:Math.PI;}
  planter([[592,56],[856,31],[870,45],[660,104],[592,91]]);
  surface(rect(661,639,272,34),wood,.08);
  fire(691,1240);for(const [x,z,r] of [[673,1238,Math.PI/2],[694,1220,0],[710,1240,-Math.PI/2]]){const [a,b]=world([x,z]);chair(props,a,b,r,'linen');}
@@ -664,6 +768,9 @@ export function createLevel6Model(){
  // The end of that turf is the user's line drawn on the render, trace z=730.
  surface(rect(934,276,102,454),grass,-4.5);surface(rect(934,730,102,120),paveGrey,-4.5);
  for(const x of [934,1035])line([x,276],[x,850],4.4,metal,.18,-4.5);
+ // User request 2026-09-11: close the well's north end, where the turf stopped
+ // against open void. The south end keeps its low post row.
+ line([934,276],[1035,276],4.4,metal,.18,-4.5);
  for(const [z,label] of [[348,'30'],[454,'20'],[560,'10']]){surface(rect(935,z,100,2),mats.white,-4.46);const tex=canvasTexture((c,n)=>{c.clearRect(0,0,n,n);c.fillStyle='#ffffff';c.font='bold 210px sans-serif';c.textAlign='center';c.fillText(label,n/2,340);});const material=new T.MeshStandardMaterial({map:tex,transparent:true,depthWrite:false});const [a,b]=world([964,z-19]);const m=new T.Mesh(new T.PlaneGeometry(3.2,3.2),material);m.rotation.x=-Math.PI/2;m.position.set(a,-4.44,b);props.add(m);}
  // Goal line closing the end zone, and the inboard hash row every yard. The 10-yard
  // spacing above is 106 trace units, so one yard is 10.6. The turf and its hash row

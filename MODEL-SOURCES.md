@@ -940,3 +940,310 @@ The user's follow-up screenshot showed two remaining defects.
   through (−2, 0.8), keeping them about 0.8 m clear of the two-lane slide.
 
 The rail height (1.85 m) and the rest of the frame are unchanged.
+
+### Playground-side planter follows the circles — 2026-09-10
+
+The user's 23:02 annotated model screenshot marks the grass gap between the diagonal
+planter and the play circles for planting; the 23:07 reference shows the wall following
+the play pads. This supersedes the earlier straight inner edge/turf-apron interpretation
+in that marked area. The existing bed is expanded to the exposed southeast arcs of the
+blue and tan coping circles, meeting at their actual intersection. The boardwalk edge,
+square southwest return, play pads, and rear planter remain in place. Matching planting
+fills the expanded bed without spilling onto the play surfaces. Its footprint is also
+excluded from first-person walking.
+
+The user's 23:10/23:11 follow-up clarifies that the playground-side planting is
+one continuous planter. The front, rear, connecting wedge, and northeast tip now
+share a single footprint and exterior rim, with no internal dividing walls.
+The separate beds across the boardwalk are unchanged.
+
+### Change-room interior correction — 2026-09-10, 23:14/23:15 reference
+
+The latest user-supplied overhead takes precedence over the earlier interior
+interpretation. Five west changing bays replace the previous six overly deep
+bays. The north stalls have separate open leaves rather than a solid wall across
+their entrances. The four central shower entrances and seats face north, with
+wet fittings on the south back wall. The steam-room seating includes the inner
+L-shaped bench and the east bench. The southwest storage room follows the
+reference's L-shaped wall and has a solid framed door on its east return at the
+marked location; this is distinct from the existing frosted exterior door.
+The interior storage leaf opens into the room for first-person walking. The
+photographed pool-facing exterior is preserved. These remain proportional
+readings of the render, not surveyed dimensions.
+
+### Deeper change-room entry — 2026-09-10, 23:21 reference
+
+The court rear moves from trace z=590 to z=560, retaining the pool-facing
+facade alignment. Two independent west doors now lead directly to southwest
+storage (near the pool) and the main changing aisle (farther inside). The
+redundant second storage doorway is removed. The east door serves the steam
+room, whose perimeter L-bench leaves a clear approach. Cubicle leaves sit open
+along their partitions; shower benches and the lower wet-area aisle are sized
+to admit the first-person collision capsule. `scripts/verify-change-room.cjs`
+checks connected routes from the pool approach to 25 interior destinations.
+This is a navigable interpretation of the supplied image, not a code-compliance
+or surveyed architectural assessment.
+
+The 23:33 follow-up moves the court rear to trace z=553, joining the wet-block
+back wall directly and removing the narrow gap. Side-door positions stay fixed.
+
+User screenshot correction, 23:34: the plan shows the two inner court doors
+directly opposite each other. The east steam-room door moves from trace z=600 to
+z=573, facing the main west entry; the steam room's south partition now closes
+back to the court wall at x=406. The west storage door at z=600 is unchanged.
+
+User screenshot correction, 23:36: every stall gets a door and no fixture
+floats mid-room. The five west change cubicles gain open inward leaves along
+their north partitions; their benches turn to run along the west wall with the
+coat hooks mounted above them. The accessible room's fold seat and one grab
+rail move to its west wall, a second rail to its north wall, and the WC (now
+backing onto the east partition), its rail and the counter onto walls. North WC
+bowls move back against the north wall, and each shower bench runs along its
+stall's west partition. Positions remain proportional readings, not surveyed.
+
+User screenshot correction, 23:38: the steam room runs south to the pool
+facade. The inner south partition at trace z=601 is removed and the steam
+room's east wall and floor extend to the facade at z=608.5.
+
+User screenshot correction, 23:41: a grey storage wall at trace z=553 runs from
+the steam room's east wall (x=439) to the east perimeter, closing the southeast
+room behind the frosted exterior storage door.
+
+User screenshot correction, 23:42: the steam room's east wall now starts at the
+north partition (closing a gap at the corner) and takes the capped partition
+finish. The L-bench's east run extends to the facade, and its north run butts
+that east run instead of overlapping it.
+
+User screenshot correction, 23:44: the accessible washroom gets a door. Its
+wide south opening closes to a 1 m doorway at trace x=301–316, the only part
+not blocked by the first change cubicle's north partition. The hinged leaf is
+closed in the orbit view and swings north into the room in first person, the
+same `openYaw` mechanism as the court doors.
+
+User screenshot correction, 23:45: the two-head bay reads as open standing
+showers. Its east partition (x=362) now runs from the shower-block back wall
+(z=515) to z=552 and carries both heads, which face west. The west partition is
+removed, so the bay opens onto the main aisle, and the wet floor extends north to
+z=516. South WCs are now reached from the east vanity side of their aisle.
+
+User request, September 11, 2026: a closed door with a "To Tower 2" sign sits on
+the inner face of the northeast step wall (trace z=452, centred x=445). It is a
+flush timber leaf in a dark frame and never opens, because Tower 2 lies outside
+the model. The sign is real text, an exception to the facade's otherwise
+geometric signage. Position is inferred from the user's screenshot, not a drawing.
+
+User request, September 11, 2026: in first person the walker must not see over
+the change-room partitions (1.4–1.75 m against a 1.68 m eye height). Every
+interior and storage partition now has a matching extension to the 3 m shell
+height in `walkModeWalls`, visible only in first person. The orbit and plan
+cutaway keep the low partitions, and the GLB export (visible meshes only)
+omits the extensions. Footprints and collision are unchanged.
+
+User request, September 11, 2026: a more detailed east vanity. The dark block
+becomes a wall-hung timber cabinet with a quartz counter and backsplash, inset
+oval bowls with drains and gooseneck mixers. The earlier mirrors sat at x=462,
+inside the 4-unit east wall, and never rendered. Each basin now gets a framed
+mirror on the wall face (x=461), soap dispensers sit between mirrors, and a
+stainless hand dryer is mounted on the east wall at z=541. The vanity footprint
+is unchanged; fixture forms are representative, not from a photo.
+
+User request, September 11, 2026: in first person the stall door leaves match
+the 3 m walls. Every fixed open leaf (north and south WCs, change cubicles,
+shower glass) gets a same-rotation extension in `walkModeWalls`. The hinged
+accessible-washroom door gets a second hinged `walkOnly` gate that swings with
+it and is shown only while walking. The orbit view keeps the low leaves.
+
+User screenshot correction, 00:15: the southeast storage wall overlapped the
+steam room's east wall by half a unit, and the perimeter wall by one unit. The
+coplanar faces flickered. It now spans exactly x=440.5–461.
+
+User screenshot correction, 00:16: the four white tile pads on the north
+playhouse terrace (`rect(x,109,22,22)` at x=665–800) are removed. They sat at
+the lawn's height and overlapped it, which made them flicker.
+
+User screenshot correction, 00:17, superseding the earlier "cut twice for
+cross-access" correction: the parapet-side raised bed along the southeast
+diagonal is one continuous planter, `band(.012,.86,10,31)`, with no gaps
+between t=.36/.375 and t=.70/.715.
+
+User screenshot correction, 00:17: the playground planter cut straight from
+[1728,371] to [1706,444], leaving the slab triangle [1706,444]–[1728,425]–
+[1728,371] bare and pale in the north notch. The planter now follows the slab
+edge through [1728,425], so planting fills the corner.
+
+User screenshot correction, 00:22: the parapet bed and the playground planter
+are merged into one bed. The playground planter outline now runs back along the
+parapet strip (at(.86,31) → at(.012,31) → at(.012,10) → at(.86,10)), so the
+dividing wall at t=.86 is gone and one rim wraps the whole bed. The strip is now
+also in the planter's navigation blocked polygon.
+
+User screenshot correction, 00:24: the parapet strip's southwest end ran only
+to t=.012, leaving a bare gap before the angled terrace railing
+[1037,868]–[1156,1028]. The end now follows that railing's angle, 1.9 trace
+units inside it (a 0.5-unit post half-width plus the 0.09 m rim half-width), so
+the rim touches the railing without overlapping it.
+
+User screenshot correction, 00:26: the bed widens to the diagonal railing too.
+Its railing edge moves from offset 10 to the same 1.9-unit inset. The tip
+vertices [1779,460], [1795,439] and [1728,371] previously sat on the railing
+itself, so the rim overlapped it. They are now inset 1.9 units inside both
+railed edges; [1728,371] is inset only on its railed side, because its x=1728
+edge has no railing. The former bare strip along the railing is now planted and
+in the navigation blocked polygon.
+
+User screenshot correction, 00:27: planter `rect(643,283,14,305)` is removed.
+It lay entirely off the deck (x 643–657, z 283–588, west of `westSlab`'s x=660
+edge, between `northSlab` and `sunDeck`). At 14 units wide it received no
+planting, so it read as a floating bare soil strip.
+
+User screenshot correction, 00:29: the Urban garden room's floor mesh (visible,
+white, y=0.045) spilled past the slab into the stepped north notch. Its polygon
+edge [1110,968]→[1728,392] crossed the notch. The edge now stops at z=444
+(x≈1672.2) and follows the slab through [1706,444], [1728,425] and [1728,392].
+The room id `L6-garden` is unchanged.
+
+User request, 00:29: clear walking paths through the east deck lounge pairs.
+Each pair's sofas move from ±1.6 m to ±1.25 m of the teak table, leaving 0.375 m
+legroom. Both pairs shift 0.6 m toward each other (trace z 700→709.2 and
+800→790.8). This clears about 0.95 m where each outer sofa stood and keeps
+about 1.85 m clear between the pairs. The site-aerial layout of four sofas and
+two tables is otherwise unchanged.
+
+User request, 00:31: the two glass pool gates on the east fence (x=660) each
+move one 24-unit fence panel inward, toward each other: from z=656 to 680 and
+from z=848 to 824. The glass runs become 596–668, 692–812 and 836–901, and both
+gates now open onto the timber walkway (z≥672). Walking collision follows the
+scene geometry, so no navigation data changed.
+
+User screenshot correction, 00:32, superseding the 00:29 pair positions: the
+gap between the two lounge pairs' back-to-back sofas is halved, from about
+1.85 m to about 0.93 m. The pair centres move to trace z=716.33 and 783.67
+(67.3 units apart about z=750), which also widens the outer-end paths.
+
+User screenshot requests, 00:33–00:34, for the pergola loungers on the north
+edge (z=639):
+- The x=470 lounger at the east pergola's west edge, hard against the
+  change-room storage door, is removed.
+- The west pergola (x 156–262) held only the x=250 lounger. Three more are
+  added at x=190, 210 and 230, at the same 20-unit spacing.
+- 00:38: the four west-pergola loungers shift 11 units west, to x=179, 199,
+  219 and 239, so they centre under the cover (x=209). The east group (x=490 to
+  550) already centres on its pergola (x=520).
+
+Pool-deck cubby unit — user request with IMG_4030 (September 11, 2026). The
+photograph shows a long black open-cubby unit against the north hedge and
+parapet, with the canopy daybed to its west and the pergola loungers in front.
+It has 2 rows × 17 square bays on a stainless base rail with low feet. It is
+modelled at trace x 68–150 (about 5.3 m, bays about 0.31 m), 0.45 m deep with
+its back at the parapet face (z≈599), and a carcass from 0.14 m to 0.89 m. Bay
+count is read from the photo; overall length and height are proportional
+estimates against the loungers, not measurements.
+
+North toddler playhouse rebuilt — IMG_4038/4040 re-read (September 11, 2026).
+The user re-supplied both photographs and asked for a closer, common-sense
+match. This corrects two points of the September 9 reading above:
+- **Chimney.** IMG_4038 clearly shows a small black stovepipe with an elbow and
+  cap on the roof near the west gable, so it is restored. From the north (4040)
+  it sits behind the ridge.
+- **Orientation.** This was previously "not resolvable". In IMG_4040 the wood
+  deck is in the foreground and the clad pavilion (east) is on the left, so that
+  photo looks south, and IMG_4038 looks north. Cross-checking the two gives an
+  east–west ridge.
+
+The structure as now modelled:
+- **North side:** the play counter fills the west half (teal panel with raised
+  ends, a bench inside, and a navy oval table and two teal disc stools outside).
+  A stepped timber board wall fills the east half.
+- **Activity panel:** it continues the north line east on its own post. Its
+  south face carries the steering wheels and dial icons (seen in 4038), its
+  north face the airplane graphic (seen in 4040).
+- **South side:** open, with the oval double-sided Welcome sign on the
+  southeast post. Both gables carry a "KIDS ONLY" board.
+- **Roof:** five planks per slope run along the ridge in alternating stains.
+
+Sizes are proportional estimates (eave about 1.6 m, ridge about 2.3 m, frame
+about 1.6 × 1.1 m), not measurements.
+
+User screenshot request, September 11, 2026: the play-area turf ran short of the
+walkway, leaving a tapering bare strip of 6–14 trace units between t=.324 and
+the planter's start at t=.427. Its walk-side vertices are now at(.427,83) and
+at(.324,83), on the walkway edge.
+
+A second bare band lay between the turf's t=.324 cross edge and the
+playground-side dining pergola, about 25 units wide. It was only the Fire pit
+terrace room's pale floor mesh; there is no paving under the pergola. The turf's
+west side now follows the pergola's turf-side post line at v=−25.3 (post faces at
+v=−25.23), from the walk-end post line (u=72.23, on the walkway edge) to where
+that line meets the turf's x=1175.5 west edge (u≈−88.2). The fire-terrace pad
+lies entirely on the pergola side of that line.
+
+User screenshot request, September 11, 2026: the light well's lower football
+field ended at its north end (trace z=276) against open void. A 4.4 m dark wall
+now spans z=276 between the two side walls (x=934 and x=1035), matching their
+material and height. The south end keeps its existing low post row at z=850.
+
+User screenshot correction from the reference render, September 11, 2026: the
+hot tub is not a plain rectangle. A small bay steps out from the centre of its
+north edge. Water now extends into a 22 × 6-unit bay (x 160.5–182.5, z 718–724)
+with the same 4.5-unit coping around it (x 156–187, z 713.5–719.5), centred on
+the tub (x≈171.5). The bay's coping footprint is added to the first-person
+navigation's blocked water areas. Proportions are read off the render, not
+measured.
+
+User screenshot request, September 11, 2026: the two sunbeds directly in front of
+the hot tub's north edge (x=170, across the new bay, and x=207, over the east
+grab rail; z=698) are removed. The north-row beds at x=145 and 230 and the whole
+south row (z=852) are unchanged.
+
+Hot tub entry — user correction with IMG_4031 (September 11, 2026). The photograph,
+taken from the north with the pool on its left, shows that the hot tub is entered
+through its north bay:
+- Submerged steps fill the bay.
+- A stainless grab rail stands on the coping at each side of the bay, its top
+  leaning in over the water.
+- There are no steps or rail on the tub's east side.
+
+The shared pool loop no longer gives the hot tub the east-end step strips and
+rail frames; only the pool keeps those. The bay now holds two submerged steps
+(tops just proud of the water plane so they read as a pale ledge). Grab rails
+stand on the coping at x=158.25 and x=184.75, anchored at z 715 and 722. Rail
+form is simplified to a single leaning frame per side.
+
+User screenshot requests, September 11, 2026:
+- The pool's own east-end step strips and grab-rail frames are removed too, so
+  neither pool has east-end steps or rails any more.
+- North-row sunbeds (z=698): the x=230 bed moves to x=249, continuing the pool
+  row's 21-unit rhythm with its west side flush with the pool water edge
+  (x≈242).
+- A bed is added at x=198, mirroring the x=145 bed across the hot tub's centre
+  (x=171.5).
+
+Main pool rails and corner step — user's annotated plan with IMG_4028, IMG_4032
+and a close photo of the north-edge rails (September 11, 2026). Each entry is a
+ladder pair of curved stainless rails about 0.55 m apart. The rails rise from the
+deck and slope down to the coping, and the depth markers sit beside them.
+- **Northwest corner:** the rail pair stands on the west edge (z 728 and 736.5)
+  over a two-tier submerged corner step (20 × 20 and 14 × 14 units). It is seen
+  at the near end in IMG_4032.
+- **North edge:** a pair mid-way along, centred on x=398, against the
+  change-room facade (close photo).
+- **South edge:** a pair at x≈527, just short of the southeast corner and not at
+  it. It is seen in the foreground of IMG_4028, which looks west.
+
+Each rail is simplified to one leaning frame. Its back leg is on the deck 0.55 m
+from the water and its front leg on the coping at the water edge. Positions are
+read from the annotated plan, not measured.
+
+User screenshot request, September 11, 2026: the four sunbed pairs on the pool's
+south side (z=852) are drawn closer together. The first pair stays centred at
+x=286. The pairs are now evenly spaced 86.3 units apart (previously 95), and
+each keeps its 16-unit bed spacing. The last bed's east side lines up with the
+pool's east coping edge (x=558.5).
+
+User screenshot request, September 11, 2026: the north terrace's timber walk
+(between the playhouse turf and the hedge planter) ended short at its west end,
+with a pale band along its top edge. It lay at y=0.01, below the North terrace
+room's visible floor mesh (y=0.045). That floor covers the corner x 660–698 and
+z 244–278 and a band along the turf, so it hid the timber. The walk now sits at
+y=0.05 and runs flush to the slab edges (x=660, z=275) and the turf (z=238):
+x 660–933, z 238–275.
