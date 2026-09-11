@@ -57,6 +57,9 @@ const state = page => page.evaluate(() => ({
   await page.evaluate(() => clubGilmore.firstPerson.look(0, 1.4));
   await page.waitForTimeout(100);
   await page.screenshot({ path: 'evidence/first-person-look-down.png' });
+  await page.keyboard.press('Space');
+  const jump=await page.evaluate(()=>new Promise(r=>{const fp=clubGilmore.firstPerson,t0=performance.now();let max=0;(function s(){max=Math.max(max,fp.jumpY);performance.now()-t0<2500?requestAnimationFrame(s):r({max,end:fp.jumpY})})()}));
+  assert(jump.max>.5&&jump.max<=.915&&jump.end===0,'jump peaks under 3 ft and lands: '+JSON.stringify(jump));
   assert(!await page.locator('#fp-speed').isVisible()&&await page.locator('.fp-esc-note').isVisible(),'desktop walking: only the Esc note');
   await page.keyboard.press('Escape');
   await page.waitForFunction(()=>clubGilmore.firstPerson.paused);
@@ -125,6 +128,7 @@ const state = page => page.evaluate(() => ({
   await mobile.locator('#fp-speed').click();
   assert.equal(await mobile.locator('#fp-move-stick').isVisible(), true);
   assert(await mobile.locator('#fp-pause').isVisible()&&!await mobile.locator('.fp-esc-note').isVisible(),'touch: Pause kept, no Esc note');
+  await mobile.locator('#fp-jump').click();await mobile.waitForTimeout(150);assert(await mobile.evaluate(()=>clubGilmore.firstPerson.jumpY>0),'touch jump');
   assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   const portraitBox=await mobile.locator('#fp-move-stick').boundingBox(),portraitBefore=await mobile.evaluate(()=>clubGilmore.firstPerson.position.toArray());
   await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:portraitBox.x+portraitBox.width/2,y:portraitBox.y+portraitBox.height/2-32,id:1}]});

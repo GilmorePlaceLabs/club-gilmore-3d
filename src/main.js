@@ -126,9 +126,9 @@ function enterFirstPerson(){
   firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:{...model.navigation,walkSpeed:speeds[speedIndex][1]},onStateChange:syncFirstPersonUI,requestRender});
   firstPerson.attachAvatar(new FirstPersonAvatar());
  }
- firstPerson.resize(vw,vh);firstPerson.enter();lastFrameTime=0;
+ firstPerson.resize(vw,vh);firstPerson.enter();lastFrameTime=0;renderer.domElement.focus({preventScroll:true});
  $('hover-label').hidden=true;renderer.domElement.style.cursor='default';
- syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look. Escape to pause.';
+ syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look, Space to jump. Escape to pause.';
 }
 function exitFirstPerson(){
  if(!walking())return;
@@ -142,6 +142,7 @@ $('fp-exit-paused').addEventListener('click',exitFirstPerson);
 $('fp-resume').addEventListener('click',()=>firstPerson?.resume());
 $('fp-pause').addEventListener('click',()=>firstPerson?.pause());
 $('fp-reset').addEventListener('click',()=>firstPerson?.reset());
+$('fp-jump').addEventListener('pointerdown',e=>{e.preventDefault();firstPerson?.jump()});$('fp-jump').addEventListener('click',()=>firstPerson?.jump());
 $('fp-speed').addEventListener('click',()=>{speedIndex=(speedIndex+1)%speeds.length;const[n,v]=speeds[speedIndex];if(firstPerson)firstPerson.config.walkSpeed=v;$('fp-speed').textContent=n;$('fp-speed').setAttribute('aria-label',`Walking speed: ${n}. Tap to change`)});
 $('about-button').addEventListener('click',()=>{if(walking())firstPerson.pause();});
 document.addEventListener('keydown',event=>{

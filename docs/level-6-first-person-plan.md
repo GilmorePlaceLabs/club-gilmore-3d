@@ -51,7 +51,7 @@ The player will spawn on the marked east circulation path at approximately trace
 - Enable the button whenever a model exposes `navigation`; Level 4 will not expose it during this stage.
 - Preserve the orthographic camera position, target, zoom, selected room, and panel state, restoring them exactly after exit.
 - Use a perspective camera with an approximately 68° field of view.
-- Keep movement horizontal with no jumping, swimming, stairs, or elevators.
+- Keep movement horizontal with no swimming, stairs, or elevators. (Revised: a cosmetic jump was added at the user's request — Space on desktop, a Jump button on touch — capped at 0.9 m (~3 ft). It only raises the eye height; navigation stays 2D, so railings and walls still block the player mid-air.)
 - Normalize diagonal movement and constrain vertical mouse look.
 - Clear held inputs on pause, blur, tab hiding, pointer-lock loss, and orientation changes.
 
