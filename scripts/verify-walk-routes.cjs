@@ -13,6 +13,7 @@ const zones = [
   zone('north bridge', 1082, 228, 1215, 273),
   zone('south bridge', 935, 640, 1035, 671),
   zone('east BBQ terrace', 1040, 280, 1160, 650),
+  zone('northeast planter walk', 1145, 300, 1158, 480),
   zone('play perimeter', 1170, 500, 1515, 775),
   zone('fire terrace', 1038, 675, 1295, 960),
   zone('diagonal garden walk', 1156, 440, 1725, 1025),

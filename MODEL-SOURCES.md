@@ -781,3 +781,162 @@ Two choices are inference; no photograph shows these doors open:
 
 With a leaf open, the doorway's clear width is about 0.84 m against the player's 0.6 m. The open
 leaves are solid to navigation, so the player walks around them rather than through the glass.
+
+#### Northeast planter walk — IMG_4005/4057 and the render crop, September 10, 2026
+
+The user supplied two site photographs, `IMG_4005.HEIC` and `IMG_4057.heic`, saved as
+`public/photos/site-4005.jpg` and `site-4057.jpg` and cited by `L6-bbq-east`. They also supplied a
+crop of the render with the east-terrace tree block outlined.
+
+- **IMG_4005** is a ground-level shot. A paved walk of alternating pale and charcoal bands runs
+  between two raised concrete planters, with trees on both sides.
+- **IMG_4057** is an overhead of the east BBQ terrace. The grill backs sit against a planted strip,
+  with the banded walk beyond it.
+- **The render crop** shows two tree columns with a path between them.
+
+The model had a single 35-unit bed there, `rect(1143,287,35,210)`, with no walk. Following the
+user's instruction, and replacing it:
+
+- **East bed:** the old bed keeps only its east half, `rect(1160.5,287,17.5,210)`.
+- **West bed:** `rect(1127.3,287,15.7,210)`. Its west wall touches the pergola posts' east face
+  without overlapping it: the posts sit at x=1126 and are 0.16 m wide, so their face is at 1127.23.
+  The grill counters are turned −90° and their backs sit at 1126.4, so they are also clear.
+- **Walk:** x 1143–1160.5, 1.14 m wide, paved with pale `mats.tilefloor` and banded every 9 units
+  in `paveGrey`, following IMG_4005. It runs the full length of both beds, z 287–497.
+- **Trees:** each bed gets one tree column on `planter()`'s existing 26-unit grid. That matches
+  the two columns in the render.
+
+The `L6-bbq-east` description now mentions the walk. Navigation's `BLOCKED` rectangle is split to
+match the two beds.
+
+Navigation, separately: `tree()` canopies hang from about 0.75 m, reaching 0.86–1.35 m out from the
+trunk, which is well below the 1.76 m cutoff. They closed the 1.14 m walk entirely. Leaf materials
+now carry `userData.collision = false`, which `NavigationWorld` honours on the material because
+merging drops mesh userData. Foliage is therefore brushed through everywhere on Level 6, while
+trunks and planter walls stay solid. The walk-route audit confirms nothing that should stay shut
+opened as a result.
+
+#### Northeast planter walk widened — user correction IMG_4058, September 10, 2026
+
+`IMG_4058.HEIC` is a phone photograph of the first-person view on screen, so it is not added to
+`public/photos`. Looking south down the new walk, the user marked the east bed with an arrow toward
+the open deck edge: move it back there so the walk can be wider. This supersedes the "east bed keeps
+the old bed's east half" choice in the entry above.
+
+- **East bed:** still 17.5 units wide, now `[[1175.5,287],[1193,287],[1193,471],[1175.5,492]]`. Its
+  east wall sits on the east slab's edge at x=1193, where nothing else stands; no railing is
+  recorded on that run.
+- **South end:** it follows the northwest edge of `rearBed`, the raised bed behind the play
+  circles, whose diagonal runs (1168,501)–(1193,471). The bed touches that edge without overlapping
+  it. The earlier rectangle, and the original 35-unit bed before it, both ran to z=497 and so
+  already clipped `rearBed`'s corner slightly.
+- **Walk:** now x 1143–1175.5, 32.5 units or 2.11 m wide, up from 1.14 m. The paving and its
+  charcoal bands are widened to match.
+- **West bed:** unchanged, still touching the pergola posts.
+
+Navigation's `BLOCKED` entry for the east bed takes the same clipped polygon.
+
+#### West bed ends at the pergola — user correction, September 10, 2026
+
+On a top-down view, the user marked the pergola's south corner post: the west bed should end there
+rather than run past the pergola. The bed is now `rect(1127.3,287,15.7,196.2)`, ending at z=483.2.
+That is the outer face of the corner post: the south bay is centred at z=453 and is 58 units deep,
+so the post sits at z=482, and half of its 0.16 m width adds 1.23 units. The last tree, at z=479,
+still falls inside the bed. The freed corner, x 1127.3–1143 by z 483.2–497, is plain terrace
+paving. The walk and the east bed are unchanged. Navigation's `BLOCKED` rectangle is shortened to
+match.
+
+#### Rear bed and play lawn cut to the planter line — user correction, September 10, 2026
+
+On a top-down view (north to the right), the user drew a north–south line across the play lawn
+and the raised bed behind the play circles (`rearBed`), and asked for both to be cut back to it.
+Its position was read against the scene: it falls at trace x≈1175.5, which is the west face of the
+east planter's wall carried south. Both west ends now stop on that line.
+
+- **`rearBed`:** its west edge moves from x=1168 to 1175.5. The new corners are where the line
+  meets the bed's existing edges. The north corner is (1175.5, 492), on the northwest diagonal
+  (1168,501)–(1193,471), and it is also the east planter's southwest corner, so the two still touch
+  without overlapping. The south corner is (1175.5, 554.9), on the old edge (1190,574)–(1168,545).
+  The rest of the outline, including both play-circle arcs, is unchanged.
+- **Play lawn:** its west edge moves from x=1170 to 1175.5. The corners are (1175.5, 510.5) on its
+  north edge (1170,512)–(1240,493), and (1175.5, 644) on its southwest edge (1170,638)–(1298,778).
+  The southeast edge `[1298,778]-[1504,554]`, which the playground-side bed follows, is unchanged.
+
+The strip west of the line, about 0.36–0.49 m wide, is now plain terrace paving.
+
+#### Playground monkey bars and stepping disc — user correction, September 10, 2026
+
+The user's screenshot showed two defects in `src/playground.js`. Both are rendering errors, not
+new evidence about the equipment.
+
+- **Monkey bars.** There was one curved rail, and its six rungs were laid on a separate straight
+  line (z = 0.05 + 0.4t) that did not follow that curve, so their far ends hung in the air. Now two
+  rails follow the original curve through (−1, 1.85, 0) … (−3.1, 1.8, 0.62), 0.46 m apart, with the
+  offset taken along the curve so they stay parallel. Eight rungs span between the rails at about
+  0.33 m spacing. The first passes through the platform post at (−1, 0), and the last sits between
+  two new end posts, one under each rail, which replace the single end post.
+- **Stepping discs.** The disc at (0.1, 1.8), 0.29 m up, had no support and floated. It now stands
+  on a short post. The end disc at (−3.1, 0.62) widens from 0.23 m to 0.3 m radius, so both end
+  posts pass through it.
+
+The curve, the rail height and the disc positions are unchanged, so the frame's footprint and its
+relationship to the slides are as before.
+
+#### Playground platform, slides, arch and stairs aligned — user correction, September 10, 2026
+
+The user's screenshots showed the slides, the blue arch and the stairs out of line with the
+platform. The cause was the platform itself. The six posts stand at 0°, 60°, … on a 1 m circle,
+but the hexagonal plate, a three.js 6-sided cylinder, has its corners at 30°, 90°, …. So the posts
+stood mid-side, and the equipment had been placed against neither:
+
+- The S-slide started at (0.53, 0.78), on the post at (0.5, 0.866), and the blue arch had that post
+  running up through it.
+- The two-lane slide straddled the post at (−0.5, 0.866), with one lane over a guarded edge. Its
+  lanes were offset only in x, so they overlapped where the slide turns.
+- The stairs were centred at x=−0.3 in a gap centred at 0, and one handrail ran outside the post.
+- The climbing cage straddled the corner post at (1, 0), across two edges.
+
+The plate is now turned 30° so its corners sit on the posts, and each piece takes one whole edge.
+Edge k runs from post k to post k+1 and faces 60k+30°; `frame()` in `playground.js` places parts
+relative to an edge.
+
+| Edge | Faces | Holds |
+|---|---|---|
+| 0 | 30° | S-slide, narrowed from 0.83 to 0.76 m to fit between the posts, with the blue hoop over it |
+| 1 | 90° | Two-lane slide, 2 × 0.38 m (was 2 × 0.44), lanes offset along the curve |
+| 2, 3 | 150°, 210° | Guards, either side of the monkey-bar post |
+| 4 | 270° | Stairs, centred, with handrails at ±0.4 on the tread edges |
+| 5 | 330° | Climbing cage, narrowed to four uprights across ±0.39 |
+
+- **Clearances.** Every slide leaves square to its edge, and its rims (outer face ±0.425 m) clear
+  the posts' inner faces (±0.435 m). The top stair tread now meets the plate edge instead of
+  running 5 cm under it.
+- **Blue hoop.** No longer a free-standing arch with legs on the deck. It springs from edge 0's
+  two posts at 2.25 m and peaks at 2.77 m, above the slide's rims.
+- **Stepping disc.** The disc beside the slides moves from (0.1, 1.8) to (0.3, 1.85), so it stays
+  clear of both slides. This supersedes the "disc positions are unchanged" note in the monkey-bar
+  entry above.
+- **Unchanged.** The monkey bars, the pods, the sign and the frame's overall placement.
+
+These are layout corrections, not new evidence. The relative arrangement is kept as the user's
+screenshots showed it: two-lane slide at the front, S-slide with arch front-right, cage behind it,
+stairs at the rear, monkey bars to the left.
+
+#### Stair handrails attached and monkey bars moved to an opening — user correction, September 10, 2026
+
+The user's follow-up screenshot showed two remaining defects.
+
+- **Stair handrails.** They ended in the air at (±0.4, 2.3, −0.98), about 15 cm short of the
+  stair edge's posts at (±0.5, −0.866), and started behind and below their newel posts. Each now
+  starts on top of its newel post (0.85 m at z=−2.41) and runs up at x=±0.45, just outside the
+  tread edge and parallel to the stairs. It ends inside the platform post on its side (ring 4 or
+  5) at 2.45 m.
+- **Monkey bars.** They still started at the corner post (−1, 0), between the two guarded edges,
+  so they led off a fence rather than an opening. They now leave square out of edge 2 (facing
+  150°, the edge nearest the direction they already ran), and edge 2's guard is removed, leaving
+  only edge 3 guarded. A mounting bar at rail height between edge 2's posts carries the rails'
+  deck ends, in place of the old first rung through the corner post. Seven rungs follow. The
+  far end, its two posts and the stepping disc are unchanged at (−3.1, 0.62). The rails curve
+  through (−2, 0.8), keeping them about 0.8 m clear of the two-lane slide.
+
+The rail height (1.85 m) and the rest of the frame are unchanged.

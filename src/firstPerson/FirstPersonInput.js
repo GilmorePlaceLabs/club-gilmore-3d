@@ -17,6 +17,7 @@ export class FirstPersonInput {
     this.onLockDenied = onLockDenied;
     this.enabled = false;
     this.keys = new Set();
+    this.sprint = false;
     this.moveStick = { x: 0, y: 0 };
     this.lookStick = { x: 0, y: 0 };
     this.dragPointer = null;
@@ -93,7 +94,7 @@ export class FirstPersonInput {
   }
 
   clear() {
-    this.keys.clear();
+    this.keys.clear(); this.sprint = false;
     this.moveStick.x = this.moveStick.y = this.lookStick.x = this.lookStick.y = 0;
     this.dragPointer = null;
     this.lastDrag = null;
@@ -115,11 +116,12 @@ export class FirstPersonInput {
     if (this.enabled && event.code === 'Escape' && !this.isTypingTarget(event.target)) { this.clear(); this.onPause?.('escape'); return; }
     if (this.isTypingTarget(event.target)) return;
     if (this.enabled && event.code === 'Space') { event.preventDefault(); if (!event.repeat) this.onJump?.(); return; }
+    if (this.enabled && (event.code === 'ShiftLeft' || event.code === 'ShiftRight')) { this.sprint = true; return; }
     if (!this.enabled || !MOVE_KEYS.has(event.code)) return;
     this.keys.add(event.code); event.preventDefault(); this.onActivity?.();
   }
   // Space on keyup would otherwise "click" whatever button has focus (e.g. the entry button, exiting first person).
-  handleKeyUp(event) { if (this.enabled && event.code === 'Space' && !this.isTypingTarget(event.target)) event.preventDefault(); if (MOVE_KEYS.has(event.code)) this.keys.delete(event.code); }
+  handleKeyUp(event) { if (this.enabled && event.code === 'Space' && !this.isTypingTarget(event.target)) event.preventDefault(); if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') this.sprint = false; if (MOVE_KEYS.has(event.code)) this.keys.delete(event.code); }
   handleBlur() { this.clear(); this.onPause?.('blur'); }
   handleVisibility() { if (document.hidden) { this.clear(); this.onPause?.('hidden'); } }
   handleOrientation() { this.clear(); }

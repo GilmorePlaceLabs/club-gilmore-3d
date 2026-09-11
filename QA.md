@@ -280,3 +280,90 @@ wall stops the approach as built. A walk in from the pool-deck mouth reached the
 recess. First-person renders, `evidence/level6-change-room-doors-west.png`, `-east.png` and
 `-from-inside.png`, show each leaf swung flat into the court with its handle and frame intact and
 the doorway clear. The orbit view, which keeps the doors closed, was not re-rendered.
+
+Northeast planter walk, September 10, 2026: `node scripts/verify-level6.cjs` passes, which covers
+the new `site-4005.jpg` and `site-4057.jpg` resolving. `node scripts/verify-first-person.cjs` and
+`npm run build` also pass. `node scripts/verify-walk-routes.cjs` passes with a new
+"northeast planter walk" zone reached, and the north pavilion interior still closed.
+
+Before foliage was made non-solid, a scratch probe found every centre-line point from z=285 to 490
+unsafe, and the audit could not reach the walk. The overhanging canopies had closed it. After the
+change, every centre-line point from z=280 to 505 is safe, and a walk from the north end runs
+through to z=582.7. Across the walk at z=390, the clear band is x 1148–1155: the walls stay solid,
+and the player's 0.6 m fits inside the 1.14 m walk.
+
+First-person renders, `evidence/level6-ne-planter-walk.png` and `-grills.png`, show the banded walk
+between the two planter walls, and the west wall directly behind the grill counters and pergola
+posts with no gap or overlap. The canopies overhang the walk at eye height, which reads denser
+than IMG_4005.
+
+Northeast planter walk widened (IMG_4058), September 10, 2026: `node scripts/verify-level6.cjs`,
+`node scripts/verify-first-person.cjs`, `node scripts/verify-walk-routes.cjs` and `npm run build`
+pass. The walk-route audit still reaches the planter walk and still keeps the north pavilion
+interior closed. A scratch probe scanning across the walk at z=390 finds the player's centre clear
+from x=1148 to 1170, a 1.5 m band, up from 0.5 m. That band is the 2.11 m walk less the player's
+0.6 m. Every centre-line point from z=280 to 505 is safe, and a walk from the north end runs
+through to z=582.7. The first-person render `evidence/level6-ne-planter-walk.png`, taken from the
+walk's new centre line, shows the wide banded walk flanked by both planter walls and their trees,
+with a clear view to the far end.
+
+West bed ends at the pergola, September 10, 2026: `node scripts/verify-level6.cjs`,
+`node scripts/verify-first-person.cjs`, `node scripts/verify-walk-routes.cjs` and `npm run build`
+pass. The audit still reaches the planter walk and keeps the north pavilion interior closed. The
+walk probe is unchanged: the centre line from z=280 to 505 is safe, and the clear band across the
+walk is still x 1148–1170. A top-down orbit render of the pergola's south end,
+`evidence/level6-west-bed-end-topdown.png` (north up), shows the west bed's tree row stopping level
+with the pergola's south beam instead of running past it. The last canopy overhangs only slightly,
+because its tree stands 4 units inside the bed's new end. The bed's soil edge itself is hidden
+under that canopy in plan, so the end position rests on the computed z=483.2 rather than on the
+render alone.
+
+Rear bed and play lawn cut to the planter line, September 10, 2026: `node scripts/verify-level6.cjs`
+passes. The export shrank from 21,902,668 to 21,871,940 bytes, consistent with fewer planting
+instances in the smaller bed. `node scripts/verify-first-person.cjs`, `npm run build` and
+`node scripts/verify-walk-routes.cjs` also pass; the audit still reaches the play perimeter and the
+planter walk, and keeps the north pavilion interior closed. A top-down orbit render (north up),
+`evidence/level6-rear-bed-lawn-cut-topdown.png`, shows the raised bed's west wall and the lawn's
+west edge running in one straight north–south line with the east planter's west wall, plain
+paving west of it, and the play-circle rim and arcs unchanged.
+
+Playground monkey bars and stepping disc, September 10, 2026: `node scripts/verify-level6.cjs`
+passes. The export grew from 21,871,940 to 21,964,100 bytes, consistent with the second rail, two
+extra rungs, a second end post and the disc's support post. `node scripts/verify-first-person.cjs`,
+`npm run build` and `node scripts/verify-walk-routes.cjs` also pass; the audit still reaches the
+play perimeter with the new solid posts in place, and keeps the north pavilion interior closed.
+Two angled orbit close-ups, `evidence/level6-playground-monkey-bars.png` (from the south-west,
+matching the user's screenshot) and `-reverse.png` (from the north-east), show the monkey bars as a
+ladder: two parallel curved rails with rungs spanning between them, from the platform post to the
+pair of end posts, with the end disc at their foot. The disc beside the S-slide now stands on its
+own post. The orbit zoom limit (12) keeps these shots fairly wide; they were not taken in first
+person.
+
+Playground platform, slides, arch and stairs aligned, September 10, 2026: `node scripts/verify-level6.cjs`
+passes. The export went from 21,964,100 to 21,927,300 bytes, consistent with the narrower cage,
+fewer guard runs and slimmer slides. `node scripts/verify-first-person.cjs`, `npm run build` and
+`node scripts/verify-walk-routes.cjs` also pass; the audit still reaches the play perimeter and
+keeps the north pavilion interior closed. A standalone check of `frame()` put every edge's two
+ends exactly on its two posts (maximum error 0.0000 m). A top-down render,
+`evidence/level6-playground-aligned-topdown.png`, shows the deck's six corners on the six posts,
+with each slide, the stairs and the cage leaving square from its own edge. The angled orbit shots
+`-aligned.png` and `-aligned-reverse.png` were too wide to read the hoop, so it was checked in a
+first-person close-up instead: `evidence/level6-playground-hoop-closeup.png` shows it springing
+from edge 0's two posts over the S-slide entrance, with no post through it.
+`evidence/level6-playground-stairs-closeup.png` shows the stairs centred between their posts.
+
+Stair handrails attached and monkey bars moved to an opening, September 10, 2026:
+`node scripts/verify-level6.cjs` passes, with the export down to 21,890,436 bytes now that one
+guard run is gone. `node scripts/verify-first-person.cjs`, `npm run build` and
+`node scripts/verify-walk-routes.cjs` also pass; the audit still reaches the play perimeter and
+keeps the north pavilion interior closed.
+
+- **Monkey bars.** A top-down render, `evidence/level6-playground-rails-topdown.png`, shows them
+  leaving the edge-2 side between two posts rather than the corner post, with only edge 3 still
+  guarded. `-rails-west.png`, taken from the user's angle, shows them coming off the deck side out
+  to their end posts.
+- **Handrails.** The first-person close-up `evidence/level6-playground-handrail-closeup.png` shows
+  each handrail top finishing at a platform post, one per rail.
+- **Monkey-bar entry.** `evidence/level6-playground-monkey-bars-entry.png` shows both rails meeting
+  the mounting bar strung between edge 2's posts just above the deck. At that camera distance the
+  rail-to-bar joint itself is small, so the top-down is the clearer evidence for the layout.

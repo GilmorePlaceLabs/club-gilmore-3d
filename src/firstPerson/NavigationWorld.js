@@ -30,7 +30,7 @@ const BLOCKED = [
   rectangle(237,719,322,100), rectangle(132,719,79,100),
   rectangle(40,596,25,304), rectangle(65,879,570,22),
   rectangle(699,280,208,32), rectangle(699,600,208,34),
-  rectangle(699,357,32,201), rectangle(1143,287,35,210),
+  rectangle(699,357,32,201), rectangle(1127.3,287,15.7,196.2), polygon([[1175.5,287],[1193,287],[1193,471],[1175.5,492]]),
   rectangle(699,733,208,36),
   polygon([[752,939],[784,912],[833,970],[802,997]]),
   polygon([[854,906],[908,857],[908,921],[870,929]]),
@@ -117,7 +117,8 @@ export class NavigationWorld {
     root.updateMatrixWorld(true);
     const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
     root.traverse(object => {
-      if (!object.isMesh || object.userData.collision === false || !object.geometry?.attributes?.position) return;
+      // Merging drops mesh userData, so non-solid materials (foliage) carry the flag too.
+      if (!object.isMesh || object.userData.collision === false || object.material?.userData?.collision === false || !object.geometry?.attributes?.position) return;
       const position = object.geometry.attributes.position;
       const index = object.geometry.index;
       const triangleCount = index ? index.count / 3 : position.count / 3;

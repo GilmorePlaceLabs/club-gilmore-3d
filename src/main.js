@@ -123,12 +123,12 @@ function enterFirstPerson(){
  for(const gate of model.walkModeGates||[]){const u=gate.userData;u.closedPosition??=gate.position.clone();u.closedYaw??=gate.rotation.y;if(u.openYaw==null)gate.position.z=u.closedPosition.z+.95;else gate.rotation.y=u.closedYaw+u.openYaw;}
  if(!firstPerson){
   const navigationWorld=new NavigationWorld(model,model.navigation);
-  firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:{...model.navigation,walkSpeed:speeds[speedIndex][1]},onStateChange:syncFirstPersonUI,requestRender});
+  firstPerson=new FirstPersonController({scene,domElement:renderer.domElement,navigationWorld,config:{...model.navigation,walkSpeed:speeds[speedIndex][1],sprintSpeed:speeds[2][1]},onStateChange:syncFirstPersonUI,requestRender});
   firstPerson.attachAvatar(new FirstPersonAvatar());
  }
  firstPerson.resize(vw,vh);firstPerson.enter();lastFrameTime=0;renderer.domElement.focus({preventScroll:true});
  $('hover-label').hidden=true;renderer.domElement.style.cursor='default';
- syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look, Space to jump. Escape to pause.';
+ syncFirstPersonUI();$('announcement').textContent='First person. WASD or arrow keys to walk, mouse to look, Space to jump, hold Shift to run. Escape to pause.';
 }
 function exitFirstPerson(){
  if(!walking())return;
