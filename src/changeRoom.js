@@ -76,7 +76,7 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  surface(rect(335,485,95,30),wetFloor,.074,0,interior);
  surface(rect(341,516,21,36),wetFloor,.075,0,interior);
  surface(rect(363,526,66,26),mats.tilefloor,.074,0,interior);
- surface(rect(396,553,43,48),steamFloor,.075,0,interior);
+ surface(rect(396,553,43,55.5),steamFloor,.075,0,interior);
 
  // Full roofless perimeter follows the stepped trace. The south side is split
  // around the recessed pool-entry court and the separate storage door.
@@ -176,18 +176,26 @@ export function buildChangeRoom({parent,walls,B,surface,world,mats,M,fenceGlass,
  // Southeast steam room. Its glass door and L-shaped tiled benches distinguish
  // it from the neighbouring secondary cubicles.
  partitionWall(417.5,553,43,2,1.75);
- partitionWall(396,570.5,2,35,1.75);
- // The south wall stops short of the new east entry so the glazed side door
- // opens directly into a clear steam-room approach.
- partitionWall(429.5,601,19,2,1.75);
- B(439,577,3,48,1.75,partition,0,interior);
- B(432,577,11,40,.48,fixture,.08,interior);
+ // The steam room runs all the way south to the pool facade; its east wall
+ // closes onto that facade rather than a separate inner south partition.
+ partitionWall(439,580.25,3,56.5,1.75);
+ // L-bench: north run butts the east run, which reaches the facade.
+ B(435,581.25,5,54.5,.48,fixture,.08,interior);
+ B(420,556.5,25,5,.48,fixture,.08,interior);
 
- // A short service-alcove wall follows the visible lower-left jog while leaving
- // the central route from the recessed pool entrance open.
- partitionWall(315,564,2,36,1.35);
- partitionWall(334,582,38,2,1.35);
- B(329,576,24,6,.42,timberDark,.1,interior);
+ // Southwest storage is an L-shaped enclosed room in the supplied plan. The
+ // marked door is in its east return, separate from the exterior frosted door.
+ const storageWall=M('#777f80',.72);
+ const storagePartition=(x,z,w,d)=>{B(x,z,w,d,1.75,storageWall,0,interior);B(x,z,w,d,1.25,storageWall,1.75,tall);};
+ storagePartition(291.5,546,49,2);
+ storagePartition(315,564,2,36);
+ storagePartition(335.5,582,41,2);
+ // Southeast storage behind the frosted exterior door: its north wall runs
+ // from the steam room's east wall to the east perimeter.
+ // Spans face to face (steam wall east face 440.5, perimeter 461) so no
+ // coplanar faces overlap and flicker.
+ storagePartition(450.75,553,20.5,2);
+ surface([[268,547],[314,547],[314,583],[355,583],[355,609],[268,609]],mats.tilefloor,.077,0,interior);
 
  // Pool-facing elevation: the central entrance court is recessed about 3.7 metres
  // into the building. Its three entries are in the side walls; the
