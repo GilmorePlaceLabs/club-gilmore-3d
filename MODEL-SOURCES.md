@@ -1329,3 +1329,102 @@ Still unmeasured, and still inference: pool and hot-tub dimensions, deck-edge ra
 heights, planter and bench sizes, playground equipment, buildings and trees. They scale with the
 trace unit but no tape has been put to them.
 
+### Walker's eye height and planting heights — September 12, 2026
+
+Two follow-ups to the measured deck scale, both from the user walking Level 6 in first person and
+reporting that they still stood too tall for their surroundings.
+
+**Eye height.** The walker is a 5 ft 10 in (1.778 m) person, so `eyeHeight` is 1.664 m — stature
+less the ~0.11 m from eye to crown — in `createLevel6Navigation()` and in `FirstPersonController`'s
+defaults. It was 1.68 m, which is the eye height of a person about 1.80 m tall. `FirstPersonAvatar`
+is modelled around a 1.68 m eye, so the controller now scales its root by `eyeHeight / 1.68`
+rather than leaving the legs and arms at the old size.
+
+**Planting.** That change is only 1.6 cm, and it was not what made the walk feel wrong: the deck's
+trees were the problem. IMG_4005 (the northeast planter walk) and IMG_4036 (the lounge BBQ
+counter) both show maples standing two to three metres above a standing adult — three to four
+times the 0.6 m planter walls, and far above the 0.95 m counters. The model's trees were 1.45 m to
+3.2 m tall, most of them under 2 m, so a walker looked over the entire deck.
+
+`tree()` in `model.js` is 2.9 m tall at scale 1 and is shared with Level 4, so it is unchanged;
+Level 6 now sizes its plantings by height in metres through `treeH(m)`:
+
+- planter beds: 3.5–4.4 m, still multiplied by each bed's `treeScale` (the 0.74 narrow-bed beds
+  come out 2.6–3.3 m);
+- south and playground bed anchors: 3.4 m; northeast walk-end trees: 3.2 m; fire-terrace pair:
+  2.8 m.
+
+Bed flowering clumps grew from 0.18 m to 0.26 m radius and sit at 0.85 m, and the hedge clumps in
+tree-less beds from 0.32 m to 0.4 m at 0.95 m, which puts their tops near 1.2 m — the height of
+the flowering masses behind the counters in IMG_4036. Canopies still carry no collision, so the
+taller trees do not block the walk.
+
+Everything else with a hand-authored height was checked against the same photographs and left
+alone: planter walls (0.58 m plus coping), BBQ counters (1.02 m), deck-edge glass guards (1.19 m),
+the north parapet (1.15 m), change-room counters (0.84–0.9 m) and the 3 m walk-mode partitions.
+
+### Crown spread fitted to each bed — September 12, 2026
+
+Raising the trees to their real height also gave every one of them a ~3.4 m crown, and several of
+the deck's beds are far narrower than that: the strip east of the BBQ bays is 15.7 trace units,
+0.94 m. The user's screenshot showed those crowns meeting over the paved walk beside the bays and
+closing it off.
+
+Height and spread are now separate. `bedSpread()` takes each bed's own narrow dimension and
+returns the fraction of the crown that fits, allowing 0.4 m of overhang per side and never going
+below 0.34; `slimTree()` applies it across the bed's narrow axis only, so the crown stays full
+along the bed and the row reads as the continuous green strip the render shows. A bed's
+`treeScale` argument still multiplies on top (the 0.74 bocce-side bed keeps its extra trim).
+Trunks were always inside their beds, so this was a visual obstruction, not a navigation one —
+canopies carry no collision. Bed flower clumps went back to 0.2 m and their offsets take the same
+spread, so they no longer spill onto the paving.
+
+Worked examples: the 0.94 m bay strip gets 0.51 (1.7 m of crown across a 0.94 m bed), the 1.32 m
+pool-deck strip 0.62, and the 1.92 m lounge beds 0.80. Beds wider than about 2.6 m are unaffected.
+
+### Pool-side walks — September 12, 2026
+
+The user marked the circulation loop around the pool as too tight to walk. Measured: the north
+lounger row sat at trace z = 699 with a 1.9 m bed, leaving its feet at z = 714.8 against coping at
+z = 719.5 — **0.28 m**, narrower than the walker's own 0.30 m radius, so the pool's north side
+could not be entered at all. A navigation probe over the built scene confirmed it: 70 of 78 sample
+points along that walk failed `isSafe`, and the only walkable band was *behind* the loungers.
+
+Both rows now sit back against their own edges: the north row (and the three hot-tub-end beds) at
+z = 680, the south row at z = 859, hard against the z = 879 edge planter their backs already face.
+That leaves about 1.4 m of walk on each pool side — 0.78 m of free travel for the player's centre
+line on the north — with the rows still inside their own strips. The pool, coping, ladders, deck
+sofas and the east and west ends are untouched; the east walk past the sofa pairs was already
+1.35 m.
+
+Lounger positions are illustrative in the first place (the render shows the rows, not their
+setback), so this moves furniture within its own evidence, not against a measurement.
+
+**Superseded the same day** — see "One walk, not two" below. Pulling the north row back opened the
+pool side but closed the walk behind it, which is the route to the change rooms.
+
+### One walk, not two, on the pool's north side — September 12, 2026
+
+The user then could not reach the change rooms: the row at z = 680 left only 0.54 m behind it, and
+the gaps between adjacent beds are 0.54 m as well, so the row had become a wall across the deck.
+
+The band is the constraint. From the pergola posts (their faces reach z = 663.3) to the coping
+(z = 719.5) is 3.37 m. A 1.9 m lounger leaves 1.47 m, which is **one** usable walk, not two: split
+evenly it gives 0.73 m either side, and with the 0.30 m walker radius that is a 0.13 m margin on
+each — the scraping the user was reporting. The supplied render and IMG_4026 both settle it by
+putting the beds hard against the coping with the circulation behind them, so the model now does
+the same:
+
+- north row at z = 701, its feet 0.16 m off the coping, giving a continuous **1.3 m walk behind**
+  it that clears the pergola posts along the whole deck;
+- the beds at x = 375 and 396 are dropped for a **3 m aisle** onto the change rooms' entry court,
+  whose south wall opens between x = 355 and 407, so the change rooms, the pool edge and the north
+  ladder all connect;
+- the south row stays at z = 859 with its 1.4 m pool-side walk — that band is wider and takes one;
+- pool ladder rails now foot 5.5 trace units (0.33 m) off the water instead of 8.5 (0.51 m), which
+  is also closer to IMG_4028/4032; at 0.51 m they stood in the walk.
+
+Verified by probing `navigationWorld.isSafe()` over the built scene rather than by eye: the walk
+behind the row, the south walk and the change-room aisle are now clear at every sample point, and
+`verify-level6.cjs` asserts all three on every run.
+

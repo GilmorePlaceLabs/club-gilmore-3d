@@ -428,3 +428,58 @@ The plan, sun-deck, BBQ-bay and desktop views were inspected after the rescale a
 furniture collisions from the 7.7% deck shrink. The rest of the deck was not walked through at
 close range; anything not listed above remains pending visual validation.
 
+### First-person height pass — September 12, 2026
+
+`eyeHeight` is 1.664 m (5 ft 10 in) and the avatar body scales with it; Level 6 trees are 2.8–4.4 m
+and bed clumps top out near 1.2 m. Checks that passed:
+- `node scripts/verify-level6.cjs`: **PASS**, no page errors.
+- `npm run build` passes.
+- A headless first-person run read the camera back at y = 1.744 m (0.08 floor + 1.664) with the
+  avatar root scaled 0.990, and captured the north bridge, pool deck, playground and garden walk.
+  The trees now stand well above the camera, as in IMG_4005 and IMG_4036.
+
+Screenshots from that run are in the scratch directory, not in `evidence/`; the only committed
+Level 6 images are the ones `verify-level6.cjs` writes. The four viewpoints above were inspected,
+not the whole deck.
+
+### Walking camera field of view — September 12, 2026
+
+The user reported the pool enclosure still looking short from inside the walk. Measured out of the
+built scene (vertex scan around trace 660, 760 and the gate at 660, 680): both the glass run and
+the gate top out at **2.032 m**, and the walking camera sits at 1.744 m (0.08 m floor + 1.664 m
+eye), so the geometry was already right — the fence stands 0.37 m above the walker's eye.
+
+The distortion was the camera: `FirstPersonController` used a 68° *vertical* fov, which is about
+100° across at 16:9 — a fisheye that pushes nearby geometry away and flattens its apparent height.
+It is now 50° vertical (~80° across), close to the ~50° vertical framing of the site photographs,
+so the walk matches IMG_4026 and IMG_4035. `verify-level6.cjs`: **PASS**; `npm run build` passes.
+
+Views re-inspected at the new fov: the north-bridge spawn, the walkway facing the pool enclosure,
+standing at the gate, and inside the pool deck. Note that at 2–3 m back the enclosure correctly
+reads as only slightly above eye level; it only towers when you are next to it, as in IMG_4026.
+
+### Crown spread — September 12, 2026
+
+Trees keep their 2.8–4.4 m heights; crowns are now squashed across narrow beds by `bedSpread()`.
+`verify-level6.cjs`: **PASS**. `npm run build` passes. Re-inspected in the walking view: the walk
+east of the BBQ bays (the one the user reported blocked) is open with trunks flanking it and
+canopies overhead, the BBQ 3 bay is visible from the deck again, and the garden boardwalk, pool
+deck and north bridge are unchanged. Beds wider than ~2.6 m were not altered.
+
+### Pool-side walk clearance — September 12, 2026
+
+`verify-level6.cjs` now enters first person and probes `navigationWorld.isSafe()` every 4 trace
+units from x = 150 to 558 along both pool-side walks (z = 708 north, z = 831 south), and fails if
+any point is unwalkable. Against the previous lounger positions the north scan failed at 70 points;
+with the rows moved it passes at every point, north and south. Full run: **PASS**; `npm run build`
+passes. The walk was also inspected in the walking view from both sides.
+
+### Pool deck routes — September 12, 2026 (supersedes the clearance entry above)
+
+`verify-level6.cjs` now probes three routes, each of which was blocked at some point today: the
+walk behind the north lounger row (z = 675), the south pool-side walk (z = 831), and the aisle
+from the change rooms' entry court to the water (x = 381, z = 600–712; 712 is as close to the pool
+as a 0.30 m radius allows). All three pass at every sample point. Full run: **PASS**;
+`npm run build` passes. The aisle and the walk behind the row were also inspected in the walking
+view.
+

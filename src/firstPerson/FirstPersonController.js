@@ -1,7 +1,7 @@
 import { Euler, PerspectiveCamera, Vector3 } from 'three';
 import { FirstPersonInput } from './FirstPersonInput.js';
 
-const DEFAULTS = { spawn: new Vector3(), yaw: 0, floorHeight: 0, eyeHeight: 1.68, walkSpeed: 2.2, sprintSpeed: 5.4 };
+const DEFAULTS = { spawn: new Vector3(), yaw: 0, floorHeight: 0, eyeHeight: 1.664, walkSpeed: 2.2, sprintSpeed: 5.4 };
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 // Cosmetic hop: eye height only, navigation stays 2D so railings still block mid-air.
 const GRAVITY = 9.8, JUMP_HEIGHT = .9; // ~3 ft peak, below railing height
@@ -11,7 +11,10 @@ export class FirstPersonController {
     this.scene = scene; this.domElement = domElement; this.navigationWorld = navigationWorld;
     this.config = { ...DEFAULTS, ...config, spawn: config.spawn?.clone?.() || new Vector3().copy(config.spawn || DEFAULTS.spawn) };
     this.onStateChange = onStateChange; this.requestRender = requestRender;
-    this.camera = new PerspectiveCamera(68, 1, .05, 500);
+    // Three's fov is vertical: 68 was ~100 degrees across at 16:9, a fisheye that
+    // shrank everything nearby and made the walker feel taller than the deck.
+    // 50 vertical (~80 across) matches the site photographs' ~50 degree framing.
+    this.camera = new PerspectiveCamera(50, 1, .05, 500);
     this._position = this.config.spawn.clone(); this.yaw = this.config.yaw; this.pitch = 0;
     this._active = false; this._paused = false; this.avatar = null;
     this.motionSpeed = 0; this.walkPhase = 0; this.jumpY = 0; this.jumpV = 0;
@@ -35,7 +38,8 @@ export class FirstPersonController {
     if (this.avatar?.root?.parent) this.avatar.root.parent.remove(this.avatar.root);
     this.avatar = avatar || null;
     if (avatar?.root && this.scene && !avatar.root.parent) this.scene.add(avatar.root);
-    if (avatar?.root) avatar.root.visible = this._active;
+    // The body is modelled for a 1.68 m eye, so it follows the configured one.
+    if (avatar?.root) { avatar.root.scale.setScalar(this.config.eyeHeight / 1.68); avatar.root.visible = this._active; }
     return this;
   }
   enter() {

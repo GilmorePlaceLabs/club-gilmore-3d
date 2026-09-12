@@ -9,6 +9,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
  // straight from the trace polygon, so this pins the whole deck's scale.
  const bay=await page.evaluate(()=>{const f=clubGilmore.model.roomGroups.get('L6-bbq-1').floor;f.updateMatrixWorld(true);f.geometry.computeBoundingBox();const b=f.geometry.boundingBox.clone().applyMatrix4(f.matrixWorld);return [b.max.x-b.min.x,b.max.z-b.min.z];});
  assert(Math.abs(bay[0]-4.572)<.02&&Math.abs(bay[1]-3.81)<.02,`BBQ bay measures ${bay} m, expected 4.572 × 3.81`);
+ // The pool deck's three routes, each of which has been blocked at some point on
+ // 2026-09-12: the walk behind the north lounger row, the south pool-side walk,
+ // and the aisle from the change rooms' entry court down to the pool edge.
+ const walks=await page.evaluate(async()=>{
+  clubGilmore.enterFirstPerson();await new Promise(r=>setTimeout(r,400));
+  const nav=clubGilmore.firstPerson.navigationWorld,W=(x,z)=>({x:(x-910)*.06,z:(z-670)*.06});
+  const row=z=>{const bad=[];for(let x=150;x<=558;x+=4)if(!nav.isSafe(W(x,z)))bad.push(x);return bad;};
+  const column=x=>{const bad=[];for(let z=600;z<=712;z+=4)if(!nav.isSafe(W(x,z)))bad.push(z);return bad;};
+  const out={northWalk:row(675),southWalk:row(831),changeRoomAisle:column(381)};
+  clubGilmore.exitFirstPerson();return out;
+ });
+ for(const [name,blocked] of Object.entries(walks))assert.equal(blocked.length,0,`pool deck ${name} blocked at ${blocked}`);
  const ids=await page.evaluate(()=>clubGilmore.rooms.map(r=>r.id));
  for(const id of ids){await page.evaluate(id=>clubGilmore.selectRoom(id),id);await page.waitForFunction(()=>document.querySelector('#room-photo').complete&&document.querySelector('#room-photo').naturalWidth>0);assert((await page.locator('#detail-description').textContent()).length>60);assert.equal(await page.locator('.detail-location:not(#detail-fee-row) strong').textContent(),'Club Gilmore · Level 6');const photos=await page.evaluate(()=>clubGilmore.rooms.find(r=>r.id===clubGilmore.selectedRoomId).photos);for(const photo of photos)assert((await page.request.get('http://127.0.0.1:4173/photos/'+photo)).ok());}
  await page.locator('#show-whole').click();await page.locator('#search').fill('bocce lawn');assert.equal(await page.locator('.room-item').count(),1);await page.locator('#search').fill('no-such-space');assert(await page.locator('#empty').isVisible());await page.locator('#search').fill('');

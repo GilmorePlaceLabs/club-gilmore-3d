@@ -81,7 +81,8 @@ export function createLevel6Navigation(model) { // model is accepted for the sha
     spawn: new THREE.Vector3(spawn.x, 0.08, spawn.y),
     yaw: Math.PI / 2,
     floorHeight: 0.08,
-    eyeHeight: 1.68,
+    // 5 ft 10 in (1.778 m) tall; the eyes sit ~.11 m below the crown.
+    eyeHeight: 1.664,
     radius: 0.30,
     walkSpeed: 2.2,
     walkablePolygons: WALKABLE.map(poly => poly.map(point => point.clone())),

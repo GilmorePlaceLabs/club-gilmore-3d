@@ -3,7 +3,7 @@
   "rooms": 16,
   "photos": true,
   "finite": true,
-  "exportBytes": 23820368,
+  "exportBytes": 23805240,
   "levelSwitch": true,
   "deepLink": true,
   "mobile": true,

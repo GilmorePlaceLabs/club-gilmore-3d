@@ -13,6 +13,20 @@ const U=.06;
 const PERGOLA_H=2.54,BAY_W=4.572/U,BAY_D=3.81/U,FENCE_H=2.032;
 // Posts carry .19 m of beam and slat above them, so they stop short of 2.54.
 const POST_H=PERGOLA_H-.19;
+// IMG_4005/IMG_4036: the deck's maples stand two to three times the height of
+// the .95 m BBQ counters in front of them, well clear of a walker's head. The
+// shared tree() primitive is 2.9 m tall at scale 1, so planting is sized from a
+// height in metres rather than an eyeballed scale.
+const treeH=m=>m/2.9;
+// Height comes from the species, spread from the bed: tree() carries a ~3.4 m
+// crown at deck height, which a .9 m planter cannot hold without swallowing the
+// walk beside it. Narrow beds keep the full height and squash the crown across
+// the bed only, so the row reads as the tall green strip the render shows.
+const CROWN=3.4;
+const bedSpread=(widthTraceUnits,U)=>Math.max(.34,Math.min(1,(widthTraceUnits*U+.8)/CROWN));
+const slimTree=(parent,x,z,metres,spread=1,acrossX=true)=>{
+ const g=makeGroup(parent,x,z,0);tree(g,0,0,0,treeH(metres));
+ if(acrossX)g.scale.x=spread;else g.scale.z=spread;return g;};
 const world=([x,z])=>[(x-910)*U,(z-670)*U];
 const rect=(x,z,w,d)=>[[x,z],[x+w,z],[x+w,z+d],[x,z+d]];
 // The three BBQ bays are centred on the render's three bay tables (px y
@@ -117,17 +131,27 @@ export function createLevel6Model(){
  // to the coping. The pairs stand at the northwest corner (over a submerged
  // corner step), mid-way along the north edge, and on the south edge just short
  // of the southeast corner. (x,z) is the water edge; (dx,dz) points to the deck.
- const poolRail=(x,z,dx,dz)=>{const [a,b]=world([x+dx*8.5,z+dz*8.5]),[c,d]=world([x+dx*1.2,z+dz*1.2]);
+ // The deck foot sits 5.5 trace units (.33 m) off the water, not 8.5: at .51 m
+ // the rails pinched the north walk shut between the loungers and the coping.
+ const poolRail=(x,z,dx,dz)=>{const [a,b]=world([x+dx*5.5,z+dz*5.5]),[c,d]=world([x+dx*1.2,z+dz*1.2]);
   rod(props,[a,0,b],[a,.95,b],.035);rod(props,[a,.95,b],[c,.82,d],.035);rod(props,[c,.82,d],[c,.16,d],.035);};
  B(252,734,20,20,.186,mats.pooltile);B(249,731,14,14,.196,mats.pooltile);
  for(const z of [728,736.5])poolRail(242,z,-1,0);
  for(const x of [393.8,402.2])poolRail(x,724,0,-1);
  for(const x of [522.8,531.2])poolRail(x,814,0,1);
  const lounger=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.28,0,.73,.12,1.9,'oak');box(g,0,.39,.24,.65,.14,1.3,'linen');const back=box(g,0,.68,-.64,.65,.13,.8,'linen');back.rotation.x=.68;for(const xx of [-.28,.28])for(const zz of [-.7,.7])box(g,xx,.14,zz,.055,.28,.06,'oak');cyl(g,0,.52,.7,.12,.55,'white').rotation.z=Math.PI/2;};
- for(let x=270;x<560;x+=21){lounger(x,699);}
+ // User reports 2026-09-12. The band between the pergola posts (z=663.3) and the
+ // coping (719.5) is 3.37 m; a 1.9 m lounger leaves 1.47 m, which is one usable
+ // walk, not two — splitting it gave .73 m either side and the walker scraped
+ // both. The render and IMG_4026 both put the beds hard against the coping with
+ // the circulation behind them, so that is where the walk goes: 1.3 m clear.
+ // Two beds are dropped for a 3 m aisle onto the change rooms' entry court,
+ // whose south wall opens between x=355 and 407, so the pool edge, the ladder
+ // and the change rooms all connect.
+ for(let x=270;x<560;x+=21)if(x!==375&&x!==396)lounger(x,701);
  // South-side pairs, evenly spaced from the first (centre 286) so the last
  // bed's east side lines up with the pool's east coping edge (x=558.5).
- for(const c of [286,372.3,458.6,544.9])for(const d of [-8,8])lounger(c+d,852,Math.PI);for(const x of [145,198,249])lounger(x,698);for(const x of [145,170,207,230])lounger(x,852,Math.PI);
+ for(const c of [286,372.3,458.6,544.9])for(const d of [-8,8])lounger(c+d,859,Math.PI);for(const x of [145,198,249])lounger(x,701);for(const x of [145,170,207,230])lounger(x,859,Math.PI);
  // Pergola loungers on the north edge. User requests 2026-09-11: three added
  // beside the lone one under the west pergola; the east pergola's x=470 lounger
  // (hard against the change-room storage door) is removed. Each group centres
@@ -230,8 +254,9 @@ export function createLevel6Model(){
   canopy.position.set(a,.66,b);canopy.rotation.y=-Math.PI/2;
   props.add(canopy);
  }
- // dz nudges the planting anchor across a narrow bed; treeScale trims canopy size.
- const planter=(poly,trees=true,dz=0,treeScale=1)=>{surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){tree(props,a,b,0,(.7+((x+z)%13)/32)*treeScale);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.18,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6,.74,b+Math.cos(k*2.4)*.6,1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.32,0),k%2?'leaf':'leaflight',a+k*.2,.8,b,.8,.7,.8);}}}};
+ // dz nudges the planting anchor across a narrow bed; treeScale trims the crown
+ // further, on top of the spread the bed's own width already sets.
+ const planter=(poly,trees=true,dz=0,treeScale=1)=>{surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));const bedW=bounds.max.x-bounds.min.x,bedD=bounds.max.y-bounds.min.y,spread=bedSpread(Math.min(bedW,bedD),U)*treeScale;for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){slimTree(props,a,b,3.5+((x+z)%13)/13,spread,bedW<bedD);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.2,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6*(bedW<bedD?spread:1),.85,b+Math.cos(k*2.4)*.6*(bedW<bedD?1:spread),1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.4,0),k%2?'leaf':'leaflight',a+k*.2,.95,b,.8,.7,.8);}}}};
  for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51)])planter(p);
  // IMG_4005/IMG_4057 and the render crop: behind the pergola grills a paved walk
  // runs between two raised tree planters. The west bed's wall stands at
@@ -294,14 +319,15 @@ export function createLevel6Model(){
   surface(poly,stone,.06,.58);surface(poly,soil,.66);
   for(let i=0;i<poly.length;i++)line(poly[i],poly[(i+1)%poly.length],.2,stone,.18,.59);
   const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));
-  const narrow=bounds.max.x-bounds.min.x<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9);
+  const bedW=bounds.max.x-bounds.min.x,bedD=bounds.max.y-bounds.min.y;
+  const narrow=bedW<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9),spread=bedSpread(Math.min(bedW,bedD),U);
   for(let x=bounds.min.x+3;x<bounds.max.x-2;x+=stepX)for(let z=bounds.min.y+3;z<bounds.max.y-2;z+=stepZ)if(insidePolygon(x,z,poly)){
    const jitter=Math.sin(x*1.73+z*.91),[wx,wz]=world([x+jitter*1.2,z+Math.cos(x*.47-z)*1.2]);
    if(clearance&&!clearance(x+jitter*1.2,z+Math.cos(x*.47-z)*1.2))continue;
    const material=palette?palette[Math.round(x*2+z)%palette.length]:(Math.round(x+z)%5===0)?flower:(Math.round(x*2+z)%7===0)?lavender:(Math.round(x+z)%2?'leaflight':'leaf');
    mesh(props,new T.IcosahedronGeometry(.13+(Math.abs(jitter)*.05),0),material,wx,.79+(Math.abs(jitter)*.06),wz,.9,.65,.9);
   }
-  for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);tree(props,wx,wz,0,.62);}
+  for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);slimTree(props,wx,wz,3.4,spread,bedW<bedD);}
  };
  southBeds.forEach((bed,i)=>southPlanter(bed,southTreeAnchors[i]));
  // IMG_3991: the second user-marked object is a single black post light in
@@ -398,7 +424,7 @@ export function createLevel6Model(){
   .filter(([x,z])=>playClearance(x,z,.76/U)>0);
  southPlanter(playgroundPlanter,playgroundTrees,eastPalette,5,(x,z)=>playClearance(x,z,.19/U)>0);
  // The render carries a few small trees in the parapet-side bed.
- for(const t of [.28,.55,.8]){const [x,z]=world(at(t,20));tree(props,x,z,0,.6);}
+ for(const t of [.28,.55,.8]){const [x,z]=world(at(t,20));slimTree(props,x,z,3.2,.62);}
  surface(band(.012,.86,35,83),paveGrey,.075);
  // Dark bench blocks alternate along the walk. Blocks 0 and 2 are skipped: 0
  // landed inside the fire-terrace round table's curved benches, 2 against the
@@ -617,7 +643,7 @@ export function createLevel6Model(){
   for(let i=0;i<6;i++){const a=i*1.07+px*.09;mesh(props,new T.ConeGeometry(.045,.48+(i%3)*.08,5),i%3?'leaflight':flower,x+Math.cos(a)*.32,.9,z+Math.sin(a)*.26,.65,1,.65);}
   for(let i=0;i<3;i++){const a=i*2.1;mesh(props,new T.IcosahedronGeometry(.17+(i%2)*.07,0),i%2?flower:lavender,x+Math.cos(a)*.35,.88,z+Math.sin(a)*.28,.8,.75,.8);}
  }
- for(const [tx,tz] of [[1169,784],[1185,821]]){const [x,z]=world([tx,tz]);tree(props,x,z,0,.5);}
+ for(const [tx,tz] of [[1169,784],[1185,821]]){const [x,z]=world([tx,tz]);slimTree(props,x,z,2.8,.7);}
  // IMG_4010: these read as plain black boxes because the hood used the dark local
  // `metal`, not stainless. Rebuilt to the same idiom as the counter BBQs above —
  // stainless firebox and rounded lid, black fascia, steel knobs, dark cabinet.
