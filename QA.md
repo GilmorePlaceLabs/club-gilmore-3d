@@ -530,3 +530,8 @@ Chair-corner clearance to the crossbeam faces, computed from the built coordinat
 bays: +1.8, +3.5, +2.3 cm — no overlap. `verify-level6.cjs`: **PASS**; `npm run build` passes.
 Checked from above: one table per bay, chairs square to the bay, none crossing a beam.
 
+### Garden walk benches — September 12, 2026
+
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Checked from above: the boardwalk between the
+two beds is clear for its whole run, and the room description no longer mentions the benches.
+

@@ -1,4 +1,6 @@
 import * as T from 'three';
+import {buildGardenTools} from './gardenTools.js';
+import {createGardenPlanterBuilder} from './gardenPlanter.js';
 import {buildPlayground} from './playground.js';
 import {buildElevatorLobby} from './elevatorLobby.js';
 import {buildChangeRoom} from './changeRoom.js';
@@ -54,7 +56,7 @@ export const level6Rooms=[
  room('lounge','Outdoor fireplace & lounge',rect(695,280,215,358),[site(4036),site(4037),site(4010),site(3990),site(3979),site(3978)],'A double-sided dark stone fireplace separates two intimate seating groups. Each side has two facing grey sofas with timber frames, a lounge chair and small round wooden tables. Four picnic tables and two planted islands flank the seating. A long dark stone BBQ counter closes each end of the terrace, each with two freestanding stainless grills standing against its front face.','Social'),
  room('bocce','Bocce lawn',[[698,769],[909,769],[909,875],[772,972],[698,884]],[site(3980),site(3983),'bocce-court.jpg','bocce-court-and-pool.jpg'],'Two adjacent green strips sit south of the lounge, laid in putting turf with three flush cups. Pale boundary lines, low concrete planter walls, cantilevered timber bench seats and overhead string lights follow the actual court photographs.'),
  room('play','Children’s play area',[[1170,515],[1220,487],[1453,499],[1519,562],[1300,778],[1170,638]],['childrens-playground.jpg',site(3981),site(3982)],'A blue rubber play surface and adjoining tan climbing area are set into the eastern garden. A curved blue slide and adjacent double slide descend from a guarded hexagonal platform. A bowed climbing cage, access stairs and overhead traverse bar connect the play equipment. Linked grey, navy and orange pentagonal climbing pods occupy the tan surface.'),
- room('garden','Urban garden plots',[[1110,968],[1672.2,444],[1706,444],[1728,425],[1728,392],[1795,439],[1156,1028]],[site(3982),site(3981),site(4047),site(4013),aerial],'A dark timber boardwalk runs the full southeast diagonal, from the fire terrace to a slatted pergola at the point. A raised bed behind a pale concrete retaining wall fills the strip between the walk and the glass-railed parapet, and a second runs flush along the playground side, its wall in line with the walk and its far edge stopping at the turf apron that rings the play surfaces. Dark bench blocks sit along both edges of the walk. The bed is massed with white flowering shrubs, rust and blue-grey accents and occasional small trees, and the whole tip beyond the pergola is planted. A potting bench with a galvanised work surface and an open slatted shelf stands under the pergola at the end of the walk.'),
+ room('garden','Urban garden plots',[[1110,968],[1672.2,444],[1706,444],[1728,425],[1728,392],[1795,439],[1156,1028]],[site(3982),site(3981),site(4047),site(4013),aerial],'A dark timber boardwalk runs the full southeast diagonal, from the fire terrace to a slatted pergola at the point. A raised bed behind a pale concrete retaining wall fills the strip between the walk and the glass-railed parapet, and a second runs flush along the playground side, its wall in line with the walk and its far edge stopping at the turf apron that rings the play surfaces. The bed is massed with white flowering shrubs, rust and blue-grey accents and occasional small trees, and the whole tip beyond the pergola is planted. A potting bench with a galvanised work surface and an open slatted shelf stands under the pergola at the end of the walk.'),
  room('fire','Fire pit terrace',[[1037,674],[1160,674],[1298,788],[1138,962],[1037,867]],[site(3989),terrace,aerial],'An open paved terrace between the east pergola and the southern tip. Its north side has a striped modular fire-pit lounge and a curved timber picnic table, open for public use. The bookable P18 fire-pit, table and BBQ area occupies the terrace’s south end.','Social'),
  // User's red outline (2026-09-11): P18 is the south fire lounge, its round table and the grill on the planter's southwest rim.
  room('p18','P18 – Firepit, Table & BBQ',[[1037,815],[1150,815],[1150,839],[1193,882],[1203,891],[1138,962],[1037,867]],['fire-pit-booking-1.jpg','fire-pit-booking-2.jpg','fire-pit-booking-3.jpg','fire-pit-booking-4.jpg'],'P18 combines a fire-pit lounge and BBQ dining space at the south end of the fire pit terrace. Club Gilmore lists a BBQ, fire pit, patio couch and picnic table, with room for sixteen people total: eight in the BBQ space and eight in the fire-pit area. The reservation duration is 2 hours 50 minutes. Striped modular sofas surround a low round fire bowl, beside a curved timber picnic table and a compact stainless-steel grill against the planter.','Social',{bookingUrl:bbqBooking('c9efdb01-612b-46b3-b371-a161fc97bf6b')}),
@@ -84,6 +86,7 @@ export function createLevel6Model(){
  // terrace's charcoal paving grey rather than timber and pale tile, so the two
  // read as one material. This is the same #777b79 as fireCharcoal below.
  const paveGrey=mats.tilefloor.clone();paveGrey.color.set('#777b79');
+ paveGrey.shadowSide=T.BackSide;
  // Tree canopies hang from ~0.75 m; walkers brush through foliage, while trunks
  // and planter walls stay solid. Needed for the northeast planter walk (IMG_4005).
  mats.leaf.userData.collision=mats.leaflight.userData.collision=false;
@@ -248,6 +251,7 @@ export function createLevel6Model(){
   box(bench,0,.85,z0,1.76,.1,.64,'oaklight');
   for(let i=0;i<4;i++)box(bench,0,.38,z0-.24+i*.16,1.68,.035,.12,'oak');
   for(const xx of [-.84,.84])for(const zz of [-.27,.27])box(bench,xx,.44,z0+zz,.085,.88,.085,'oaklight');
+  buildGardenTools(bench,z0);
  }
  // Open fabric shells need an interior face when viewed from the pool or in
  // first person. Clone linen so other furniture keeps its existing material.
@@ -487,10 +491,19 @@ export function createLevel6Model(){
  // The render carries a few small trees in the parapet-side bed.
  for(const t of [.28,.55,.8]){const [x,z]=world(at(t,20));slimTree(props,x,z,3.2,.62);}
  surface(band(.012,.86,35,83),paveGrey,.075);
- // Dark bench blocks alternate along the walk. Blocks 0 and 2 are skipped: 0
- // landed inside the fire-terrace round table's curved benches, 2 against the
- // three-bay pergola's corner post. The rest keep their spacing.
- for(let i=0;i<10;i++){if(i===0||i===2)continue;const t=.05+i*.078,off=i%2?38:80;line(at(t,off),at(t+.028,off),.42,metal,.5,.075);}
+ // Two rows of soil-filled growing boxes match the marked garden strip.
+ const gardenBox=createGardenPlanterBuilder();
+ const gardenCut=.328;
+ for(let i=0;i<5;i++)for(const [row,off] of [40.5,77.5].entries()){
+  const [x,z]=world(at(.455+i*.078,off));
+  gardenBox(props,x,z,.069*edgeLen*U,-Math.atan2(edgeDir[1],edgeDir[0]),i*2+row);
+ }
+ // Three additional boxes in the user's marked southwest gaps.
+ for(const [i,[t,off,span]] of [[.354,77.5,.124],[.318,40.5,.052],[.386,40.5,.054]].entries()){
+  const start=Math.max(t-span/2,gardenCut),end=t+span/2;
+  const [x,z]=world(at((start+end)/2,off));
+  gardenBox(props,x,z,(end-start)*edgeLen*U,-Math.atan2(edgeDir[1],edgeDir[0]),10+i);
+ }
  const picnic=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.675,0,2.35,.09,.9,'oak');for(const xx of [-.78,.78])box(g,xx,.315,0,.18,.63,.6,metal);for(const zz of [-.7,.7]){box(g,0,.395,zz,2.45,.09,.35,'oak');for(const xx of [-.78,.78])box(g,xx,.175,zz,.1,.35,.28,metal);}};
  // User correction: nothing sits under the northeast pergola — the picnic table
  // that stood at the end of the walk is removed.
@@ -795,7 +808,19 @@ export function createLevel6Model(){
  // up to the planter's start at t=.427, and on its west side out to the dining
  // pergola, just clear of its turf-side post faces (v=-25.23), from the walk-end
  // post line (u=72.23) to where that line meets the x=1175.5 west edge (u≈-88.2).
- surface([[1175.5,510.5],[1240,493],[1470,502],[1504,554],at(.427,83),pergolaAt(72.23,-25.3),pergolaAt(-88.2,-25.3)],grass,.08);
+ const playLawn=[[1175.5,510.5],[1240,493],[1470,502],[1504,554],at(.427,83),pergolaAt(72.23,-25.3),pergolaAt(-88.2,-25.3)];
+ // Clip the lawn to the same cross-walk line as the two shortened boxes.
+ const clipLawn=keepEast=>{
+  const distance=p=>((p[0]-edgeA[0])*edgeDir[0]+(p[1]-edgeA[1])*edgeDir[1])-gardenCut*edgeLen;
+  const result=[];
+  for(let i=0;i<playLawn.length;i++){
+   const a=playLawn[i],b=playLawn[(i+1)%playLawn.length],da=distance(a),db=distance(b);
+   if(keepEast?da>=0:da<=0)result.push(a);
+   if((da<0)!==(db<0)){const t=da/(da-db);result.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+  }
+  return result;
+ };
+ surface(clipLawn(true),grass,.08);surface(clipLawn(false),paveGrey,.075);
  const circle=(x,z,r,material,y=.11)=>{const [a,b]=world([x,z]);mesh(props,new T.CylinderGeometry(r*U,r*U,.04,64),material,a,y,b);};circle(1293,635,89,stone);circle(1293,635,86,rubber,.14);circle(1386,586,63,stone);circle(1386,586,60,tan,.17);
  const [px,pz]=world([1286,626]),[podX,podZ]=world([1386,586]);buildPlayground(props,px,pz,podX,podZ);
  // Change-room geometry is kept in its own module because the annotated fit-out

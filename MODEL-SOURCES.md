@@ -1557,3 +1557,11 @@ beam faces by 1.8, 3.5 and 2.3 cm.
 Staggering the tables was the other option the user offered. It was not needed once the ring fits,
 and it would have broken the one-table-per-bay rhythm IMG_4021 shows.
 
+### Bench blocks removed from the garden walk — September 12, 2026
+
+The user marked every dark bench block along the northeast boardwalk and asked for them all to go.
+The eight blocks (the alternating `i % 2 ? 38 : 80` offsets along the walk parameter) are deleted,
+and the `L6-garden` description no longer claims "Dark bench blocks sit along both edges of the
+walk". Nothing else on that walk changes: the raised beds, their planting, the paving band and the
+walk-end pergola are untouched.
+
