@@ -2,7 +2,8 @@ import * as THREE from 'three';
 
 // These are deliberately authored from the Level 6 slab outlines, rather than
 // inferred from the room hit areas.  Coordinates below are trace coordinates.
-const SCALE = 0.065;
+// Must match U in level6.js (2026-09-12 measured deck scale).
+const SCALE = 0.06;
 const traceToWorld = ([x, z]) => new THREE.Vector2((x - 910) * SCALE, (z - 670) * SCALE);
 const polygon = points => points.map(traceToWorld);
 const rectangle = (x, z, width, depth) => polygon([[x, z], [x + width, z], [x + width, z + depth], [x, z + depth]]);
@@ -18,7 +19,7 @@ const WALKABLE = [
   rectangle(932,638,105,35),
   polygon([[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]]),
   // The bridge lands on the main slab at trace x=933 while that slab ends at
-  // x=932.  This one-trace-unit (0.065m) connector closes only that authored
+  // x=932.  This one-trace-unit (0.06m) connector closes only that authored
   // drafting seam; it does not span either light well.
   polygon([[932,274],[933,274],[933,276],[932,276]]),
 ];

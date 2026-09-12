@@ -35,7 +35,7 @@ Single-page Vite + Three.js, no framework. `index.html` owns the entire DOM; `ma
 
 ### Level 6 — `src/level6.js` + `src/playground.js`
 
-A separate outdoor deck model with its own coordinate space: trace coords normalized to the supplied 1855 × 1344 overhead render, `U = 0.065` m per unit. **No measured L6 drawing exists** — scale, heights and dimensions are approximate, which is why `updateLevelUI()` hides the metre scale bar on L6. The L4 20 m pool confirmation does not transfer.
+A separate outdoor deck model with its own coordinate space: trace coords normalized to the supplied 1855 × 1344 overhead render, `U = 0.06` m per unit. **No measured L6 drawing exists**, but three site tape measurements (2026-09-12) anchor the scale: a BBQ bay is 15 ft × 150 in, every pergola is 100 in tall (`PERGOLA_H`), a picnic table is 2.35 × 1.75 × 0.72 m and the pool glass is 80 in. `U` follows from the bay depth against the render's bay pitch — see MODEL-SOURCES.md before changing it, and keep `SCALE` in `firstPerson/NavigationWorld.js` equal to it. The L4 20 m pool confirmation does not transfer.
 
 `level6Rooms` entries differ from L4's shape: `kind` is just the id, `category` defaults to `Outdoor`, and each carries an inline `description` string (L4 looks its description up from the `descriptions` map in `main.js` by `kind`). Photos here are full filenames with extensions; L4 photos are bare numbers that `updatePhoto()` suffixes with `.webp`. `playground.js` is split out only because the play equipment geometry is large.
 

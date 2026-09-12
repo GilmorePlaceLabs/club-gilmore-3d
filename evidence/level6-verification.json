@@ -1,9 +1,9 @@
 {
   "passed": true,
-  "rooms": 13,
+  "rooms": 16,
   "photos": true,
   "finite": true,
-  "exportBytes": 23836736,
+  "exportBytes": 23820368,
   "levelSwitch": true,
   "deepLink": true,
   "mobile": true,

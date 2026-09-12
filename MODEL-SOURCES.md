@@ -46,7 +46,7 @@ Specific anchors: study booth 2 L4-80 drawing dimensions are 8 ft 0 7/8 in by 8 
 
 The supplied Level 6 Tower 1/2/3 plan establishes amenity names and relationships. The official amenities page at https://gilmoreplace.com/en/homes/1-gilmore-place/amenities/ corroborates the outdoor pool, hot tub, fireplace/lounge, playground, garden plots, bocce, fire pit and four BBQ areas. Residential tower volumes are omitted, as in the supplied roofless render. Change-room internal partitions are representative interpretations of that render.
 
-No measured Level 6 drawing was supplied. Conversion of 0.065 m per normalized trace pixel is approximate, and the Level 6 metre scale is hidden. Pool dimensions, rail heights, equipment and furniture are illustrative, not survey measurements. The Level 4 confirmed 20 m indoor pool dimension does not apply to the outdoor pool.
+No measured Level 6 drawing was supplied. Conversion of 0.065 m per normalized trace pixel is approximate, and the Level 6 metre scale is hidden. (Superseded by "Measured deck scale", September 12, 2026, below: the conversion is now 0.06 m and the scale bar is shown.) Pool dimensions, rail heights, equipment and furniture are illustrative, not survey measurements. The Level 4 confirmed 20 m indoor pool dimension does not apply to the outdoor pool.
 
 Actual local amenities photography: outdoor-pool, outdoor-pool-sun-deck, bocce-court, bocce-court-and-pool, childrens-playground, bbq-firepit-terrace and amenity-deck-aerial. Seven JPEGs copied from the user-specified amenities/low-res folder. Dedicated photos support pools, bocce and playground. The aerial and general terrace photos support other zones; descriptions identify contextual imagery for the garden and change rooms. No AI-generated photographs are presented as actual site photos.
 
@@ -1288,3 +1288,44 @@ Fees: the `services` data on the PerfectMind pages for P18 and for the P01–P03
 lists a single "Outdoor Seating" price with `Amount` 0 (`DisplayAmountOrAsFree` "Free"), as of
 September 11, 2026. The viewer does not store this. `/api/availability` returns a `fee` value read
 live from the same page, so the detail panel always shows the current fee.
+
+### Measured deck scale — September 12, 2026
+
+The user measured three built elements on Level 6 with a tape and annotated them on renders of
+this model. These are direct site measurements and outrank the render on every dimension they
+touch:
+
+- A BBQ gazebo bay: 15 ft (4.572 m) across, 150 in (3.81 m) deep, column 100 in (2.54 m) to the
+  roof. The user states all the deck's pergolas share that height.
+- A picnic table: 2.35 m long, 1.75 m across the benches, 0.72 m to the top.
+- The pool's glass enclosure: 80 in (2.032 m) high.
+
+**Trace unit.** The bay measurement is what fixes the deck's scale. The three BBQ bays are not
+drawn in the supplied render — it shows one round table per bay — but those three tables sit on a
+68 px pitch (65.7 trace units, render normalized to 1855 × 1344). One measured bay depth plus the
+gap between adjacent gazebos fills that pitch, so a trace unit is 3.81 / 65.7 to 4.0 / 65.7 m.
+`U` is now **0.06 m** (a 3.94 m bay pitch: 3.81 m of bay and a 0.13 m gap), down from the
+illustrative 0.065. The whole deck — slabs, pools, planting, walks, room polygons — shrinks 7.7%
+against the furniture, which was already authored at real sizes.
+
+The 15 ft bay width is a weaker cross-check: at 0.06 it is 76.2 trace units against the 80 that
+were authored for the bays before any measurement existed. The bays now carry the measured
+4.572 × 3.81 m footprint (`BAY_W`/`BAY_D` in `src/level6.js`) on the render's table centres
+(trace z 321.7 / 387.4 / 453.1), which also moved `bbq-1`/`bbq-2`/`bbq-3`'s room polygons.
+
+**Heights.** Every pergola on the deck — the two pool-deck ones, the three BBQ gazebos, the
+south-garden shelter, the northeast walk-end pergola and the three-bay playground-side dining
+pergola — is built to a 2.54 m overall height from one `PERGOLA_H` constant, with `POST_H`
+holding the 0.19 m of beam and slat that sits above the posts. They were 3.09 m. The pool glass
+enclosure and its gates are 2.032 m, up from 1.86 m. The picnic tables are 2.35 × 1.75 m with
+their tops at 0.72 m, from 2.4 × 1.95 m at 0.825 m.
+
+`src/firstPerson/NavigationWorld.js` carries its own copy of the conversion (`SCALE`) for the
+walking-mode floor polygons and was moved to 0.06 with it. Because the deck is now
+measurement-anchored rather than illustrative, `updateLevelUI()` no longer hides the metre scale
+bar on Level 6.
+
+Still unmeasured, and still inference: pool and hot-tub dimensions, deck-edge railing and parapet
+heights, planter and bench sizes, playground equipment, buildings and trees. They scale with the
+trace unit but no tape has been put to them.
+

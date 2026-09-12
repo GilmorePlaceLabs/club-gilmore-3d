@@ -409,3 +409,22 @@ PerfectMind. Checks that passed:
 Evidence: `evidence/level6-p18-selected.png`, `evidence/level6-bbq-fee.png`. `verify-level6.cjs`
 has not been re-run. Its hardcoded counts of 13 list items and 13 GLB room ids were already out of
 date before this change, which brings Level 6 to 16 rooms.
+
+### Measured Level 6 scale — September 12, 2026
+
+The trace unit moved from 0.065 m to 0.06 m, the BBQ bays took their measured 4.572 × 3.81 m
+footprint, every pergola dropped to 2.54 m, the picnic tables became 2.35 × 1.75 × 0.72 m and the
+pool glass rose to 2.032 m. Validation run (`node scripts/verify-level6.cjs` against
+`npm run dev`): **PASS**, including a new assertion that reads the `L6-bbq-1` floor mesh back out
+of the built scene and requires 4.572 × 3.81 m in world metres. The run refreshed
+`evidence/level6-pool.png`, `level6-plan.png`, `level6-desktop.png`, `level6-mobile.png`,
+`level6-mobile-detail.png` and `level6-verification.json`, and reported no page errors.
+
+Two assertions in that script were stale before this change and are fixed here: the public list
+and GLB room-id counts are 16, not 13, and `.detail-location strong` now matches the fee row as
+well, so the location line is addressed as `.detail-location:not(#detail-fee-row) strong`.
+
+The plan, sun-deck, BBQ-bay and desktop views were inspected after the rescale and show no
+furniture collisions from the 7.7% deck shrink. The rest of the deck was not walked through at
+close range; anything not listed above remains pending visual validation.
+
