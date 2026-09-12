@@ -24,9 +24,16 @@ const treeH=m=>m/2.9;
 // the bed only, so the row reads as the tall green strip the render shows.
 const CROWN=3.4;
 const bedSpread=(widthTraceUnits,U)=>Math.max(.34,Math.min(1,(widthTraceUnits*U+.8)/CROWN));
-const slimTree=(parent,x,z,metres,spread=1,acrossX=true)=>{
- const g=makeGroup(parent,x,z,0);tree(g,0,0,0,treeH(metres));
- if(acrossX)g.scale.x=spread;else g.scale.z=spread;return g;};
+// A bed's real width, not its bounding box: beds that run on the walk's diagonal
+// measured as wide as their bounding square and kept a full crown.
+const bedEdges=poly=>poly.map((p,i)=>{const q=poly[(i+1)%poly.length],len=Math.hypot(q[0]-p[0],q[1]-p[1])||1;
+ const dir=[(q[0]-p[0])/len,(q[1]-p[1])/len],nrm=[-dir[1],dir[0]];
+ return {dir,width:Math.max(...poly.map(r=>Math.abs((r[0]-p[0])*nrm[0]+(r[1]-p[1])*nrm[1])))};});
+const bedProfile=poly=>bedEdges(poly).reduce((a,b)=>b.width<a.width?b:a);
+// The crown is squashed across the bed whichever way the bed runs, so the group
+// carries the bed's own bearing and only its local x is scaled.
+const slimTree=(parent,x,z,metres,spread=1,rot=0)=>{
+ const g=makeGroup(parent,x,z,rot);tree(g,0,0,0,treeH(metres));g.scale.x=spread;return g;};
 const world=([x,z])=>[(x-910)*U,(z-670)*U];
 const rect=(x,z,w,d)=>[[x,z],[x+w,z],[x+w,z+d],[x,z+d]];
 // The three BBQ bays are centred on the render's three bay tables (px y
@@ -256,7 +263,11 @@ export function createLevel6Model(){
  }
  // dz nudges the planting anchor across a narrow bed; treeScale trims the crown
  // further, on top of the spread the bed's own width already sets.
- const planter=(poly,trees=true,dz=0,treeScale=1)=>{surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));const bedW=bounds.max.x-bounds.min.x,bedD=bounds.max.y-bounds.min.y,spread=bedSpread(Math.min(bedW,bedD),U)*treeScale;for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){slimTree(props,a,b,3.5+((x+z)%13)/13,spread,bedW<bedD);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.2,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6*(bedW<bedD?spread:1),.85,b+Math.cos(k*2.4)*.6*(bedW<bedD?1:spread),1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.4,0),k%2?'leaf':'leaflight',a+k*.2,.95,b,.8,.7,.8);}}}};
+ // Raised beds are unsafe ground, and their outlines move often, so each one
+ // registers itself for the walking view instead of being copied by hand into
+ // NavigationWorld.
+ const beds=[];
+ const planter=(poly,trees=true,dz=0,treeScale=1)=>{beds.push(poly);surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));const profile=bedProfile(poly),spread=bedSpread(profile.width,U)*treeScale,rot=Math.atan2(-profile.dir[0],-profile.dir[1]);for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){slimTree(props,a,b,3.5+((x+z)%13)/13,spread,rot);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.2,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6*spread,.85,b+Math.cos(k*2.4)*.6*spread,1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.4,0),k%2?'leaf':'leaflight',a+k*.2,.95,b,.8,.7,.8);}}}};
  for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51)])planter(p);
  // IMG_4005/IMG_4057 and the render crop: behind the pergola grills a paved walk
  // runs between two raised tree planters. The west bed's wall stands at
@@ -276,7 +287,18 @@ export function createLevel6Model(){
  // overhead. The neutral room-selection underlay remains available for picking,
  // while only these polygons receive grass.
  surface(rect(698,769,210,64),grass,.08);
- const southBocceLawn=[[698,834],[908,834],[908,856],[851,906],[871,928],[833,960],[784,908],[748,937],[698,881]];
+ // The lawn's south edge traced the two beds' old corners and left a paved wedge
+ // between them and the shelter. User request 2026-09-12: carry the grass down to
+ // the gazebo. It now wraps the beds' current outlines and runs along the
+ // shelter's own north edge between them, from the bocce-side bed's south corner
+ // (881.6,940.5) to where the square bed's northeast edge meets that edge.
+ const southBocceLawn=[[698,834],[908,834],[908,857],[854,906],[881.6,940.5],[839.37,971.67],
+  // User request 2026-09-12: the two pale slivers left at the square bed's ends.
+  // The grass now turns the bed's southeast end and fills the 1.9-to-6.5 unit
+  // wedge between that end and the shelter's north edge, and it meets the bed's
+  // real west corner (752.84,939.33) instead of the old trace point (748,937).
+  [805.81,996.47],[804.48,995.08],[834.93,966.88],
+  [783.28,911.12],[752.84,939.33],[698,881]];
  const southWestLawn=[[698,936],[698,1140],[772.4,1217.2],[881.1,1134.2]];
  surface(southBocceLawn,grass,.08);surface(southWestLawn,grass,.08);
  // A single 1.5-trace (about 0.10 m) pale divider follows the lawn's straight
@@ -288,9 +310,18 @@ export function createLevel6Model(){
  // IMG_3991: the open-turf tree planter is a true square whose sides run parallel
  // and square to the timber walk, not the lopsided quadrilateral traced before.
  const southBeds=[
-  [[752,939],[784,912],[833,970],[802,997]],
-  [[854,906],[908,857],[908,921],[870,929]],
-  [[821,1034],[908,1019],[908,1115]],
+  // Same correction, and the bed was 2.6 degrees out of parallel with the walk on
+  // top of it, which is what read as crooked beside a straight edge. Rebuilt in
+  // the walk's own frame: 41.5 by 76 trace units (2.5 by 4.6 m), its long sides
+  // on the walk's bearing and its walk-side edge 2 units clear like the others.
+  [[752.84,939.33],[783.28,911.12],[834.93,966.88],[804.48,995.08]],
+  // User request 2026-09-12: carry this bed down to the gazebo. Its south edge
+  // now runs on the shelter's own north edge, from the shared corner (908,921)
+  // to where the bed's west edge meets that edge at (881.6,940.5). The posts are
+  // inset by their half width plus the coping overhang, so the wall face lands
+  // against the post faces: touching, with nothing overlapping.
+  [[854,906],[908,857],[908,921],[881.6,940.5]],
+  [[831.49,1024.28],[908,1019],[912.11,1111.19]],
   [[776.5,1024.2],[806.3,1056.5],[774,1086.3],[744.2,1054]],
   [[637,958],[651,960],[651,1243],[665,1260],[639,1244]]
  ];
@@ -316,18 +347,18 @@ export function createLevel6Model(){
   [[644,995],[644,1072],[645,1150],[650,1225]]
  ];
  const southPlanter=(poly,treesAt=[],palette=null,step=0,clearance=null)=>{
-  surface(poly,stone,.06,.58);surface(poly,soil,.66);
+  beds.push(poly);surface(poly,stone,.06,.58);surface(poly,soil,.66);
   for(let i=0;i<poly.length;i++)line(poly[i],poly[(i+1)%poly.length],.2,stone,.18,.59);
   const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));
-  const bedW=bounds.max.x-bounds.min.x,bedD=bounds.max.y-bounds.min.y;
-  const narrow=bedW<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9),spread=bedSpread(Math.min(bedW,bedD),U);
+  const profile=bedProfile(poly),rot=Math.atan2(-profile.dir[0],-profile.dir[1]);
+  const narrow=bounds.max.x-bounds.min.x<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9),spread=bedSpread(profile.width,U);
   for(let x=bounds.min.x+3;x<bounds.max.x-2;x+=stepX)for(let z=bounds.min.y+3;z<bounds.max.y-2;z+=stepZ)if(insidePolygon(x,z,poly)){
    const jitter=Math.sin(x*1.73+z*.91),[wx,wz]=world([x+jitter*1.2,z+Math.cos(x*.47-z)*1.2]);
    if(clearance&&!clearance(x+jitter*1.2,z+Math.cos(x*.47-z)*1.2))continue;
    const material=palette?palette[Math.round(x*2+z)%palette.length]:(Math.round(x+z)%5===0)?flower:(Math.round(x*2+z)%7===0)?lavender:(Math.round(x+z)%2?'leaflight':'leaf');
    mesh(props,new T.IcosahedronGeometry(.13+(Math.abs(jitter)*.05),0),material,wx,.79+(Math.abs(jitter)*.06),wz,.9,.65,.9);
   }
-  for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);slimTree(props,wx,wz,3.4,spread,bedW<bedD);}
+  for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);slimTree(props,wx,wz,3.4,spread,rot);}
  };
  southBeds.forEach((bed,i)=>southPlanter(bed,southTreeAnchors[i]));
  // IMG_3991: the second user-marked object is a single black post light in
@@ -344,17 +375,46 @@ export function createLevel6Model(){
  // The east-edge shelter is a clipped quadrilateral in the overhead. Every
  // rafter is clipped to the perimeter beams, and two crossbeams divide three
  // supported bays; no roof member stops in mid-air.
- const southPergola=[[802,1000],[908,921],[908,1019],[820,1034]];
+ // User correction 2026-09-12: the shelter's west edge ran 3.2 to 13.1 trace units
+ // into the timber walk and out of parallel with it, which bent the walk's edge.
+ // Both corners now sit 2 units clear of the walk's northeast edge — the line
+ // (697,882)-(911,1113) — so the edge reads straight for the whole run.
+ const southPergola=[[805.81,996.47],[908,921],[908,1019],[831.08,1023.74]];
  surface(southPergola,mats.tilefloor,.125);
  for(let i=0;i<4;i++)line(southPergola[i],southPergola[(i+1)%4],.18,metal,.18,POST_H-.08);
  const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
- const pergolaSupports=[...southPergola];
+ // User correction 2026-09-12: the posts were centred on the shelter's outline,
+ // which is also the planter walls' edge, so each one buried half its width in
+ // the wall beside it. Each post is inset by that half width from every outline
+ // edge it stands on, leaving its faces flush with the outline — touching the
+ // planters, not inside them. The beams stay on the outline itself.
+ const centre=southPergola.reduce((s,p)=>[s[0]+p[0]/4,s[1]+p[1]/4],[0,0]);
+ const inward=(a,b)=>{const len=Math.hypot(b[0]-a[0],b[1]-a[1])||1,n=[-(b[1]-a[1])/len,(b[0]-a[0])/len];
+  const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  return (centre[0]-m[0])*n[0]+(centre[1]-m[1])*n[1]<0?[-n[0],-n[1]]:n;};
+ // Inset by the post's half width plus the .09 m the planters' coping overhangs
+ // their outline, plus 5 mm, so a post face stops just short of the wall face.
+ const POST=(.085+.09)/U;
+ const shift=([a,b],p)=>{const d=inward(a,b);return [p[0]+d[0]*POST,p[1]+d[1]*POST];};
+ // A corner post is the intersection of both its edges offset inward. Adding the
+ // two offsets instead only works on a right angle: at this shelter's 126-degree
+ // northeast corner it under-insets, which put the post back in the wall.
+ const corner=(e1,e2,p)=>{const p1=shift(e1,p),p2=shift(e2,p);
+  const d1=[e1[1][0]-e1[0][0],e1[1][1]-e1[0][1]],d2=[e2[1][0]-e2[0][0],e2[1][1]-e2[0][1]];
+  const den=d1[0]*d2[1]-d1[1]*d2[0];if(!den)return p1;
+  const t=((p2[0]-p1[0])*d2[1]-(p2[1]-p1[1])*d2[0])/den;
+  return [p1[0]+d1[0]*t,p1[1]+d1[1]*t];};
+ const sp=southPergola,edge=i=>[sp[i],sp[(i+1)%4]];
+ const pergolaSupports=sp.map((p,i)=>corner(edge((i+3)%4),edge(i),p));
  for(const t of [1/3,2/3]){
-  const a=lerp(southPergola[0],southPergola[1],t),b=lerp(southPergola[3],southPergola[2],t);
-  line(a,b,.14,metal,.14,POST_H+.01);pergolaSupports.push(a,b);
+  const a=lerp(sp[0],sp[1],t),b=lerp(sp[3],sp[2],t);
+  line(a,b,.14,metal,.14,POST_H+.01);pergolaSupports.push(shift(edge(0),a),shift(edge(2),b));
  }
  for(const [x,z] of pergolaSupports){const [wx,wz]=world([x,z]);box(props,wx,POST_H/2,wz,.16,POST_H,.16,metal);}
- const rafterLength=Math.hypot(106,79),rafterDirection=[106/rafterLength,-79/rafterLength];
+ // Taken from the shelter's own north edge so the rafters stay square to the
+ // perimeter beams when that edge moves.
+ const rafterSpan=[southPergola[1][0]-southPergola[0][0],southPergola[1][1]-southPergola[0][1]];
+ const rafterLength=Math.hypot(...rafterSpan),rafterDirection=rafterSpan.map(v=>v/rafterLength);
  const rafterNormal=[-rafterDirection[1],rafterDirection[0]];
  const projection=(p,axis)=>p[0]*axis[0]+p[1]*axis[1];
  const normalRange=southPergola.map(p=>projection(p,rafterNormal));
@@ -562,13 +622,27 @@ export function createLevel6Model(){
  // IMG_4021: this pergola shelters three round dining tables, each with four
  // individual black chairs — teak tops on pale pedestals, not the curved-bench
  // picnic tables that belong on the fire-pit terrace. Placed on the bay axis.
- const cafeTable=(x,z)=>{
-  const [a,b]=world([x,z]),g=makeGroup(props,a,b,.64);g.name='Round dining table and four chairs';
+ const cafeTable=(x,z,rot=.64)=>{
+  const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);g.name='Round dining table and four chairs';
   cyl(g,0,.735,0,.46,.05,'oak');cyl(g,0,.765,0,.09,.02,'white');
   cyl(g,0,.36,0,.1,.7,'ivory');cyl(g,0,.045,0,.27,.09,'ivory');
-  for(let i=0;i<4;i++){const t=i*Math.PI/2;chair(g,Math.sin(t)*.95,Math.cos(t)*.95,t+Math.PI,'black');}
+  // User correction 2026-09-12: a bay measures only 1.86-1.96 m between the
+  // crossbeams, so a .95 m chair ring ran straight through them. Chairs are tucked
+  // to .55 m — seats under the .46 m table top, backs .84 m out — and squared to
+  // the bay instead of sitting at an arbitrary angle. Measured on the built
+  // geometry, that clears the beam faces by 1.8 to 3.5 cm in all three bays.
+  for(let i=0;i<4;i++){const t=i*Math.PI/2;chair(g,Math.sin(t)*.55,Math.cos(t)*.55,t+Math.PI,'black');}
  };
- for(const [x,z] of [[831.4,1014.4],[859.5,993.5],[887.6,972.6]])cafeTable(x,z);
+ // Placed on each bay's own centre rather than by hand: the first table sat .52 m
+ // off the shelter's west edge, so its chair ring reached .43 m into the timber
+ // walk, and hand coordinates go stale whenever that edge moves.
+ const bayCentre=t=>{const a=[southPergola[0],southPergola[1]],b=[southPergola[3],southPergola[2]];
+  const mid=([p,q])=>[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t],m=mid(a),k=mid(b);
+  return [(m[0]+k[0])/2,(m[1]+k[1])/2];};
+ // Tucked chairs fit the bays from their centres, so the .36 m setback the wider
+ // ring needed is gone; each table sits on its bay's centre, squared to the bay.
+ const bayRot=-Math.atan2(sp[1][1]-sp[0][1],sp[1][0]-sp[0][0]);
+ for(const t of [1/6,.5,5/6])cafeTable(...bayCentre(t),bayRot);
 
  // User's overhead close-up: three lengthwise dining tables, each with its own
  // grill against the planted (east) edge. Table axes follow the three-bay run.
@@ -880,6 +954,6 @@ export function createLevel6Model(){
  for(const gate of walkModeGates){mergeRoomGeometry(gate);gate.removeFromParent();}
  mergeRoomGeometry(walls);walls.removeFromParent();mergeRoomGeometry(walkModeWalls);mergeRoomGeometry(props);props.add(walls,walkModeWalls,...walkModeGates);
  const navigation=createLevel6Navigation();
- navigation.blockedPolygons.push(playgroundPlanter.map(p=>new T.Vector2(...world(p))));
+ navigation.blockedPolygons.push(...[playgroundPlanter,...beds].map(poly=>poly.map(p=>new T.Vector2(...world(p)))));
  root.updateMatrixWorld(true);return {root,roomGroups,floorMeshes,wallGroups,columnGroups,bounds:new T.Box3().setFromObject(root),mats,navigation,walkModeGates,walkModeWalls};
 }

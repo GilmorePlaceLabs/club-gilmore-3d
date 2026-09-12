@@ -25,18 +25,12 @@ const WALKABLE = [
 ];
 
 // Water is not represented by a solid mesh, so it must be explicitly unsafe.
-// The large planted islands are also named here; the remaining planters and all
-// furniture are collected from their vertical scene geometry below.
+// The planted beds used to be copied in here as well and went stale whenever one
+// moved (2026-09-12: a bed shifted off the timber walk kept blocking it). The
+// model now registers every bed it builds through navigation.blockedPolygons,
+// and the remaining planters and all furniture come from scene geometry below.
 const BLOCKED = [
   rectangle(237,719,322,100), rectangle(132,719,79,100), rectangle(156,713.5,31,6), // hot tub's north bay
-  rectangle(40,596,25,304), rectangle(65,879,570,22),
-  rectangle(699,280,208,32), rectangle(699,600,208,34),
-  rectangle(699,357,32,201), rectangle(1127.3,287,15.7,196.2), polygon([[1175.5,287],[1193,287],[1193,471],[1175.5,492]]),
-  rectangle(699,733,208,36),
-  polygon([[752,939],[784,912],[833,970],[802,997]]),
-  polygon([[854,906],[908,857],[908,921],[870,929]]),
-  polygon([[821,1034],[908,1019],[908,1115]]),
-  polygon([[776.5,1024.2],[806.3,1056.5],[774,1086.3],[744.2,1054]]),
 ];
 
 const pointInPolygon = (point, points) => {

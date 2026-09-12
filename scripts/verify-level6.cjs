@@ -17,7 +17,15 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
   const nav=clubGilmore.firstPerson.navigationWorld,W=(x,z)=>({x:(x-910)*.06,z:(z-670)*.06});
   const row=z=>{const bad=[];for(let x=150;x<=558;x+=4)if(!nav.isSafe(W(x,z)))bad.push(x);return bad;};
   const column=x=>{const bad=[];for(let z=600;z<=712;z+=4)if(!nav.isSafe(W(x,z)))bad.push(z);return bad;};
-  const out={northWalk:row(675),southWalk:row(831),changeRoomAisle:column(381)};
+  // The south garden's timber walk: two lines .36 m inside each edge of the
+  // diagonal leg, which the shelter, its tables and two beds had all grown into.
+  const P0=[697,882],D=[214,231],L=Math.hypot(...D),d=[D[0]/L,D[1]/L],nrm=[-d[1],d[0]];
+  const diagonal=across=>{const bad=[];
+   for(let t=0;t<=L;t+=5){const x=P0[0]+d[0]*t+nrm[0]*across,z=P0[1]+d[1]*t+nrm[1]*across;
+    if(!nav.isSafe(W(x,z)))bad.push(Math.round(t));}
+   return bad;};
+  const out={northWalk:row(675),southWalk:row(831),changeRoomAisle:column(381),
+             gardenWalkNE:diagonal(6),gardenWalkSW:diagonal(29)};
   clubGilmore.exitFirstPerson();return out;
  });
  for(const [name,blocked] of Object.entries(walks))assert.equal(blocked.length,0,`pool deck ${name} blocked at ${blocked}`);

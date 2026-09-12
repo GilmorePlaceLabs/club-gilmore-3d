@@ -1428,3 +1428,132 @@ Verified by probing `navigationWorld.isSafe()` over the built scene rather than 
 behind the row, the south walk and the change-room aisle are now clear at every sample point, and
 `verify-level6.cjs` asserts all three on every run.
 
+### The south garden's timber walk runs straight — September 12, 2026
+
+The user drew the walk's northeast edge as a straight line and asked for everything to be shifted
+off it. Measured against that edge — the line (697,882)–(911,1113), with the walk 34.6 trace units
+(2.08 m) wide — three things stood inside it:
+
+- the east-edge shelter's west edge, running 3.2 units in at its north corner and 13.1 at its
+  south, so it was not even parallel to the walk;
+- the triangular bed south of it, 12.3 units in;
+- the square bed north of it, 1.1 units in at one corner.
+
+All three walk-side edges now sit 2 units clear of that line and parallel to it, which leaves room
+for the 0.18 m perimeter beam and the planter coping that overhang each edge. The shelter is
+[[805.81,996.47],[908,921],[908,1019],[831.08,1023.74]], the triangular bed
+[[831.49,1024.28],[908,1019],[912.11,1111.19]], and the square bed is translated 3.1 units,
+keeping the sides parallel and square to the walk that IMG_3991 establishes.
+
+Two supporting fixes fell out of it. The rafter direction was hard-coded as (106,−79), the old west
+edge; it now comes from the shelter's own north edge, so rafters stay square to the beams when that
+edge moves. And the three round tables were hand-placed, the westernmost sitting 0.52 m off the
+shelter's west edge so its 0.95 m chair ring reached 0.43 m into the walk; they now sit on their
+bay centres, 6 units back from the walk side because the west bay is only 1.86 m across — narrower
+than a table and its chairs.
+
+**Planted beds no longer need copying into the navigation data.** `NavigationWorld`'s `BLOCKED`
+list held its own copies of the bed outlines, so a bed moved in `level6.js` kept blocking its old
+footprint — the walk stayed unwalkable after the beds came off it. `planter()` and
+`southPlanter()` now record every polygon they build, and the model pushes them into
+`navigation.blockedPolygons`; `BLOCKED` keeps only the pool and hot-tub water, which has no mesh
+of its own.
+
+### The walk-side bed squared to the walk — September 12, 2026
+
+Shifting that bed off the walk left it looking crooked because it was never parallel in the first
+place: its long sides ran at 49.8 degrees against the walk's 47.2, so a straight walk edge beside a
+2.6-degree skew read as a mistake. It is rebuilt in the walk's own frame —
+[[752.84,939.33],[783.28,911.12],[834.93,966.88],[804.48,995.08]], 41.5 by 76 trace units
+(2.5 by 4.6 m), long sides on the walk's bearing, walk-side edge 2 units clear like the shelter and
+the triangular bed.
+
+Its planting was wrong for the same reason. `bedSpread()` was fed the bed's *bounding box*, and a
+bed lying on the walk's diagonal has a bounding box as wide as its own diagonal — 4.9 m for a 2.5 m
+bed — so it kept a full 3.4 m crown and hung over the walk, and the crown was squashed along a
+world axis rather than across the bed. Beds now report their true width (the minimum over their
+own edge normals, `bedProfile()`), and `slimTree()` takes that edge's bearing so the crown is
+always narrowed across the bed, whichever way the bed runs. Flower clumps take the same spread on
+both axes. Axis-aligned beds are unaffected; the diagonal ones — this bed, the triangular bed, the
+south garden beds — are the ones that change.
+
+### Shelter posts clear of the planter walls — September 12, 2026
+
+The user reported the shelter's legs standing inside the planter walls beside them, and asked for
+touching but not overlapping. Two things caused it:
+
+- the posts were drawn centred on the shelter's outline, and that outline is also the beds' edge,
+  so every post buried half its 0.16 m width in the wall it stood against — 1.33 trace units;
+- the beds' coping is a 0.18 m rail drawn *on* the bed outline, so the wall face actually stands
+  0.09 m proud of the polygon, which no one had allowed for.
+
+Posts are now inset from every outline edge they stand on by the post's half width plus that
+0.09 m overhang (`POST = (.08 + .09) / U`), by way of each edge's inward normal, so a post face
+stops at the wall face. The beams stay on the outline itself, so the roof still reads at its
+traced size and overhangs the beds as it did.
+
+That cleared five of the six posts. The sixth, the northeast corner, sat exactly on the bocce-side
+bed's own corner, where the coping wraps both its edges, so that bed's shared vertex is pulled
+3 units (0.18 m) back off the shelter: `[[854,906],[908,857],[908,918],[870,926]]`. Measured on the
+resulting geometry, the closest post face now stands 1.1 cm off a wall face and the rest 1.2 to
+11.4 cm — touching, not overlapping.
+
+### The bocce-side bed carried down to the gazebo — September 12, 2026
+
+The user asked for that bed to reach the shelter rather than stop short of it, so its south edge now
+runs along the shelter's own north edge: from the shared corner (908,921) to (881.6,940.5), where
+the bed's west edge meets that edge. The bed is `[[854,906],[908,857],[908,921],[881.6,940.5]]`,
+replacing the 3-unit setback recorded above.
+
+That only works because the posts are inset, and the inset had to be computed properly first. The
+earlier version added the two edge offsets together, which is only correct at a right angle; the
+shelter's northeast corner is 126 degrees, so the post came out 1.15 units from the bed's edge
+instead of 2.92 and sat 10 cm inside the wall again. A corner post is now the intersection of its
+two edges each offset inward — exact at any angle — and the inset is the post's half width plus the
+coping's 0.09 m overhang plus 5 mm. Measured on the built coordinates: every post is inside the
+roof outline, and the tightest post face stands 0.5 cm off a wall face, the rest 0.6 to 3.8 cm.
+
+### The lawn carried down to the gazebo — September 12, 2026
+
+Same request for the grass. The bocce lawn's south edge still traced the two beds' *old* corners —
+(851,906), (871,928), (833,960), (784,908) — so once the beds moved it left a paved wedge between
+them and the shelter. It now follows the beds' current outlines and, between them, the shelter's
+own north edge: `[[698,834],[908,834],[908,857],[854,906],[881.6,940.5],[839.37,971.67],
+[834.93,966.88],[783.28,911.12],[748,937],[698,881]]`.
+
+(881.6,940.5) is the bocce-side bed's south corner, already on that edge; (839.37,971.67) is where
+the square bed's northeast edge, extended 6.5 units past its corner, meets the same edge. The lawn
+stops on the shelter outline rather than crossing it, so it abuts the shelter floor without
+overlapping, and it wraps both beds rather than running under them — the beds' stone rim sits at
+y = 0.06 and the grass at 0.08, so any overlap would show grass over the rim.
+
+### The square bed's two pale slivers — September 12, 2026
+
+Two strips of bare paving were left where the lawn met that bed: along its northwest end, because
+the lawn still turned at the old trace point (748,937) rather than the bed's real west corner
+(752.84,939.33); and across its southeast end, the 1.9-to-6.5 unit wedge between that end and the
+shelter's north edge, which the lawn had not been carried around at all.
+
+The lawn now turns the bed's southeast end — out along the shelter's north edge to its west corner
+(805.81,996.47), across to the bed's south corner (804.48,995.08) and back up the bed's end to
+(834.93,966.88) — and meets the bed's true west corner on the other side. The grass reaches the
+main lawn around the bed's east corner, where the 6.5 unit gap between the bed and the shelter
+edge is, so it is one polygon, not an island.
+
+### Shelter chairs tucked in — September 12, 2026
+
+The user's overheads showed chairs running through the crossbeams and their posts. Measured on the
+shelter: a bay is only 1.86 to 1.96 m between the crossbeam faces, while a table with its chairs at
+0.95 m spans 2.48 m, so a chair crossed a beam in every bay. Nothing collided in three dimensions —
+the beams are 2.36 m up and the posts stand on the edges — but the model reads as an overlap from
+above, and it is not how the furniture actually sits.
+
+Chairs are tucked to 0.55 m, which puts their seats under the 0.46 m table top and their backs
+0.84 m out, and each table is squared to its bay (`bayRot`, the shelter's own long axis) rather than
+sitting at the arbitrary 0.64 rad they carried before. Tables sit on their bay centres again; the
+0.36 m setback the wider ring needed is gone. Measured across all three bays, the chairs clear the
+beam faces by 1.8, 3.5 and 2.3 cm.
+
+Staggering the tables was the other option the user offered. It was not needed once the ring fits,
+and it would have broken the one-table-per-bay rhythm IMG_4021 shows.
+

@@ -483,3 +483,50 @@ as a 0.30 m radius allows). All three pass at every sample point. Full run: **PA
 `npm run build` passes. The aisle and the walk behind the row were also inspected in the walking
 view.
 
+### South garden walk — September 12, 2026
+
+`verify-level6.cjs` now probes the diagonal timber walk as well, along two lines 0.36 m inside each
+edge, in addition to the three pool-deck routes. Both lines are clear over the whole 315-unit run;
+before this change the northeast line failed from t = 155 to the end. Full run: **PASS**;
+`npm run build` passes. The walk was also re-inspected in the 3D view: its northeast edge now reads
+as one straight line past the shelter and both beds, and all three round tables sit inside the
+shelter's bays (checked by point-in-polygon, not by eye).
+
+### Bed alignment — September 12, 2026
+
+`verify-level6.cjs`: **PASS** with the garden-walk probes still clear after squaring the walk-side
+bed and re-fitting the diagonal beds' crowns. `npm run build` passes. Checked in plan view at
+zoom: the bed's long sides now run parallel to the walk, and its crown stays inside the bed instead
+of reaching over the paving.
+
+### Shelter posts — September 12, 2026
+
+Post-to-wall clearances computed from the built coordinates (post half width plus the coping's
+0.09 m overhang): smallest gap 1.1 cm, no overlaps, against four beds and six posts.
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Also inspected in the 3D view from the walk
+side.
+
+### Bed extended to the shelter — September 12, 2026
+
+Recomputed from the built coordinates after extending the bocce-side bed to the shelter: all six
+posts inside the roof outline, smallest post-face-to-wall-face gap 0.5 cm, no overlaps.
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Checked in the 3D view from the walk side.
+
+### Lawn to the gazebo — September 12, 2026
+
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Inspected from above on the shelter's north
+side: the grass runs to the shelter's north edge between the two beds with no paved strip left, and
+neither bed has grass over its rim.
+
+### Square bed slivers — September 12, 2026
+
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Checked top-down at high zoom on both ends
+of the bed: grass meets the coping at the northwest end and wraps the southeast end to the
+shelter's roof edge, with no paving left showing at either.
+
+### Shelter chairs — September 12, 2026
+
+Chair-corner clearance to the crossbeam faces, computed from the built coordinates for all three
+bays: +1.8, +3.5, +2.3 cm — no overlap. `verify-level6.cjs`: **PASS**; `npm run build` passes.
+Checked from above: one table per bay, chairs square to the bay, none crossing a beam.
+
