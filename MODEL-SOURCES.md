@@ -1565,3 +1565,13 @@ and the `L6-garden` description no longer claims "Dark bench blocks sit along bo
 walk". Nothing else on that walk changes: the raised beds, their planting, the paving band and the
 walk-end pergola are untouched.
 
+
+### Gallery photo assignments (September 12, 2026)
+
+The user named four of their HEIC originals for specific rooms; the browser JPEG copies already
+existed in `public/photos`. Each now replaces the generic `amenity-deck-aerial.jpg` as the sole
+gallery image for its room: IMG_4029 (`site-4029.jpg`, change-room facade seen from the pool) on
+`L6-change`, IMG_3979 (`site-3979-lounge.jpg`, close overhead of the double-sided fireplace and its two sofa groups; a different frame from the existing wide-deck `site-3979.jpg`, which is left in place) on `L6-lounge`,
+IMG_3991 (`site-3991.jpg`, south garden pergola and round tables) on `L6-bbq-south`, and IMG_4038
+(`site-4038.jpg`, the blue playhouse on its tan pad) on `L6-bbq-north`. Photo assignment only — no
+geometry changed.
