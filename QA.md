@@ -409,3 +409,129 @@ PerfectMind. Checks that passed:
 Evidence: `evidence/level6-p18-selected.png`, `evidence/level6-bbq-fee.png`. `verify-level6.cjs`
 has not been re-run. Its hardcoded counts of 13 list items and 13 GLB room ids were already out of
 date before this change, which brings Level 6 to 16 rooms.
+
+### Measured Level 6 scale — September 12, 2026
+
+The trace unit moved from 0.065 m to 0.06 m, the BBQ bays took their measured 4.572 × 3.81 m
+footprint, every pergola dropped to 2.54 m, the picnic tables became 2.35 × 1.75 × 0.72 m and the
+pool glass rose to 2.032 m. Validation run (`node scripts/verify-level6.cjs` against
+`npm run dev`): **PASS**, including a new assertion that reads the `L6-bbq-1` floor mesh back out
+of the built scene and requires 4.572 × 3.81 m in world metres. The run refreshed
+`evidence/level6-pool.png`, `level6-plan.png`, `level6-desktop.png`, `level6-mobile.png`,
+`level6-mobile-detail.png` and `level6-verification.json`, and reported no page errors.
+
+Two assertions in that script were stale before this change and are fixed here: the public list
+and GLB room-id counts are 16, not 13, and `.detail-location strong` now matches the fee row as
+well, so the location line is addressed as `.detail-location:not(#detail-fee-row) strong`.
+
+The plan, sun-deck, BBQ-bay and desktop views were inspected after the rescale and show no
+furniture collisions from the 7.7% deck shrink. The rest of the deck was not walked through at
+close range; anything not listed above remains pending visual validation.
+
+### First-person height pass — September 12, 2026
+
+`eyeHeight` is 1.664 m (5 ft 10 in) and the avatar body scales with it; Level 6 trees are 2.8–4.4 m
+and bed clumps top out near 1.2 m. Checks that passed:
+- `node scripts/verify-level6.cjs`: **PASS**, no page errors.
+- `npm run build` passes.
+- A headless first-person run read the camera back at y = 1.744 m (0.08 floor + 1.664) with the
+  avatar root scaled 0.990, and captured the north bridge, pool deck, playground and garden walk.
+  The trees now stand well above the camera, as in IMG_4005 and IMG_4036.
+
+Screenshots from that run are in the scratch directory, not in `evidence/`; the only committed
+Level 6 images are the ones `verify-level6.cjs` writes. The four viewpoints above were inspected,
+not the whole deck.
+
+### Walking camera field of view — September 12, 2026
+
+The user reported the pool enclosure still looking short from inside the walk. Measured out of the
+built scene (vertex scan around trace 660, 760 and the gate at 660, 680): both the glass run and
+the gate top out at **2.032 m**, and the walking camera sits at 1.744 m (0.08 m floor + 1.664 m
+eye), so the geometry was already right — the fence stands 0.37 m above the walker's eye.
+
+The distortion was the camera: `FirstPersonController` used a 68° *vertical* fov, which is about
+100° across at 16:9 — a fisheye that pushes nearby geometry away and flattens its apparent height.
+It is now 50° vertical (~80° across), close to the ~50° vertical framing of the site photographs,
+so the walk matches IMG_4026 and IMG_4035. `verify-level6.cjs`: **PASS**; `npm run build` passes.
+
+Views re-inspected at the new fov: the north-bridge spawn, the walkway facing the pool enclosure,
+standing at the gate, and inside the pool deck. Note that at 2–3 m back the enclosure correctly
+reads as only slightly above eye level; it only towers when you are next to it, as in IMG_4026.
+
+### Crown spread — September 12, 2026
+
+Trees keep their 2.8–4.4 m heights; crowns are now squashed across narrow beds by `bedSpread()`.
+`verify-level6.cjs`: **PASS**. `npm run build` passes. Re-inspected in the walking view: the walk
+east of the BBQ bays (the one the user reported blocked) is open with trunks flanking it and
+canopies overhead, the BBQ 3 bay is visible from the deck again, and the garden boardwalk, pool
+deck and north bridge are unchanged. Beds wider than ~2.6 m were not altered.
+
+### Pool-side walk clearance — September 12, 2026
+
+`verify-level6.cjs` now enters first person and probes `navigationWorld.isSafe()` every 4 trace
+units from x = 150 to 558 along both pool-side walks (z = 708 north, z = 831 south), and fails if
+any point is unwalkable. Against the previous lounger positions the north scan failed at 70 points;
+with the rows moved it passes at every point, north and south. Full run: **PASS**; `npm run build`
+passes. The walk was also inspected in the walking view from both sides.
+
+### Pool deck routes — September 12, 2026 (supersedes the clearance entry above)
+
+`verify-level6.cjs` now probes three routes, each of which was blocked at some point today: the
+walk behind the north lounger row (z = 675), the south pool-side walk (z = 831), and the aisle
+from the change rooms' entry court to the water (x = 381, z = 600–712; 712 is as close to the pool
+as a 0.30 m radius allows). All three pass at every sample point. Full run: **PASS**;
+`npm run build` passes. The aisle and the walk behind the row were also inspected in the walking
+view.
+
+### South garden walk — September 12, 2026
+
+`verify-level6.cjs` now probes the diagonal timber walk as well, along two lines 0.36 m inside each
+edge, in addition to the three pool-deck routes. Both lines are clear over the whole 315-unit run;
+before this change the northeast line failed from t = 155 to the end. Full run: **PASS**;
+`npm run build` passes. The walk was also re-inspected in the 3D view: its northeast edge now reads
+as one straight line past the shelter and both beds, and all three round tables sit inside the
+shelter's bays (checked by point-in-polygon, not by eye).
+
+### Bed alignment — September 12, 2026
+
+`verify-level6.cjs`: **PASS** with the garden-walk probes still clear after squaring the walk-side
+bed and re-fitting the diagonal beds' crowns. `npm run build` passes. Checked in plan view at
+zoom: the bed's long sides now run parallel to the walk, and its crown stays inside the bed instead
+of reaching over the paving.
+
+### Shelter posts — September 12, 2026
+
+Post-to-wall clearances computed from the built coordinates (post half width plus the coping's
+0.09 m overhang): smallest gap 1.1 cm, no overlaps, against four beds and six posts.
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Also inspected in the 3D view from the walk
+side.
+
+### Bed extended to the shelter — September 12, 2026
+
+Recomputed from the built coordinates after extending the bocce-side bed to the shelter: all six
+posts inside the roof outline, smallest post-face-to-wall-face gap 0.5 cm, no overlaps.
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Checked in the 3D view from the walk side.
+
+### Lawn to the gazebo — September 12, 2026
+
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Inspected from above on the shelter's north
+side: the grass runs to the shelter's north edge between the two beds with no paved strip left, and
+neither bed has grass over its rim.
+
+### Square bed slivers — September 12, 2026
+
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Checked top-down at high zoom on both ends
+of the bed: grass meets the coping at the northwest end and wraps the southeast end to the
+shelter's roof edge, with no paving left showing at either.
+
+### Shelter chairs — September 12, 2026
+
+Chair-corner clearance to the crossbeam faces, computed from the built coordinates for all three
+bays: +1.8, +3.5, +2.3 cm — no overlap. `verify-level6.cjs`: **PASS**; `npm run build` passes.
+Checked from above: one table per bay, chairs square to the bay, none crossing a beam.
+
+### Garden walk benches — September 12, 2026
+
+`verify-level6.cjs`: **PASS**; `npm run build` passes. Checked from above: the boardwalk between the
+two beds is clear for its whole run, and the room description no longer mentions the benches.
+

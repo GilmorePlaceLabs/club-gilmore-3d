@@ -46,7 +46,7 @@ Specific anchors: study booth 2 L4-80 drawing dimensions are 8 ft 0 7/8 in by 8 
 
 The supplied Level 6 Tower 1/2/3 plan establishes amenity names and relationships. The official amenities page at https://gilmoreplace.com/en/homes/1-gilmore-place/amenities/ corroborates the outdoor pool, hot tub, fireplace/lounge, playground, garden plots, bocce, fire pit and four BBQ areas. Residential tower volumes are omitted, as in the supplied roofless render. Change-room internal partitions are representative interpretations of that render.
 
-No measured Level 6 drawing was supplied. Conversion of 0.065 m per normalized trace pixel is approximate, and the Level 6 metre scale is hidden. Pool dimensions, rail heights, equipment and furniture are illustrative, not survey measurements. The Level 4 confirmed 20 m indoor pool dimension does not apply to the outdoor pool.
+No measured Level 6 drawing was supplied. Conversion of 0.065 m per normalized trace pixel is approximate, and the Level 6 metre scale is hidden. (Superseded by "Measured deck scale", September 12, 2026, below: the conversion is now 0.06 m and the scale bar is shown.) Pool dimensions, rail heights, equipment and furniture are illustrative, not survey measurements. The Level 4 confirmed 20 m indoor pool dimension does not apply to the outdoor pool.
 
 Actual local amenities photography: outdoor-pool, outdoor-pool-sun-deck, bocce-court, bocce-court-and-pool, childrens-playground, bbq-firepit-terrace and amenity-deck-aerial. Seven JPEGs copied from the user-specified amenities/low-res folder. Dedicated photos support pools, bocce and playground. The aerial and general terrace photos support other zones; descriptions identify contextual imagery for the garden and change rooms. No AI-generated photographs are presented as actual site photos.
 
@@ -1288,3 +1288,290 @@ Fees: the `services` data on the PerfectMind pages for P18 and for the P01–P03
 lists a single "Outdoor Seating" price with `Amount` 0 (`DisplayAmountOrAsFree` "Free"), as of
 September 11, 2026. The viewer does not store this. `/api/availability` returns a `fee` value read
 live from the same page, so the detail panel always shows the current fee.
+
+### Measured deck scale — September 12, 2026
+
+The user measured three built elements on Level 6 with a tape and annotated them on renders of
+this model. These are direct site measurements and outrank the render on every dimension they
+touch:
+
+- A BBQ gazebo bay: 15 ft (4.572 m) across, 150 in (3.81 m) deep, column 100 in (2.54 m) to the
+  roof. The user states all the deck's pergolas share that height.
+- A picnic table: 2.35 m long, 1.75 m across the benches, 0.72 m to the top.
+- The pool's glass enclosure: 80 in (2.032 m) high.
+
+**Trace unit.** The bay measurement is what fixes the deck's scale. The three BBQ bays are not
+drawn in the supplied render — it shows one round table per bay — but those three tables sit on a
+68 px pitch (65.7 trace units, render normalized to 1855 × 1344). One measured bay depth plus the
+gap between adjacent gazebos fills that pitch, so a trace unit is 3.81 / 65.7 to 4.0 / 65.7 m.
+`U` is now **0.06 m** (a 3.94 m bay pitch: 3.81 m of bay and a 0.13 m gap), down from the
+illustrative 0.065. The whole deck — slabs, pools, planting, walks, room polygons — shrinks 7.7%
+against the furniture, which was already authored at real sizes.
+
+The 15 ft bay width is a weaker cross-check: at 0.06 it is 76.2 trace units against the 80 that
+were authored for the bays before any measurement existed. The bays now carry the measured
+4.572 × 3.81 m footprint (`BAY_W`/`BAY_D` in `src/level6.js`) on the render's table centres
+(trace z 321.7 / 387.4 / 453.1), which also moved `bbq-1`/`bbq-2`/`bbq-3`'s room polygons.
+
+**Heights.** Every pergola on the deck — the two pool-deck ones, the three BBQ gazebos, the
+south-garden shelter, the northeast walk-end pergola and the three-bay playground-side dining
+pergola — is built to a 2.54 m overall height from one `PERGOLA_H` constant, with `POST_H`
+holding the 0.19 m of beam and slat that sits above the posts. They were 3.09 m. The pool glass
+enclosure and its gates are 2.032 m, up from 1.86 m. The picnic tables are 2.35 × 1.75 m with
+their tops at 0.72 m, from 2.4 × 1.95 m at 0.825 m.
+
+`src/firstPerson/NavigationWorld.js` carries its own copy of the conversion (`SCALE`) for the
+walking-mode floor polygons and was moved to 0.06 with it. Because the deck is now
+measurement-anchored rather than illustrative, `updateLevelUI()` no longer hides the metre scale
+bar on Level 6.
+
+Still unmeasured, and still inference: pool and hot-tub dimensions, deck-edge railing and parapet
+heights, planter and bench sizes, playground equipment, buildings and trees. They scale with the
+trace unit but no tape has been put to them.
+
+### Walker's eye height and planting heights — September 12, 2026
+
+Two follow-ups to the measured deck scale, both from the user walking Level 6 in first person and
+reporting that they still stood too tall for their surroundings.
+
+**Eye height.** The walker is a 5 ft 10 in (1.778 m) person, so `eyeHeight` is 1.664 m — stature
+less the ~0.11 m from eye to crown — in `createLevel6Navigation()` and in `FirstPersonController`'s
+defaults. It was 1.68 m, which is the eye height of a person about 1.80 m tall. `FirstPersonAvatar`
+is modelled around a 1.68 m eye, so the controller now scales its root by `eyeHeight / 1.68`
+rather than leaving the legs and arms at the old size.
+
+**Planting.** That change is only 1.6 cm, and it was not what made the walk feel wrong: the deck's
+trees were the problem. IMG_4005 (the northeast planter walk) and IMG_4036 (the lounge BBQ
+counter) both show maples standing two to three metres above a standing adult — three to four
+times the 0.6 m planter walls, and far above the 0.95 m counters. The model's trees were 1.45 m to
+3.2 m tall, most of them under 2 m, so a walker looked over the entire deck.
+
+`tree()` in `model.js` is 2.9 m tall at scale 1 and is shared with Level 4, so it is unchanged;
+Level 6 now sizes its plantings by height in metres through `treeH(m)`:
+
+- planter beds: 3.5–4.4 m, still multiplied by each bed's `treeScale` (the 0.74 narrow-bed beds
+  come out 2.6–3.3 m);
+- south and playground bed anchors: 3.4 m; northeast walk-end trees: 3.2 m; fire-terrace pair:
+  2.8 m.
+
+Bed flowering clumps grew from 0.18 m to 0.26 m radius and sit at 0.85 m, and the hedge clumps in
+tree-less beds from 0.32 m to 0.4 m at 0.95 m, which puts their tops near 1.2 m — the height of
+the flowering masses behind the counters in IMG_4036. Canopies still carry no collision, so the
+taller trees do not block the walk.
+
+Everything else with a hand-authored height was checked against the same photographs and left
+alone: planter walls (0.58 m plus coping), BBQ counters (1.02 m), deck-edge glass guards (1.19 m),
+the north parapet (1.15 m), change-room counters (0.84–0.9 m) and the 3 m walk-mode partitions.
+
+### Crown spread fitted to each bed — September 12, 2026
+
+Raising the trees to their real height also gave every one of them a ~3.4 m crown, and several of
+the deck's beds are far narrower than that: the strip east of the BBQ bays is 15.7 trace units,
+0.94 m. The user's screenshot showed those crowns meeting over the paved walk beside the bays and
+closing it off.
+
+Height and spread are now separate. `bedSpread()` takes each bed's own narrow dimension and
+returns the fraction of the crown that fits, allowing 0.4 m of overhang per side and never going
+below 0.34; `slimTree()` applies it across the bed's narrow axis only, so the crown stays full
+along the bed and the row reads as the continuous green strip the render shows. A bed's
+`treeScale` argument still multiplies on top (the 0.74 bocce-side bed keeps its extra trim).
+Trunks were always inside their beds, so this was a visual obstruction, not a navigation one —
+canopies carry no collision. Bed flower clumps went back to 0.2 m and their offsets take the same
+spread, so they no longer spill onto the paving.
+
+Worked examples: the 0.94 m bay strip gets 0.51 (1.7 m of crown across a 0.94 m bed), the 1.32 m
+pool-deck strip 0.62, and the 1.92 m lounge beds 0.80. Beds wider than about 2.6 m are unaffected.
+
+### Pool-side walks — September 12, 2026
+
+The user marked the circulation loop around the pool as too tight to walk. Measured: the north
+lounger row sat at trace z = 699 with a 1.9 m bed, leaving its feet at z = 714.8 against coping at
+z = 719.5 — **0.28 m**, narrower than the walker's own 0.30 m radius, so the pool's north side
+could not be entered at all. A navigation probe over the built scene confirmed it: 70 of 78 sample
+points along that walk failed `isSafe`, and the only walkable band was *behind* the loungers.
+
+Both rows now sit back against their own edges: the north row (and the three hot-tub-end beds) at
+z = 680, the south row at z = 859, hard against the z = 879 edge planter their backs already face.
+That leaves about 1.4 m of walk on each pool side — 0.78 m of free travel for the player's centre
+line on the north — with the rows still inside their own strips. The pool, coping, ladders, deck
+sofas and the east and west ends are untouched; the east walk past the sofa pairs was already
+1.35 m.
+
+Lounger positions are illustrative in the first place (the render shows the rows, not their
+setback), so this moves furniture within its own evidence, not against a measurement.
+
+**Superseded the same day** — see "One walk, not two" below. Pulling the north row back opened the
+pool side but closed the walk behind it, which is the route to the change rooms.
+
+### One walk, not two, on the pool's north side — September 12, 2026
+
+The user then could not reach the change rooms: the row at z = 680 left only 0.54 m behind it, and
+the gaps between adjacent beds are 0.54 m as well, so the row had become a wall across the deck.
+
+The band is the constraint. From the pergola posts (their faces reach z = 663.3) to the coping
+(z = 719.5) is 3.37 m. A 1.9 m lounger leaves 1.47 m, which is **one** usable walk, not two: split
+evenly it gives 0.73 m either side, and with the 0.30 m walker radius that is a 0.13 m margin on
+each — the scraping the user was reporting. The supplied render and IMG_4026 both settle it by
+putting the beds hard against the coping with the circulation behind them, so the model now does
+the same:
+
+- north row at z = 701, its feet 0.16 m off the coping, giving a continuous **1.3 m walk behind**
+  it that clears the pergola posts along the whole deck;
+- the beds at x = 375 and 396 are dropped for a **3 m aisle** onto the change rooms' entry court,
+  whose south wall opens between x = 355 and 407, so the change rooms, the pool edge and the north
+  ladder all connect;
+- the south row stays at z = 859 with its 1.4 m pool-side walk — that band is wider and takes one;
+- pool ladder rails now foot 5.5 trace units (0.33 m) off the water instead of 8.5 (0.51 m), which
+  is also closer to IMG_4028/4032; at 0.51 m they stood in the walk.
+
+Verified by probing `navigationWorld.isSafe()` over the built scene rather than by eye: the walk
+behind the row, the south walk and the change-room aisle are now clear at every sample point, and
+`verify-level6.cjs` asserts all three on every run.
+
+### The south garden's timber walk runs straight — September 12, 2026
+
+The user drew the walk's northeast edge as a straight line and asked for everything to be shifted
+off it. Measured against that edge — the line (697,882)–(911,1113), with the walk 34.6 trace units
+(2.08 m) wide — three things stood inside it:
+
+- the east-edge shelter's west edge, running 3.2 units in at its north corner and 13.1 at its
+  south, so it was not even parallel to the walk;
+- the triangular bed south of it, 12.3 units in;
+- the square bed north of it, 1.1 units in at one corner.
+
+All three walk-side edges now sit 2 units clear of that line and parallel to it, which leaves room
+for the 0.18 m perimeter beam and the planter coping that overhang each edge. The shelter is
+[[805.81,996.47],[908,921],[908,1019],[831.08,1023.74]], the triangular bed
+[[831.49,1024.28],[908,1019],[912.11,1111.19]], and the square bed is translated 3.1 units,
+keeping the sides parallel and square to the walk that IMG_3991 establishes.
+
+Two supporting fixes fell out of it. The rafter direction was hard-coded as (106,−79), the old west
+edge; it now comes from the shelter's own north edge, so rafters stay square to the beams when that
+edge moves. And the three round tables were hand-placed, the westernmost sitting 0.52 m off the
+shelter's west edge so its 0.95 m chair ring reached 0.43 m into the walk; they now sit on their
+bay centres, 6 units back from the walk side because the west bay is only 1.86 m across — narrower
+than a table and its chairs.
+
+**Planted beds no longer need copying into the navigation data.** `NavigationWorld`'s `BLOCKED`
+list held its own copies of the bed outlines, so a bed moved in `level6.js` kept blocking its old
+footprint — the walk stayed unwalkable after the beds came off it. `planter()` and
+`southPlanter()` now record every polygon they build, and the model pushes them into
+`navigation.blockedPolygons`; `BLOCKED` keeps only the pool and hot-tub water, which has no mesh
+of its own.
+
+### The walk-side bed squared to the walk — September 12, 2026
+
+Shifting that bed off the walk left it looking crooked because it was never parallel in the first
+place: its long sides ran at 49.8 degrees against the walk's 47.2, so a straight walk edge beside a
+2.6-degree skew read as a mistake. It is rebuilt in the walk's own frame —
+[[752.84,939.33],[783.28,911.12],[834.93,966.88],[804.48,995.08]], 41.5 by 76 trace units
+(2.5 by 4.6 m), long sides on the walk's bearing, walk-side edge 2 units clear like the shelter and
+the triangular bed.
+
+Its planting was wrong for the same reason. `bedSpread()` was fed the bed's *bounding box*, and a
+bed lying on the walk's diagonal has a bounding box as wide as its own diagonal — 4.9 m for a 2.5 m
+bed — so it kept a full 3.4 m crown and hung over the walk, and the crown was squashed along a
+world axis rather than across the bed. Beds now report their true width (the minimum over their
+own edge normals, `bedProfile()`), and `slimTree()` takes that edge's bearing so the crown is
+always narrowed across the bed, whichever way the bed runs. Flower clumps take the same spread on
+both axes. Axis-aligned beds are unaffected; the diagonal ones — this bed, the triangular bed, the
+south garden beds — are the ones that change.
+
+### Shelter posts clear of the planter walls — September 12, 2026
+
+The user reported the shelter's legs standing inside the planter walls beside them, and asked for
+touching but not overlapping. Two things caused it:
+
+- the posts were drawn centred on the shelter's outline, and that outline is also the beds' edge,
+  so every post buried half its 0.16 m width in the wall it stood against — 1.33 trace units;
+- the beds' coping is a 0.18 m rail drawn *on* the bed outline, so the wall face actually stands
+  0.09 m proud of the polygon, which no one had allowed for.
+
+Posts are now inset from every outline edge they stand on by the post's half width plus that
+0.09 m overhang (`POST = (.08 + .09) / U`), by way of each edge's inward normal, so a post face
+stops at the wall face. The beams stay on the outline itself, so the roof still reads at its
+traced size and overhangs the beds as it did.
+
+That cleared five of the six posts. The sixth, the northeast corner, sat exactly on the bocce-side
+bed's own corner, where the coping wraps both its edges, so that bed's shared vertex is pulled
+3 units (0.18 m) back off the shelter: `[[854,906],[908,857],[908,918],[870,926]]`. Measured on the
+resulting geometry, the closest post face now stands 1.1 cm off a wall face and the rest 1.2 to
+11.4 cm — touching, not overlapping.
+
+### The bocce-side bed carried down to the gazebo — September 12, 2026
+
+The user asked for that bed to reach the shelter rather than stop short of it, so its south edge now
+runs along the shelter's own north edge: from the shared corner (908,921) to (881.6,940.5), where
+the bed's west edge meets that edge. The bed is `[[854,906],[908,857],[908,921],[881.6,940.5]]`,
+replacing the 3-unit setback recorded above.
+
+That only works because the posts are inset, and the inset had to be computed properly first. The
+earlier version added the two edge offsets together, which is only correct at a right angle; the
+shelter's northeast corner is 126 degrees, so the post came out 1.15 units from the bed's edge
+instead of 2.92 and sat 10 cm inside the wall again. A corner post is now the intersection of its
+two edges each offset inward — exact at any angle — and the inset is the post's half width plus the
+coping's 0.09 m overhang plus 5 mm. Measured on the built coordinates: every post is inside the
+roof outline, and the tightest post face stands 0.5 cm off a wall face, the rest 0.6 to 3.8 cm.
+
+### The lawn carried down to the gazebo — September 12, 2026
+
+Same request for the grass. The bocce lawn's south edge still traced the two beds' *old* corners —
+(851,906), (871,928), (833,960), (784,908) — so once the beds moved it left a paved wedge between
+them and the shelter. It now follows the beds' current outlines and, between them, the shelter's
+own north edge: `[[698,834],[908,834],[908,857],[854,906],[881.6,940.5],[839.37,971.67],
+[834.93,966.88],[783.28,911.12],[748,937],[698,881]]`.
+
+(881.6,940.5) is the bocce-side bed's south corner, already on that edge; (839.37,971.67) is where
+the square bed's northeast edge, extended 6.5 units past its corner, meets the same edge. The lawn
+stops on the shelter outline rather than crossing it, so it abuts the shelter floor without
+overlapping, and it wraps both beds rather than running under them — the beds' stone rim sits at
+y = 0.06 and the grass at 0.08, so any overlap would show grass over the rim.
+
+### The square bed's two pale slivers — September 12, 2026
+
+Two strips of bare paving were left where the lawn met that bed: along its northwest end, because
+the lawn still turned at the old trace point (748,937) rather than the bed's real west corner
+(752.84,939.33); and across its southeast end, the 1.9-to-6.5 unit wedge between that end and the
+shelter's north edge, which the lawn had not been carried around at all.
+
+The lawn now turns the bed's southeast end — out along the shelter's north edge to its west corner
+(805.81,996.47), across to the bed's south corner (804.48,995.08) and back up the bed's end to
+(834.93,966.88) — and meets the bed's true west corner on the other side. The grass reaches the
+main lawn around the bed's east corner, where the 6.5 unit gap between the bed and the shelter
+edge is, so it is one polygon, not an island.
+
+### Shelter chairs tucked in — September 12, 2026
+
+The user's overheads showed chairs running through the crossbeams and their posts. Measured on the
+shelter: a bay is only 1.86 to 1.96 m between the crossbeam faces, while a table with its chairs at
+0.95 m spans 2.48 m, so a chair crossed a beam in every bay. Nothing collided in three dimensions —
+the beams are 2.36 m up and the posts stand on the edges — but the model reads as an overlap from
+above, and it is not how the furniture actually sits.
+
+Chairs are tucked to 0.55 m, which puts their seats under the 0.46 m table top and their backs
+0.84 m out, and each table is squared to its bay (`bayRot`, the shelter's own long axis) rather than
+sitting at the arbitrary 0.64 rad they carried before. Tables sit on their bay centres again; the
+0.36 m setback the wider ring needed is gone. Measured across all three bays, the chairs clear the
+beam faces by 1.8, 3.5 and 2.3 cm.
+
+Staggering the tables was the other option the user offered. It was not needed once the ring fits,
+and it would have broken the one-table-per-bay rhythm IMG_4021 shows.
+
+### Bench blocks removed from the garden walk — September 12, 2026
+
+The user marked every dark bench block along the northeast boardwalk and asked for them all to go.
+The eight blocks (the alternating `i % 2 ? 38 : 80` offsets along the walk parameter) are deleted,
+and the `L6-garden` description no longer claims "Dark bench blocks sit along both edges of the
+walk". Nothing else on that walk changes: the raised beds, their planting, the paving band and the
+walk-end pergola are untouched.
+
+
+### Gallery photo assignments (September 12, 2026)
+
+The user named four of their HEIC originals for specific rooms; the browser JPEG copies already
+existed in `public/photos`. Each now replaces the generic `amenity-deck-aerial.jpg` as the sole
+gallery image for its room: IMG_4029 (`site-4029.jpg`, change-room facade seen from the pool) on
+`L6-change`, IMG_3979 (`site-3979-lounge.jpg`, close overhead of the double-sided fireplace and its two sofa groups; a different frame from the existing wide-deck `site-3979.jpg`, which is left in place) on `L6-lounge`,
+IMG_3991 (`site-3991.jpg`, south garden pergola and round tables) on `L6-bbq-south`, and IMG_4038
+(`site-4038.jpg`, the blue playhouse on its tan pad) on `L6-bbq-north`. Photo assignment only — no
+geometry changed.

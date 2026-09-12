@@ -1,42 +1,75 @@
 import * as T from 'three';
+import {buildGardenTools} from './gardenTools.js';
+import {createGardenPlanterBuilder} from './gardenPlanter.js';
 import {buildPlayground} from './playground.js';
+import {buildElevatorLobby} from './elevatorLobby.js';
 import {buildChangeRoom} from './changeRoom.js';
 import {createLevel6Navigation} from './firstPerson/NavigationWorld.js';
 import {box,cyl,rod,mesh,makeGroup,shapeGeometry,sofa,chair,table,tree,mergeRoomGeometry,mats,canvasTexture} from './model.js';
 // Trace coordinates correspond to the supplied overhead render at 1855 × 1344.
-// Scale is illustrative: no measured Level 6 survey was supplied.
-const U=.065;
+// Scale is anchored on the user's 2026-09-12 tape measurements (MODEL-SOURCES.md):
+// a BBQ bay is 15 ft × 150 in with a 100 in gazebo, and the render's three bay
+// tables sit on a 68 px (65.7 trace unit) pitch, so one bay depth plus its gap
+// fixes a trace unit at ~.06 m. Every other deck dimension follows from it.
+const U=.06;
+// Measured on site: gazebo overall height, bay footprint, pool glass height.
+const PERGOLA_H=2.54,BAY_W=4.572/U,BAY_D=3.81/U,FENCE_H=2.032;
+// Posts carry .19 m of beam and slat above them, so they stop short of 2.54.
+const POST_H=PERGOLA_H-.19;
+// IMG_4005/IMG_4036: the deck's maples stand two to three times the height of
+// the .95 m BBQ counters in front of them, well clear of a walker's head. The
+// shared tree() primitive is 2.9 m tall at scale 1, so planting is sized from a
+// height in metres rather than an eyeballed scale.
+const treeH=m=>m/2.9;
+// Height comes from the species, spread from the bed: tree() carries a ~3.4 m
+// crown at deck height, which a .9 m planter cannot hold without swallowing the
+// walk beside it. Narrow beds keep the full height and squash the crown across
+// the bed only, so the row reads as the tall green strip the render shows.
+const CROWN=3.4;
+const bedSpread=(widthTraceUnits,U)=>Math.max(.34,Math.min(1,(widthTraceUnits*U+.8)/CROWN));
+// A bed's real width, not its bounding box: beds that run on the walk's diagonal
+// measured as wide as their bounding square and kept a full crown.
+const bedEdges=poly=>poly.map((p,i)=>{const q=poly[(i+1)%poly.length],len=Math.hypot(q[0]-p[0],q[1]-p[1])||1;
+ const dir=[(q[0]-p[0])/len,(q[1]-p[1])/len],nrm=[-dir[1],dir[0]];
+ return {dir,width:Math.max(...poly.map(r=>Math.abs((r[0]-p[0])*nrm[0]+(r[1]-p[1])*nrm[1])))};});
+const bedProfile=poly=>bedEdges(poly).reduce((a,b)=>b.width<a.width?b:a);
+// The crown is squashed across the bed whichever way the bed runs, so the group
+// carries the bed's own bearing and only its local x is scaled.
+const slimTree=(parent,x,z,metres,spread=1,rot=0)=>{
+ const g=makeGroup(parent,x,z,rot);tree(g,0,0,0,treeH(metres));g.scale.x=spread;return g;};
 const world=([x,z])=>[(x-910)*U,(z-670)*U];
 const rect=(x,z,w,d)=>[[x,z],[x+w,z],[x+w,z+d],[x,z+d]];
+// The three BBQ bays are centred on the render's three bay tables (px y
+// 333/401/469), one measured bay deep, leaving a .13 m gap between gazebos.
+const bayZ=[321.7,387.4,453.1],bbqBay=z=>rect(1086-BAY_W/2,z-BAY_D/2,BAY_W,BAY_D);
 const aerial='amenity-deck-aerial.jpg',terrace='bbq-firepit-terrace.jpg';
-const site=n=>`site-${n}.jpg`;
 const room=(id,name,polygon,photos,description,category='Outdoor',extra={})=>({id:`L6-${id}`,name,polygon,photos,description,category,kind:id,bookingUrl:null,...extra});
 const bookingBase='https://clubgilmore.perfectmind.com/Contacts/BookMe4LandingPages/Facility';
 const bookingQuery='widgetId=15f6af07-39c5-473e-b053-96653f77a406&calendarId=c82e88a4-5059-4c6e-bc5e-66f1a02d2d6a';
 const bbqBooking=facilityId=>`${bookingBase}?facilityId=${facilityId}&${bookingQuery}`;
 const bbqDescription=number=>`BBQ ${number} is a private pergola bay with a timber dining table, eight individual chairs and a freestanding stainless-steel grill beside the planted counter. Club Gilmore lists BBQ, table and chairs, shade gazebo, a maximum of eight people and a 2 hour 50 minute outdoor-seating reservation. Children are welcome above the stated eight-person limit.`;
 export const level6Rooms=[
- room('pool','Outdoor pool',rect(236,714,329,111),[site(4026),site(3983),site(3986),'outdoor-pool.jpg','outdoor-pool-sun-deck.jpg'],'Swim outdoors between the residential towers. The long rectangular pool has stone coping, stainless-steel entry rails and depth markings. Sun loungers line its north edge; the whole deck sits inside a glass safety enclosure.','Wellness'),
- room('hot-tub','Hot tub',rect(128,714,87,111),[site(3983),site(4026),'outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'The separate hot tub sits at the west end of the pool, beside the daybeds and landscaped pool perimeter. The pool-deck photographs show its surrounding setting.','Wellness'),
- room('sun-deck','Pool sun deck',[[40,596],[265,596],[265,611],[465,611],[465,596],[660,596],[660,901],[40,901]],[site(4035),site(4026),site(4025),site(3983),'outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'A paved pool terrace enclosed by a frameless glass safety fence on slim black posts, entered through a gated opening where the timber walkway meets the deck. The south and east strips hold timber-framed striped modular sectionals around teak coffee tables. Reclining loungers, rolled towels, two open slatted pergolas and circular daybeds remain along the north edge and the planted western edge.'),
- room('lounge','Outdoor fireplace & lounge',rect(695,280,215,358),[site(4036),site(4037),site(4010),site(3990),site(3979),site(3978)],'A double-sided dark stone fireplace separates two intimate seating groups. Each side has two facing grey sofas with timber frames, a lounge chair and small round wooden tables. Four picnic tables and two planted islands flank the seating. A long dark stone BBQ counter closes each end of the terrace, each with two freestanding stainless grills standing against its front face.','Social'),
- room('bocce','Bocce lawn',[[698,769],[909,769],[909,875],[772,972],[698,884]],[site(3980),site(3983),'bocce-court.jpg','bocce-court-and-pool.jpg'],'Two adjacent green strips sit south of the lounge, laid in putting turf with three flush cups. Pale boundary lines, low concrete planter walls, cantilevered timber bench seats and overhead string lights follow the actual court photographs.'),
- room('play','Children’s play area',[[1170,515],[1220,487],[1453,499],[1519,562],[1300,778],[1170,638]],['childrens-playground.jpg',site(3981),site(3982)],'A blue rubber play surface and adjoining tan climbing area are set into the eastern garden. A curved blue slide and adjacent double slide descend from a guarded hexagonal platform. A bowed climbing cage, access stairs and overhead traverse bar connect the play equipment. Linked grey, navy and orange pentagonal climbing pods occupy the tan surface.'),
- room('garden','Urban garden plots',[[1110,968],[1672.2,444],[1706,444],[1728,425],[1728,392],[1795,439],[1156,1028]],[site(3982),site(3981),site(4047),site(4013),aerial],'A dark timber boardwalk runs the full southeast diagonal, from the fire terrace to a slatted pergola at the point. A raised bed behind a pale concrete retaining wall fills the strip between the walk and the glass-railed parapet, and a second runs flush along the playground side, its wall in line with the walk and its far edge stopping at the turf apron that rings the play surfaces. Dark bench blocks sit along both edges of the walk. The bed is massed with white flowering shrubs, rust and blue-grey accents and occasional small trees, and the whole tip beyond the pergola is planted. A potting bench with a galvanised work surface and an open slatted shelf stands under the pergola at the end of the walk.'),
- room('fire','Fire pit terrace',[[1037,674],[1160,674],[1298,788],[1138,962],[1037,867]],[site(3989),terrace,aerial],'An open paved terrace between the east pergola and the southern tip. Its north side has a striped modular fire-pit lounge and a curved timber picnic table, open for public use. The bookable P18 fire-pit, table and BBQ area occupies the terrace’s south end.','Social'),
+ room('pool','Outdoor pool',rect(236,714,329,111),['outdoor-pool.jpg','outdoor-pool-sun-deck.jpg'],'Swim outdoors between the residential towers. The long rectangular pool has stone coping, stainless-steel entry rails and depth markings. Sun loungers line its north edge; the whole deck sits inside a glass safety enclosure.','Wellness'),
+ room('hot-tub','Hot tub',rect(128,714,87,111),['outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'The separate hot tub sits at the west end of the pool, beside the daybeds and landscaped pool perimeter. The pool-deck photographs show its surrounding setting.','Wellness'),
+ room('sun-deck','Pool sun deck',[[40,596],[265,596],[265,611],[465,611],[465,596],[660,596],[660,901],[40,901]],['outdoor-pool-sun-deck.jpg','outdoor-pool.jpg'],'A paved pool terrace enclosed by a frameless glass safety fence on slim black posts, entered through a gated opening where the timber walkway meets the deck. The south and east strips hold timber-framed striped modular sectionals around teak coffee tables. Reclining loungers, rolled towels, two open slatted pergolas and circular daybeds remain along the north edge and the planted western edge.'),
+ room('lounge','Outdoor fireplace & lounge',rect(695,280,215,358),['site-3979-lounge.jpg'],'A double-sided dark stone fireplace separates two intimate seating groups. Each side has two facing grey sofas with timber frames, a lounge chair and small round wooden tables. Four picnic tables and two planted islands flank the seating. A long dark stone BBQ counter closes each end of the terrace, each with two freestanding stainless grills standing against its front face.','Social'),
+ room('bocce','Bocce lawn',[[698,769],[909,769],[909,875],[772,972],[698,884]],['bocce-court.jpg','bocce-court-and-pool.jpg'],'Two adjacent green strips sit south of the lounge, laid in putting turf with three flush cups. Pale boundary lines, low concrete planter walls, cantilevered timber bench seats and overhead string lights follow the actual court photographs.'),
+ room('play','Children’s play area',[[1170,515],[1220,487],[1453,499],[1519,562],[1300,778],[1170,638]],['childrens-playground.jpg'],'A blue rubber play surface and adjoining tan climbing area are set into the eastern garden. A curved blue slide and adjacent double slide descend from a guarded hexagonal platform. A bowed climbing cage, access stairs and overhead traverse bar connect the play equipment. Linked grey, navy and orange pentagonal climbing pods occupy the tan surface.'),
+ room('garden','Urban garden plots',[[1110,968],[1672.2,444],[1706,444],[1728,425],[1728,392],[1795,439],[1156,1028]],[aerial],'A dark timber boardwalk runs the full southeast diagonal, from the fire terrace to a slatted pergola at the point. A raised bed behind a pale concrete retaining wall fills the strip between the walk and the glass-railed parapet, and a second runs flush along the playground side, its wall in line with the walk and its far edge stopping at the turf apron that rings the play surfaces. The bed is massed with white flowering shrubs, rust and blue-grey accents and occasional small trees, and the whole tip beyond the pergola is planted. A potting bench with a galvanised work surface and an open slatted shelf stands under the pergola at the end of the walk.'),
+ room('fire','Fire pit terrace',[[1037,674],[1160,674],[1298,788],[1138,962],[1037,867]],[terrace,aerial],'An open paved terrace between the east pergola and the southern tip. Its north side has a striped modular fire-pit lounge and a curved timber picnic table, open for public use. The bookable P18 fire-pit, table and BBQ area occupies the terrace’s south end.','Social'),
  // User's red outline (2026-09-11): P18 is the south fire lounge, its round table and the grill on the planter's southwest rim.
  room('p18','P18 – Firepit, Table & BBQ',[[1037,815],[1150,815],[1150,839],[1193,882],[1203,891],[1138,962],[1037,867]],['fire-pit-booking-1.jpg','fire-pit-booking-2.jpg','fire-pit-booking-3.jpg','fire-pit-booking-4.jpg'],'P18 combines a fire-pit lounge and BBQ dining space at the south end of the fire pit terrace. Club Gilmore lists a BBQ, fire pit, patio couch and picnic table, with room for sixteen people total: eight in the BBQ space and eight in the fire-pit area. The reservation duration is 2 hours 50 minutes. Striped modular sofas surround a low round fire bowl, beside a curved timber picnic table and a compact stainless-steel grill against the planter.','Social',{bookingUrl:bbqBooking('c9efdb01-612b-46b3-b371-a161fc97bf6b')}),
- room('bbq-north','North terrace & playhouse',[[660,110],[858,38],[916,102],[932,244],[698,244],[698,278],[660,278]],[site(4038),site(4040),site(3985),site(3984),site(3978)],'An open timber play shelter on navy posts sits on a circular tan rubber pad ringed in pale concrete and set into green turf. A vertical timber chime wall and a teal graphic panel run off its gable, with a play counter, steering wheels and low disc seats under the roof. The adjoining dark-clad stair pavilion has a gravel roof, two rooftop vents and a glazed bridge entrance. A picnic table sits beside the pavilion; pale paving and timber-look bands follow the actual terrace.','Social'),
- room('bbq-central','Bocce-side fireplace lounges',rect(690,653,225,113),[site(3992),site(3979),site(3983)],'Two dark stone fireplaces anchor the ends of this terrace beside the bocce lawn. Each lounge has facing grey sofas, two striped armchairs and a low white round table. A dark slatted dining table and six striped chairs sit between the lounges.','Social'),
- room('bbq-1','BBQ 1 – Table & Gazebo',rect(1046,302,80,58),['bbq-1-1.jpg','bbq-1-2.jpg','bbq-1-3.jpg','bbq-1-4.png'],bbqDescription(1),'Social',{bookingUrl:bbqBooking('e19d55a9-ba84-4359-82d4-9bca2c23ee1c')}),
- room('bbq-2','BBQ 2 – Table & Gazebo',rect(1046,363,80,58),['bbq-2-1.jpg','bbq-2-2.jpg','bbq-2-3.png'],bbqDescription(2),'Social',{bookingUrl:bbqBooking('3807e29f-a39b-4a63-9ece-192a29076d3e')}),
- room('bbq-3','BBQ 3 – Table & Gazebo',rect(1046,424,80,58),['bbq-3-1.jpg','bbq-3-2.jpg','bbq-3-3.jpg','bbq-3-4.png'],bbqDescription(3),'Social',{bookingUrl:bbqBooking('2ab1b95c-49b4-4399-9444-db49f5deade3')}),
- room('bbq-south','South garden & round tables',[[660,891],[696,891],[911,1114],[777,1227],[665,1260],[639,1244],[639,987]],[site(4021),site(3991),site(3980),site(3986),aerial],'A broad continuous lawn follows the angled timber walk. Planted beds wrap the slatted pergola, which shelters three round dining tables, each with four individual black chairs. Beyond the walk, one raised square tree planter and a black downlight post stand in the open turf. Perimeter planting and the small fire pit seating area continue toward the southern tip.','Social'),
- room('change','Pool change rooms',[[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]],[site(4029),site(4034),site(4028),aerial],'The pool change rooms open onto the north side of the sun deck. Outside, the charcoal-tiled facade has a recessed centre entrance, three stainless shower panels, a life ring, dual-height drinking fountains and a frosted storage door beneath a glass canopy. The roofless interior shows an accessible northwest wet room, five north washroom stalls, five west changing cubicles, four central showers opening to the north aisle, a separate two-head standing-shower bay, a three-basin vanity on the east wall, a southeast steam room and an L-shaped southwest storage room with its own door.','Wellness'),
+ room('bbq-north','North terrace & playhouse',[[660,110],[858,38],[916,102],[932,244],[698,244],[698,278],[660,278]],['site-4038.jpg'],'An open timber play shelter on navy posts sits on a circular tan rubber pad ringed in pale concrete and set into green turf. A vertical timber chime wall and a teal graphic panel run off its gable, with a play counter, steering wheels and low disc seats under the roof. The adjoining dark-clad elevator lobby has a gravel roof, round ceiling lights, pale tile walls, stainless elevator doors, a dark entry mat, safety panels and exit signage visible through the black-framed glass bridge entrance. A picnic table sits beside the pavilion; pale paving and timber-look bands follow the actual terrace.','Social'),
+ room('bbq-central','Bocce-side fireplace lounges',rect(690,653,225,113),[],'Two dark stone fireplaces anchor the ends of this terrace beside the bocce lawn. Each lounge has facing grey sofas, two striped armchairs and a low white round table. A dark slatted dining table and six striped chairs sit between the lounges.','Social'),
+ room('bbq-1','BBQ 1 – Table & Gazebo',bbqBay(bayZ[0]),['bbq-1-1.jpg','bbq-1-2.jpg','bbq-1-3.jpg','bbq-1-4.png'],bbqDescription(1),'Social',{bookingUrl:bbqBooking('e19d55a9-ba84-4359-82d4-9bca2c23ee1c')}),
+ room('bbq-2','BBQ 2 – Table & Gazebo',bbqBay(bayZ[1]),['bbq-2-1.jpg','bbq-2-2.jpg','bbq-2-3.png'],bbqDescription(2),'Social',{bookingUrl:bbqBooking('3807e29f-a39b-4a63-9ece-192a29076d3e')}),
+ room('bbq-3','BBQ 3 – Table & Gazebo',bbqBay(bayZ[2]),['bbq-3-1.jpg','bbq-3-2.jpg','bbq-3-3.jpg','bbq-3-4.png'],bbqDescription(3),'Social',{bookingUrl:bbqBooking('2ab1b95c-49b4-4399-9444-db49f5deade3')}),
+ room('bbq-south','South garden & round tables',[[660,891],[696,891],[911,1114],[777,1227],[665,1260],[639,1244],[639,987]],['site-3991.jpg'],'A broad continuous lawn follows the angled timber walk. Planted beds wrap the slatted pergola, which shelters three round dining tables, each with four individual black chairs. Beyond the walk, one raised square tree planter and a black downlight post stand in the open turf. Perimeter planting and the small fire pit seating area continue toward the southern tip.','Social'),
+ room('change','Pool change rooms',[[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]],['site-4029.jpg'],'The pool change rooms open onto the north side of the sun deck. Outside, the charcoal-tiled facade has a recessed centre entrance, three stainless shower panels, a life ring, dual-height drinking fountains and a frosted storage door beneath a glass canopy. The roofless interior shows an accessible northwest wet room, five north washroom stalls, five west changing cubicles, four central showers opening to the north aisle, a separate two-head standing-shower bay, a three-basin vanity on the east wall, a southeast steam room and an L-shaped southwest storage room with its own door.','Wellness'),
 ];
 export const level6Labels=['pool','hot-tub','lounge','bocce','play','garden','fire','p18','bbq-north','bbq-south','change'].map(id=>`L6-${id}`);
 export function createLevel6Model(){
- const root=new T.Group();root.name='Club Gilmore — Level 6';root.userData={level:6,units:'metres',scale:'Approximate; traced from undimensioned supplied render',source:'User floor plan, overhead render and actual amenity photos'};
+ const root=new T.Group();root.name='Club Gilmore — Level 6';root.userData={level:6,units:'metres',scale:'1 trace unit = .06 m, from the 2026-09-12 on-site measurements',source:'User floor plan, overhead render and actual amenity photos'};
  const props=new T.Group();root.add(props);
  const walkModeGates=[];
  const roomGroups=new Map(),floorMeshes=[],wallGroups=[],columnGroups=[];
@@ -52,6 +85,7 @@ export function createLevel6Model(){
  // terrace's charcoal paving grey rather than timber and pale tile, so the two
  // read as one material. This is the same #777b79 as fireCharcoal below.
  const paveGrey=mats.tilefloor.clone();paveGrey.color.set('#777b79');
+ paveGrey.shadowSide=T.BackSide;
  // Tree canopies hang from ~0.75 m; walkers brush through foliage, while trunks
  // and planter walls stay solid. Needed for the northeast planter walk (IMG_4005).
  mats.leaf.userData.collision=mats.leaflight.userData.collision=false;
@@ -107,17 +141,27 @@ export function createLevel6Model(){
  // to the coping. The pairs stand at the northwest corner (over a submerged
  // corner step), mid-way along the north edge, and on the south edge just short
  // of the southeast corner. (x,z) is the water edge; (dx,dz) points to the deck.
- const poolRail=(x,z,dx,dz)=>{const [a,b]=world([x+dx*8.5,z+dz*8.5]),[c,d]=world([x+dx*1.2,z+dz*1.2]);
+ // The deck foot sits 5.5 trace units (.33 m) off the water, not 8.5: at .51 m
+ // the rails pinched the north walk shut between the loungers and the coping.
+ const poolRail=(x,z,dx,dz)=>{const [a,b]=world([x+dx*5.5,z+dz*5.5]),[c,d]=world([x+dx*1.2,z+dz*1.2]);
   rod(props,[a,0,b],[a,.95,b],.035);rod(props,[a,.95,b],[c,.82,d],.035);rod(props,[c,.82,d],[c,.16,d],.035);};
  B(252,734,20,20,.186,mats.pooltile);B(249,731,14,14,.196,mats.pooltile);
  for(const z of [728,736.5])poolRail(242,z,-1,0);
  for(const x of [393.8,402.2])poolRail(x,724,0,-1);
  for(const x of [522.8,531.2])poolRail(x,814,0,1);
  const lounger=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.28,0,.73,.12,1.9,'oak');box(g,0,.39,.24,.65,.14,1.3,'linen');const back=box(g,0,.68,-.64,.65,.13,.8,'linen');back.rotation.x=.68;for(const xx of [-.28,.28])for(const zz of [-.7,.7])box(g,xx,.14,zz,.055,.28,.06,'oak');cyl(g,0,.52,.7,.12,.55,'white').rotation.z=Math.PI/2;};
- for(let x=270;x<560;x+=21){lounger(x,699);}
+ // User reports 2026-09-12. The band between the pergola posts (z=663.3) and the
+ // coping (719.5) is 3.37 m; a 1.9 m lounger leaves 1.47 m, which is one usable
+ // walk, not two — splitting it gave .73 m either side and the walker scraped
+ // both. The render and IMG_4026 both put the beds hard against the coping with
+ // the circulation behind them, so that is where the walk goes: 1.3 m clear.
+ // Two beds are dropped for a 3 m aisle onto the change rooms' entry court,
+ // whose south wall opens between x=355 and 407, so the pool edge, the ladder
+ // and the change rooms all connect.
+ for(let x=270;x<560;x+=21)if(x!==375&&x!==396)lounger(x,701);
  // South-side pairs, evenly spaced from the first (centre 286) so the last
  // bed's east side lines up with the pool's east coping edge (x=558.5).
- for(const c of [286,372.3,458.6,544.9])for(const d of [-8,8])lounger(c+d,852,Math.PI);for(const x of [145,198,249])lounger(x,698);for(const x of [145,170,207,230])lounger(x,852,Math.PI);
+ for(const c of [286,372.3,458.6,544.9])for(const d of [-8,8])lounger(c+d,859,Math.PI);for(const x of [145,198,249])lounger(x,701);for(const x of [145,170,207,230])lounger(x,859,Math.PI);
  // Pergola loungers on the north edge. User requests 2026-09-11: three added
  // beside the lone one under the west pergola; the east pergola's x=470 lounger
  // (hard against the change-room storage door) is removed. Each group centres
@@ -159,8 +203,8 @@ export function createLevel6Model(){
  const poolFence=(a,b)=>{
   const n=Math.max(1,Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])/24));
   const at=t=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
-  for(let i=0;i<n;i++)line(at(i/n),at((i+1)/n),1.72,fenceGlass,.022,.1);
-  for(let i=0;i<=n;i++){const [x,z]=at(i/n);B(x,z,1.5,1.5,1.86,fencePost);for(const y of [.3,.92,1.54])B(x,z,3.4,3.4,.11,fencePost,y);}
+  for(let i=0;i<n;i++)line(at(i/n),at((i+1)/n),1.9,fenceGlass,.022,.1);
+  for(let i=0;i<=n;i++){const [x,z]=at(i/n);B(x,z,1.5,1.5,FENCE_H,fencePost);for(const y of [.33,1.02,1.71])B(x,z,3.4,3.4,.11,fencePost,y);}
  };
  // The deck's north edge was an open slab edge and left the fence dead-ending
  // at a lone post. The aerial shows a solid concrete parapet there; closing it
@@ -172,13 +216,13 @@ export function createLevel6Model(){
  const poolGate=z=>{
   const g=makeGroup(props,...world([660,z]),Math.PI/2);g.name='Pool enclosure gate';
   walkModeGates.push(g);
-  for(const side of [-1,1])box(g,side*.55,.95,0,.1,1.9,.1,fencePost);
-  for(const y of [.14,1.8])box(g,0,y,0,1.1,.1,.1,fencePost);
-  box(g,0,.97,0,1.02,1.56,.024,fenceGlass);
-  cyl(g,.36,1,.08,.022,1.12,'metal');
+  for(const side of [-1,1])box(g,side*.55,FENCE_H/2,0,.1,FENCE_H,.1,fencePost);
+  for(const y of [.15,1.95])box(g,0,y,0,1.1,.1,.1,fencePost);
+  box(g,0,1.06,0,1.02,1.72,.024,fenceGlass);
+  cyl(g,.36,1.09,.08,.022,1.12,'metal');
  };
  poolGate(680);poolGate(824);
- const pergola=(x,z,w,d,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);for(const xx of [-1,1])for(const zz of [-1,1])box(g,xx*w*U/2,1.45,zz*d*U/2,.16,2.9,.16,metal);for(const zz of [-1,1])box(g,0,2.91,zz*d*U/2,w*U+.22,.2,.18,metal);for(let xx=-w*U/2;xx<=w*U/2;xx+=.23)box(g,xx,3.02,0,.085,.14,d*U+.25,metal);};
+ const pergola=(x,z,w,d,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);for(const xx of [-1,1])for(const zz of [-1,1])box(g,xx*w*U/2,POST_H/2,zz*d*U/2,.16,POST_H,.16,metal);for(const zz of [-1,1])box(g,0,POST_H+.01,zz*d*U/2,w*U+.22,.2,.18,metal);for(let xx=-w*U/2;xx<=w*U/2;xx+=.23)box(g,xx,POST_H+.12,0,.085,.14,d*U+.25,metal);};
  pergola(209,641,106,42);pergola(520,641,98,42);
  // IMG_4030: a long black open-cubby unit (2 rows × 17 bays) on a stainless
  // base stands against the north parapet, between the west planter and the
@@ -206,6 +250,7 @@ export function createLevel6Model(){
   box(bench,0,.85,z0,1.76,.1,.64,'oaklight');
   for(let i=0;i<4;i++)box(bench,0,.38,z0-.24+i*.16,1.68,.035,.12,'oak');
   for(const xx of [-.84,.84])for(const zz of [-.27,.27])box(bench,xx,.44,z0+zz,.085,.88,.085,'oaklight');
+  buildGardenTools(bench,z0);
  }
  // Open fabric shells need an interior face when viewed from the pool or in
  // first person. Clone linen so other furniture keeps its existing material.
@@ -220,8 +265,13 @@ export function createLevel6Model(){
   canopy.position.set(a,.66,b);canopy.rotation.y=-Math.PI/2;
   props.add(canopy);
  }
- // dz nudges the planting anchor across a narrow bed; treeScale trims canopy size.
- const planter=(poly,trees=true,dz=0,treeScale=1)=>{surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){tree(props,a,b,0,(.7+((x+z)%13)/32)*treeScale);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.18,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6,.74,b+Math.cos(k*2.4)*.6,1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.32,0),k%2?'leaf':'leaflight',a+k*.2,.8,b,.8,.7,.8);}}}};
+ // dz nudges the planting anchor across a narrow bed; treeScale trims the crown
+ // further, on top of the spread the bed's own width already sets.
+ // Raised beds are unsafe ground, and their outlines move often, so each one
+ // registers itself for the walking view instead of being copied by hand into
+ // NavigationWorld.
+ const beds=[];
+ const planter=(poly,trees=true,dz=0,treeScale=1)=>{beds.push(poly);surface(poly,stone,.06,.58);surface(poly,soil,.66);const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));const profile=bedProfile(poly),spread=bedSpread(profile.width,U)*treeScale,rot=Math.atan2(-profile.dir[0],-profile.dir[1]);for(let x=bounds.min.x+10;x<bounds.max.x-4;x+=26)for(let z=bounds.min.y+10;z<bounds.max.y-4;z+=26){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [a,b]=poly[i],[c,d]=poly[j];if((b>z)!==(d>z)&&x<(c-a)*(z-b)/(d-b)+a)inside=!inside;}if(inside){const [a,b]=world([x,z+dz]);if(trees){slimTree(props,a,b,3.5+((x+z)%13)/13,spread,rot);for(let k=0;k<7;k++)mesh(props,new T.IcosahedronGeometry(.2,0),k%5?flower:lavender,a+Math.sin(k*2.4)*.6*spread,.85,b+Math.cos(k*2.4)*.6*spread,1,.6,1);}else{for(let k=0;k<3;k++)mesh(props,new T.IcosahedronGeometry(.4,0),k%2?'leaf':'leaflight',a+k*.2,.95,b,.8,.7,.8);}}}};
  for(const p of [rect(40,596,25,304),rect(65,879,570,22),rect(699,280,208,32),rect(699,600,208,34),rect(699,357,32,201),rect(795,353,28,51),rect(795,510,28,51)])planter(p);
  // IMG_4005/IMG_4057 and the render crop: behind the pergola grills a paved walk
  // runs between two raised tree planters. The west bed's wall stands at
@@ -241,7 +291,18 @@ export function createLevel6Model(){
  // overhead. The neutral room-selection underlay remains available for picking,
  // while only these polygons receive grass.
  surface(rect(698,769,210,64),grass,.08);
- const southBocceLawn=[[698,834],[908,834],[908,856],[851,906],[871,928],[833,960],[784,908],[748,937],[698,881]];
+ // The lawn's south edge traced the two beds' old corners and left a paved wedge
+ // between them and the shelter. User request 2026-09-12: carry the grass down to
+ // the gazebo. It now wraps the beds' current outlines and runs along the
+ // shelter's own north edge between them, from the bocce-side bed's south corner
+ // (881.6,940.5) to where the square bed's northeast edge meets that edge.
+ const southBocceLawn=[[698,834],[908,834],[908,857],[854,906],[881.6,940.5],[839.37,971.67],
+  // User request 2026-09-12: the two pale slivers left at the square bed's ends.
+  // The grass now turns the bed's southeast end and fills the 1.9-to-6.5 unit
+  // wedge between that end and the shelter's north edge, and it meets the bed's
+  // real west corner (752.84,939.33) instead of the old trace point (748,937).
+  [805.81,996.47],[804.48,995.08],[834.93,966.88],
+  [783.28,911.12],[752.84,939.33],[698,881]];
  const southWestLawn=[[698,936],[698,1140],[772.4,1217.2],[881.1,1134.2]];
  surface(southBocceLawn,grass,.08);surface(southWestLawn,grass,.08);
  // A single 1.5-trace (about 0.10 m) pale divider follows the lawn's straight
@@ -253,9 +314,18 @@ export function createLevel6Model(){
  // IMG_3991: the open-turf tree planter is a true square whose sides run parallel
  // and square to the timber walk, not the lopsided quadrilateral traced before.
  const southBeds=[
-  [[752,939],[784,912],[833,970],[802,997]],
-  [[854,906],[908,857],[908,921],[870,929]],
-  [[821,1034],[908,1019],[908,1115]],
+  // Same correction, and the bed was 2.6 degrees out of parallel with the walk on
+  // top of it, which is what read as crooked beside a straight edge. Rebuilt in
+  // the walk's own frame: 41.5 by 76 trace units (2.5 by 4.6 m), its long sides
+  // on the walk's bearing and its walk-side edge 2 units clear like the others.
+  [[752.84,939.33],[783.28,911.12],[834.93,966.88],[804.48,995.08]],
+  // User request 2026-09-12: carry this bed down to the gazebo. Its south edge
+  // now runs on the shelter's own north edge, from the shared corner (908,921)
+  // to where the bed's west edge meets that edge at (881.6,940.5). The posts are
+  // inset by their half width plus the coping overhang, so the wall face lands
+  // against the post faces: touching, with nothing overlapping.
+  [[854,906],[908,857],[908,921],[881.6,940.5]],
+  [[831.49,1024.28],[908,1019],[912.11,1111.19]],
   [[776.5,1024.2],[806.3,1056.5],[774,1086.3],[744.2,1054]],
   [[637,958],[651,960],[651,1243],[665,1260],[639,1244]]
  ];
@@ -281,17 +351,18 @@ export function createLevel6Model(){
   [[644,995],[644,1072],[645,1150],[650,1225]]
  ];
  const southPlanter=(poly,treesAt=[],palette=null,step=0,clearance=null)=>{
-  surface(poly,stone,.06,.58);surface(poly,soil,.66);
+  beds.push(poly);surface(poly,stone,.06,.58);surface(poly,soil,.66);
   for(let i=0;i<poly.length;i++)line(poly[i],poly[(i+1)%poly.length],.2,stone,.18,.59);
   const bounds=new T.Box2().setFromPoints(poly.map(p=>new T.Vector2(...p)));
-  const narrow=bounds.max.x-bounds.min.x<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9);
+  const profile=bedProfile(poly),rot=Math.atan2(-profile.dir[0],-profile.dir[1]);
+  const narrow=bounds.max.x-bounds.min.x<20,stepX=step||(narrow?5:9),stepZ=step||(narrow?12:9),spread=bedSpread(profile.width,U);
   for(let x=bounds.min.x+3;x<bounds.max.x-2;x+=stepX)for(let z=bounds.min.y+3;z<bounds.max.y-2;z+=stepZ)if(insidePolygon(x,z,poly)){
    const jitter=Math.sin(x*1.73+z*.91),[wx,wz]=world([x+jitter*1.2,z+Math.cos(x*.47-z)*1.2]);
    if(clearance&&!clearance(x+jitter*1.2,z+Math.cos(x*.47-z)*1.2))continue;
    const material=palette?palette[Math.round(x*2+z)%palette.length]:(Math.round(x+z)%5===0)?flower:(Math.round(x*2+z)%7===0)?lavender:(Math.round(x+z)%2?'leaflight':'leaf');
    mesh(props,new T.IcosahedronGeometry(.13+(Math.abs(jitter)*.05),0),material,wx,.79+(Math.abs(jitter)*.06),wz,.9,.65,.9);
   }
-  for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);tree(props,wx,wz,0,.62);}
+  for(const [x,z] of treesAt){const [wx,wz]=world([x,z]);slimTree(props,wx,wz,3.4,spread,rot);}
  };
  southBeds.forEach((bed,i)=>southPlanter(bed,southTreeAnchors[i]));
  // IMG_3991: the second user-marked object is a single black post light in
@@ -308,17 +379,46 @@ export function createLevel6Model(){
  // The east-edge shelter is a clipped quadrilateral in the overhead. Every
  // rafter is clipped to the perimeter beams, and two crossbeams divide three
  // supported bays; no roof member stops in mid-air.
- const southPergola=[[802,1000],[908,921],[908,1019],[820,1034]];
+ // User correction 2026-09-12: the shelter's west edge ran 3.2 to 13.1 trace units
+ // into the timber walk and out of parallel with it, which bent the walk's edge.
+ // Both corners now sit 2 units clear of the walk's northeast edge — the line
+ // (697,882)-(911,1113) — so the edge reads straight for the whole run.
+ const southPergola=[[805.81,996.47],[908,921],[908,1019],[831.08,1023.74]];
  surface(southPergola,mats.tilefloor,.125);
- for(let i=0;i<4;i++)line(southPergola[i],southPergola[(i+1)%4],.18,metal,.18,2.82);
+ for(let i=0;i<4;i++)line(southPergola[i],southPergola[(i+1)%4],.18,metal,.18,POST_H-.08);
  const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
- const pergolaSupports=[...southPergola];
+ // User correction 2026-09-12: the posts were centred on the shelter's outline,
+ // which is also the planter walls' edge, so each one buried half its width in
+ // the wall beside it. Each post is inset by that half width from every outline
+ // edge it stands on, leaving its faces flush with the outline — touching the
+ // planters, not inside them. The beams stay on the outline itself.
+ const centre=southPergola.reduce((s,p)=>[s[0]+p[0]/4,s[1]+p[1]/4],[0,0]);
+ const inward=(a,b)=>{const len=Math.hypot(b[0]-a[0],b[1]-a[1])||1,n=[-(b[1]-a[1])/len,(b[0]-a[0])/len];
+  const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  return (centre[0]-m[0])*n[0]+(centre[1]-m[1])*n[1]<0?[-n[0],-n[1]]:n;};
+ // Inset by the post's half width plus the .09 m the planters' coping overhangs
+ // their outline, plus 5 mm, so a post face stops just short of the wall face.
+ const POST=(.085+.09)/U;
+ const shift=([a,b],p)=>{const d=inward(a,b);return [p[0]+d[0]*POST,p[1]+d[1]*POST];};
+ // A corner post is the intersection of both its edges offset inward. Adding the
+ // two offsets instead only works on a right angle: at this shelter's 126-degree
+ // northeast corner it under-insets, which put the post back in the wall.
+ const corner=(e1,e2,p)=>{const p1=shift(e1,p),p2=shift(e2,p);
+  const d1=[e1[1][0]-e1[0][0],e1[1][1]-e1[0][1]],d2=[e2[1][0]-e2[0][0],e2[1][1]-e2[0][1]];
+  const den=d1[0]*d2[1]-d1[1]*d2[0];if(!den)return p1;
+  const t=((p2[0]-p1[0])*d2[1]-(p2[1]-p1[1])*d2[0])/den;
+  return [p1[0]+d1[0]*t,p1[1]+d1[1]*t];};
+ const sp=southPergola,edge=i=>[sp[i],sp[(i+1)%4]];
+ const pergolaSupports=sp.map((p,i)=>corner(edge((i+3)%4),edge(i),p));
  for(const t of [1/3,2/3]){
-  const a=lerp(southPergola[0],southPergola[1],t),b=lerp(southPergola[3],southPergola[2],t);
-  line(a,b,.14,metal,.14,2.91);pergolaSupports.push(a,b);
+  const a=lerp(sp[0],sp[1],t),b=lerp(sp[3],sp[2],t);
+  line(a,b,.14,metal,.14,POST_H+.01);pergolaSupports.push(shift(edge(0),a),shift(edge(2),b));
  }
- for(const [x,z] of pergolaSupports){const [wx,wz]=world([x,z]);box(props,wx,1.45,wz,.16,2.9,.16,metal);}
- const rafterLength=Math.hypot(106,79),rafterDirection=[106/rafterLength,-79/rafterLength];
+ for(const [x,z] of pergolaSupports){const [wx,wz]=world([x,z]);box(props,wx,POST_H/2,wz,.16,POST_H,.16,metal);}
+ // Taken from the shelter's own north edge so the rafters stay square to the
+ // perimeter beams when that edge moves.
+ const rafterSpan=[southPergola[1][0]-southPergola[0][0],southPergola[1][1]-southPergola[0][1]];
+ const rafterLength=Math.hypot(...rafterSpan),rafterDirection=rafterSpan.map(v=>v/rafterLength);
  const rafterNormal=[-rafterDirection[1],rafterDirection[0]];
  const projection=(p,axis)=>p[0]*axis[0]+p[1]*axis[1];
  const normalRange=southPergola.map(p=>projection(p,rafterNormal));
@@ -332,7 +432,7 @@ export function createLevel6Model(){
    if(t>=-1e-6&&t<=1+1e-6){const point=lerp(a,b,t),along=projection(point,rafterDirection);if(!hits.some(h=>Math.abs(h.along-along)<.01))hits.push({point,along});}
   }
   hits.sort((a,b)=>a.along-b.along);
-  if(hits.length>1)line(hits[0].point,hits[hits.length-1].point,.075,metal,.075,2.99);
+  if(hits.length>1)line(hits[0].point,hits[hits.length-1].point,.075,metal,.075,POST_H+.09);
  }
  // level-6-render.png, southeast wedge: a dark timber boardwalk runs the whole
  // diagonal with two raised beds between it and the parapet and one more on the
@@ -388,13 +488,22 @@ export function createLevel6Model(){
   .filter(([x,z])=>playClearance(x,z,.76/U)>0);
  southPlanter(playgroundPlanter,playgroundTrees,eastPalette,5,(x,z)=>playClearance(x,z,.19/U)>0);
  // The render carries a few small trees in the parapet-side bed.
- for(const t of [.28,.55,.8]){const [x,z]=world(at(t,20));tree(props,x,z,0,.6);}
+ for(const t of [.28,.55,.8]){const [x,z]=world(at(t,20));slimTree(props,x,z,3.2,.62);}
  surface(band(.012,.86,35,83),paveGrey,.075);
- // Dark bench blocks alternate along the walk. Blocks 0 and 2 are skipped: 0
- // landed inside the fire-terrace round table's curved benches, 2 against the
- // three-bay pergola's corner post. The rest keep their spacing.
- for(let i=0;i<10;i++){if(i===0||i===2)continue;const t=.05+i*.078,off=i%2?38:80;line(at(t,off),at(t+.028,off),.42,metal,.5,.075);}
- const picnic=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.78,0,2.4,.09,.95,'oak');for(const xx of [-.8,.8])box(g,xx,.38,0,.18,.72,.65,metal);for(const zz of [-.8,.8]){box(g,0,.46,zz,2.5,.12,.35,'oak');for(const xx of [-.8,.8])box(g,xx,.23,zz,.1,.45,.28,metal);}};
+ // Two rows of soil-filled growing boxes match the marked garden strip.
+ const gardenBox=createGardenPlanterBuilder();
+ const gardenCut=.328;
+ for(let i=0;i<5;i++)for(const [row,off] of [40.5,77.5].entries()){
+  const [x,z]=world(at(.455+i*.078,off));
+  gardenBox(props,x,z,.069*edgeLen*U,-Math.atan2(edgeDir[1],edgeDir[0]),i*2+row);
+ }
+ // Three additional boxes in the user's marked southwest gaps.
+ for(const [i,[t,off,span]] of [[.354,77.5,.124],[.318,40.5,.052],[.386,40.5,.054]].entries()){
+  const start=Math.max(t-span/2,gardenCut),end=t+span/2;
+  const [x,z]=world(at((start+end)/2,off));
+  gardenBox(props,x,z,(end-start)*edgeLen*U,-Math.atan2(edgeDir[1],edgeDir[0]),10+i);
+ }
+ const picnic=(x,z,rot=0)=>{const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);box(g,0,.675,0,2.35,.09,.9,'oak');for(const xx of [-.78,.78])box(g,xx,.315,0,.18,.63,.6,metal);for(const zz of [-.7,.7]){box(g,0,.395,zz,2.45,.09,.35,'oak');for(const xx of [-.78,.78])box(g,xx,.175,zz,.1,.35,.28,metal);}};
  // User correction: nothing sits under the northeast pergola — the picnic table
  // that stood at the end of the walk is removed.
  picnic(880,115,Math.PI/2);
@@ -526,18 +635,32 @@ export function createLevel6Model(){
  // IMG_4021: this pergola shelters three round dining tables, each with four
  // individual black chairs — teak tops on pale pedestals, not the curved-bench
  // picnic tables that belong on the fire-pit terrace. Placed on the bay axis.
- const cafeTable=(x,z)=>{
-  const [a,b]=world([x,z]),g=makeGroup(props,a,b,.64);g.name='Round dining table and four chairs';
+ const cafeTable=(x,z,rot=.64)=>{
+  const [a,b]=world([x,z]),g=makeGroup(props,a,b,rot);g.name='Round dining table and four chairs';
   cyl(g,0,.735,0,.46,.05,'oak');cyl(g,0,.765,0,.09,.02,'white');
   cyl(g,0,.36,0,.1,.7,'ivory');cyl(g,0,.045,0,.27,.09,'ivory');
-  for(let i=0;i<4;i++){const t=i*Math.PI/2;chair(g,Math.sin(t)*.95,Math.cos(t)*.95,t+Math.PI,'black');}
+  // User correction 2026-09-12: a bay measures only 1.86-1.96 m between the
+  // crossbeams, so a .95 m chair ring ran straight through them. Chairs are tucked
+  // to .55 m — seats under the .46 m table top, backs .84 m out — and squared to
+  // the bay instead of sitting at an arbitrary angle. Measured on the built
+  // geometry, that clears the beam faces by 1.8 to 3.5 cm in all three bays.
+  for(let i=0;i<4;i++){const t=i*Math.PI/2;chair(g,Math.sin(t)*.55,Math.cos(t)*.55,t+Math.PI,'black');}
  };
- for(const [x,z] of [[831.4,1014.4],[859.5,993.5],[887.6,972.6]])cafeTable(x,z);
+ // Placed on each bay's own centre rather than by hand: the first table sat .52 m
+ // off the shelter's west edge, so its chair ring reached .43 m into the timber
+ // walk, and hand coordinates go stale whenever that edge moves.
+ const bayCentre=t=>{const a=[southPergola[0],southPergola[1]],b=[southPergola[3],southPergola[2]];
+  const mid=([p,q])=>[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t],m=mid(a),k=mid(b);
+  return [(m[0]+k[0])/2,(m[1]+k[1])/2];};
+ // Tucked chairs fit the bays from their centres, so the .36 m setback the wider
+ // ring needed is gone; each table sits on its bay's centre, squared to the bay.
+ const bayRot=-Math.atan2(sp[1][1]-sp[0][1],sp[1][0]-sp[0][0]);
+ for(const t of [1/6,.5,5/6])cafeTable(...bayCentre(t),bayRot);
 
  // User's overhead close-up: three lengthwise dining tables, each with its own
  // grill against the planted (east) edge. Table axes follow the three-bay run.
- for(const z of [331,392,453]){
-  pergola(1086,z,80,58);
+ for(const z of bayZ){
+  pergola(1086,z,BAY_W,BAY_D);
   const [tx,tz]=world([1074,z]),dining=makeGroup(props,tx,tz,Math.PI/2);
   dining.name='Pergola dining table and eight chairs';
   box(dining,0,.78,0,2.15,.09,.96,'oak');
@@ -560,10 +683,10 @@ export function createLevel6Model(){
  const pergolaCenter=[1216.18,763],pergolaAngle=-.832,PU=71,PV=24;
  const pergolaAt=(u,v=0)=>[pergolaCenter[0]+Math.cos(pergolaAngle)*u+Math.sin(pergolaAngle)*v,pergolaCenter[1]-Math.sin(pergolaAngle)*u+Math.cos(pergolaAngle)*v];
  const [pgx,pgz]=world(pergolaCenter),playPergola=makeGroup(props,pgx,pgz,pergolaAngle);playPergola.name='Three-bay playground-side dining pergola';
- for(const u of [-PU,-25,25,PU])for(const v of [-PV,PV])box(playPergola,u*U,1.45,v*U,.16,2.9,.16,metal);
- for(const v of [-PV,PV])box(playPergola,0,2.91,v*U,2*PU*U+.22,.2,.18,metal);
- for(const u of [-PU,-25,25,PU])box(playPergola,u*U,2.91,0,.18,.2,2*PV*U+.22,metal);
- for(const bay of [-50,0,50])for(let u=-20;u<=20;u+=4)box(playPergola,(bay+u)*U,3.02,0,.075,.14,2*PV*U+.25,metal);
+ for(const u of [-PU,-25,25,PU])for(const v of [-PV,PV])box(playPergola,u*U,POST_H/2,v*U,.16,POST_H,.16,metal);
+ for(const v of [-PV,PV])box(playPergola,0,POST_H+.01,v*U,2*PU*U+.22,.2,.18,metal);
+ for(const u of [-PU,-25,25,PU])box(playPergola,u*U,POST_H+.01,0,.18,.2,2*PV*U+.22,metal);
+ for(const bay of [-50,0,50])for(let u=-20;u<=20;u+=4)box(playPergola,(bay+u)*U,POST_H+.12,0,.075,.14,2*PV*U+.25,metal);
  const patioChair=(parent,x,z,rotation=0)=>{const g=makeGroup(parent,x,z,rotation);box(g,0,.43,0,.48,.1,.5,fireFrame);box(g,0,.72,-.22,.48,.52,.08,fireFrame);for(const sx of [-1,1])for(const sz of [-1,1])box(g,sx*.17,.18,sz*.17,.045,.35,.045,fireFrame);};
  // IMG_4009: each table sits across its bay, square to the three-bay run, not
  // end-to-end along it. User correction: the wall-side end chair now meets the
@@ -607,7 +730,7 @@ export function createLevel6Model(){
   for(let i=0;i<6;i++){const a=i*1.07+px*.09;mesh(props,new T.ConeGeometry(.045,.48+(i%3)*.08,5),i%3?'leaflight':flower,x+Math.cos(a)*.32,.9,z+Math.sin(a)*.26,.65,1,.65);}
   for(let i=0;i<3;i++){const a=i*2.1;mesh(props,new T.IcosahedronGeometry(.17+(i%2)*.07,0),i%2?flower:lavender,x+Math.cos(a)*.35,.88,z+Math.sin(a)*.28,.8,.75,.8);}
  }
- for(const [tx,tz] of [[1169,784],[1185,821]]){const [x,z]=world([tx,tz]);tree(props,x,z,0,.5);}
+ for(const [tx,tz] of [[1169,784],[1185,821]]){const [x,z]=world([tx,tz]);slimTree(props,x,z,2.8,.7);}
  // IMG_4010: these read as plain black boxes because the hood used the dark local
  // `metal`, not stainless. Rebuilt to the same idiom as the counter BBQs above —
  // stainless firebox and rounded lid, black fascia, steel knobs, dark cabinet.
@@ -684,7 +807,19 @@ export function createLevel6Model(){
  // up to the planter's start at t=.427, and on its west side out to the dining
  // pergola, just clear of its turf-side post faces (v=-25.23), from the walk-end
  // post line (u=72.23) to where that line meets the x=1175.5 west edge (u≈-88.2).
- surface([[1175.5,510.5],[1240,493],[1470,502],[1504,554],at(.427,83),pergolaAt(72.23,-25.3),pergolaAt(-88.2,-25.3)],grass,.08);
+ const playLawn=[[1175.5,510.5],[1240,493],[1470,502],[1504,554],at(.427,83),pergolaAt(72.23,-25.3),pergolaAt(-88.2,-25.3)];
+ // Clip the lawn to the same cross-walk line as the two shortened boxes.
+ const clipLawn=keepEast=>{
+  const distance=p=>((p[0]-edgeA[0])*edgeDir[0]+(p[1]-edgeA[1])*edgeDir[1])-gardenCut*edgeLen;
+  const result=[];
+  for(let i=0;i<playLawn.length;i++){
+   const a=playLawn[i],b=playLawn[(i+1)%playLawn.length],da=distance(a),db=distance(b);
+   if(keepEast?da>=0:da<=0)result.push(a);
+   if((da<0)!==(db<0)){const t=da/(da-db);result.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+  }
+  return result;
+ };
+ surface(clipLawn(true),grass,.08);surface(clipLawn(false),paveGrey,.075);
  const circle=(x,z,r,material,y=.11)=>{const [a,b]=world([x,z]);mesh(props,new T.CylinderGeometry(r*U,r*U,.04,64),material,a,y,b);};circle(1293,635,89,stone);circle(1293,635,86,rubber,.14);circle(1386,586,63,stone);circle(1386,586,60,tan,.17);
  const [px,pz]=world([1286,626]),[podX,podZ]=world([1386,586]);buildPlayground(props,px,pz,podX,podZ);
  // Change-room geometry is kept in its own module because the annotated fit-out
@@ -759,16 +894,35 @@ export function createLevel6Model(){
  for(const [a,b] of [[[846,158],[930,158]],[[930,158],[930,240]],[[930,240],[846,240]],[[846,240],[846,158]]])line(a,b,.24,metal,.18,3.63);
  for(const [x,z,w,d] of [[907,220,18,16],[874,221,12,12]]){B(x,z,w,d,.42,mats.metal,3.76);B(x,z,w+2,d+2,.055,mats.white,4.18);}
  for(let i=0;i<10;i++){const [a,b]=world([851+i*5,159]);cyl(props,a,3.92,b,.075,.32,'white');}
- // Glazing wraps the bridge-side corner; the former west doorway is solid cladding.
- B(930,219,1,40,3.25,mats.glass,.12);
+ // Photo-based interior partitions sit inside the existing exterior footprint.
+ const [lobbyX,lobbyZ]=world([882,190]);
+ const lobby=buildElevatorLobby(props,lobbyX,lobbyZ);
+ // Bridge-side glazing has a door-height transom and a narrow active door leaf.
+ B(930,219,1,40,3.25,lobby.glass,.12).castShadow=false;
  for(const z of [199,212,225,239])B(930.5,z,1,1,3.4,metal);
- B(930.5,219,1,40,.07,metal,1.72);
- B(910,240,40,1,3.25,mats.glass,.12);
- for(const x of [890,903,916,930])B(x,240.5,1,1,3.4,metal);
- B(910,240.5,40,1,.07,metal,1.72);
- B(910,241,1,1,.55,mats.metal,.75);
+ B(930.5,219,1,40,.07,metal,2.48);
+ B(901.5,240,23,.3,2.36,lobby.glass,.12).castShadow=false;
+ B(910,240,40,.3,.82,lobby.glass,2.55).castShadow=false;
+ for(const x of [890,913,930])B(x,240.5,1,1,3.4,metal);
+ B(910,240.5,40,1,.07,metal,2.48);
+ B(910,240.5,40,1,.065,metal,.12);
+ // Keep the leaf outside the static merge so walk mode can swing it inward.
+ const [doorX,doorZ]=world([929.5,240.5]);
+ const lobbyDoor=makeGroup(props,doorX,doorZ);lobbyDoor.name='Elevator lobby entrance door';
+ lobbyDoor.userData.openYaw=-Math.PI/2;
+ const doorWidth=16*U,doorBottom=.17,doorHeight=2.29;
+ box(lobbyDoor,-doorWidth/2,doorBottom+doorHeight/2,0,doorWidth-.06,doorHeight-.08,.018,lobby.glass).castShadow=false;
+ for(const x of [-doorWidth+.025,-.025])box(lobbyDoor,x,doorBottom+doorHeight/2,0,.05,doorHeight,.055,metal);
+ for(const y of [doorBottom+.025,doorBottom+doorHeight-.025])box(lobbyDoor,-doorWidth/2,y,0,doorWidth,.05,.055,metal);
+ box(lobbyDoor,-doorWidth/2,1.1,.075,doorWidth-.14,.035,.04,mats.metal);
+ for(const x of [-doorWidth+.09,-.09])box(lobbyDoor,x,1.1,.045,.045,.09,.09,mats.metal);
+ for(const y of [.46,2.01])box(lobbyDoor,0,y,0,.06,.12,.07,metal);
+ box(lobbyDoor,-.4,2.39,.04,.3,.065,.06,metal);
+ walkModeGates.push(lobbyDoor);
+ B(930.9,224,.5,2.7,.21,metal,1.3);
  surface(rect(889,241,42,25),mats.woodfloor,.17);
- surface(rect(890,241,40,24),mats.glass,2.65);
+ for(let z=241;z<244;z+=.45)B(910,z,40,.17,.012,mats.metal,.18);
+ surface(rect(890,241,40,24),lobby.glass,2.65);
  for(const x of [890,903,916,930])line([x,240],[x,265],.1,metal,.08,2.65);
  // Lower Level 4 glimpses keep the light wells open while matching the photographs.
  // IMG_4015/4016 and the IMG_3979 aerial: the turf does not stop at the bridge. It
@@ -844,6 +998,6 @@ export function createLevel6Model(){
  for(const gate of walkModeGates){mergeRoomGeometry(gate);gate.removeFromParent();}
  mergeRoomGeometry(walls);walls.removeFromParent();mergeRoomGeometry(walkModeWalls);mergeRoomGeometry(props);props.add(walls,walkModeWalls,...walkModeGates);
  const navigation=createLevel6Navigation();
- navigation.blockedPolygons.push(playgroundPlanter.map(p=>new T.Vector2(...world(p))));
+ navigation.blockedPolygons.push(...[playgroundPlanter,...beds].map(poly=>poly.map(p=>new T.Vector2(...world(p)))));
  root.updateMatrixWorld(true);return {root,roomGroups,floorMeshes,wallGroups,columnGroups,bounds:new T.Box3().setFromObject(root),mats,navigation,walkModeGates,walkModeWalls};
 }

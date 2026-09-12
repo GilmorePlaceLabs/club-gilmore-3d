@@ -249,7 +249,7 @@ function updateLevelUI(){
  $('first-person-button').hidden=!model.navigation;
  $('level-4').setAttribute('aria-pressed',String(activeLevel===4));$('level-6').setAttribute('aria-pressed',String(activeLevel===6));
  $('level-meta').textContent=`LEVEL 0${activeLevel}`;document.title=`Club Gilmore · Explore Level ${activeLevel}`;
- $('scale-distance').parentElement.hidden=activeLevel===6;
+ $('scale-distance').parentElement.hidden=false;
  $('reference-links').hidden=activeLevel!==6;
  $('walls').setAttribute('aria-pressed','false');$('walls').disabled=activeLevel===6;
  document.querySelector('.view-heading p').textContent=activeLevel===6?'Outdoor living, above it all. Explore Level 6.':'Find your space. Take a closer look.';

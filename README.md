@@ -31,7 +31,7 @@ npm run dev      # vite dev server, fixed at http://127.0.0.1:4173
 
 Drag to orbit, right-drag to pan, scroll or pinch to zoom. Keyboard users can select from the room list and use the view buttons; arrow keys pan when the canvas has focus. Below 760 px the viewer shows either the room browser or the detail sheet, never both, and touch targets stay at 44 px minimum.
 
-**Go into first person** walks Level 6 at a 1.68 m eye height: WASD or the arrow keys to walk, the mouse to look, Space to jump, Shift to run and Esc to pause. Pool gates slide and hinged doors swing open for the walk. The change-room partitions and stall doors rise to the full 3 m wall height so you cannot see over them; the orbit view keeps them low.
+**Go into first person** walks Level 6 as a 5 ft 10 in (1.778 m) person, eyes at 1.664 m: WASD or the arrow keys to walk, the mouse to look, Space to jump, Shift to run and Esc to pause. Pool gates slide and hinged doors swing open for the walk. The change-room partitions and stall doors rise to the full 3 m wall height so you cannot see over them; the orbit view keeps them low.
 
 ## How it is built
 

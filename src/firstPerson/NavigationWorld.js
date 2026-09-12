@@ -2,7 +2,8 @@ import * as THREE from 'three';
 
 // These are deliberately authored from the Level 6 slab outlines, rather than
 // inferred from the room hit areas.  Coordinates below are trace coordinates.
-const SCALE = 0.065;
+// Must match U in level6.js (2026-09-12 measured deck scale).
+const SCALE = 0.06;
 const traceToWorld = ([x, z]) => new THREE.Vector2((x - 910) * SCALE, (z - 670) * SCALE);
 const polygon = points => points.map(traceToWorld);
 const rectangle = (x, z, width, depth) => polygon([[x, z], [x + width, z], [x + width, z + depth], [x, z + depth]]);
@@ -18,24 +19,18 @@ const WALKABLE = [
   rectangle(932,638,105,35),
   polygon([[267,456],[283,456],[283,427],[429,427],[429,452],[461,452],[465,611],[267,611]]),
   // The bridge lands on the main slab at trace x=933 while that slab ends at
-  // x=932.  This one-trace-unit (0.065m) connector closes only that authored
+  // x=932.  This one-trace-unit (0.06m) connector closes only that authored
   // drafting seam; it does not span either light well.
   polygon([[932,274],[933,274],[933,276],[932,276]]),
 ];
 
 // Water is not represented by a solid mesh, so it must be explicitly unsafe.
-// The large planted islands are also named here; the remaining planters and all
-// furniture are collected from their vertical scene geometry below.
+// The planted beds used to be copied in here as well and went stale whenever one
+// moved (2026-09-12: a bed shifted off the timber walk kept blocking it). The
+// model now registers every bed it builds through navigation.blockedPolygons,
+// and the remaining planters and all furniture come from scene geometry below.
 const BLOCKED = [
   rectangle(237,719,322,100), rectangle(132,719,79,100), rectangle(156,713.5,31,6), // hot tub's north bay
-  rectangle(40,596,25,304), rectangle(65,879,570,22),
-  rectangle(699,280,208,32), rectangle(699,600,208,34),
-  rectangle(699,357,32,201), rectangle(1127.3,287,15.7,196.2), polygon([[1175.5,287],[1193,287],[1193,471],[1175.5,492]]),
-  rectangle(699,733,208,36),
-  polygon([[752,939],[784,912],[833,970],[802,997]]),
-  polygon([[854,906],[908,857],[908,921],[870,929]]),
-  polygon([[821,1034],[908,1019],[908,1115]]),
-  polygon([[776.5,1024.2],[806.3,1056.5],[774,1086.3],[744.2,1054]]),
 ];
 
 const pointInPolygon = (point, points) => {
@@ -80,7 +75,8 @@ export function createLevel6Navigation(model) { // model is accepted for the sha
     spawn: new THREE.Vector3(spawn.x, 0.08, spawn.y),
     yaw: Math.PI / 2,
     floorHeight: 0.08,
-    eyeHeight: 1.68,
+    // 5 ft 10 in (1.778 m) tall; the eyes sit ~.11 m below the crown.
+    eyeHeight: 1.664,
     radius: 0.30,
     walkSpeed: 2.2,
     walkablePolygons: WALKABLE.map(poly => poly.map(point => point.clone())),
