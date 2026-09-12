@@ -73,7 +73,9 @@ export async function availabilityMiddleware(req, res, next) {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname !== '/api/availability') return next();
   res.setHeader('Content-Type','application/json');
-  res.setHeader('Cache-Control','no-store');
+  // Shared cache: Vercel's CDN serves one upstream fetch per minute to every
+  // instance, and revalidates in the background for two minutes after that.
+  res.setHeader('Cache-Control','public, max-age=60, stale-while-revalidate=120');
   if (req.method !== 'GET') {res.statusCode=405;res.end(JSON.stringify({error:'Method not allowed'}));return;}
   const id = url.searchParams.get('facilityId');
   if (!facilityIds.has(id)) {res.statusCode=400;res.end(JSON.stringify({error:'Unknown facility'}));return;}
@@ -86,6 +88,7 @@ export async function availabilityMiddleware(req, res, next) {
     res.end(JSON.stringify({...result,slots:result.slots.filter(s=>s.start>localTime(new Date()))}));
   } catch {
     res.statusCode=502;
+    res.setHeader('Cache-Control','no-store');
     res.end(JSON.stringify({error:'Availability is temporarily unavailable. Please check the booking page.'}));
   }
 }
