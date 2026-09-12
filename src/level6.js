@@ -1,5 +1,6 @@
 import * as T from 'three';
 import {buildPlayground} from './playground.js';
+import {buildElevatorLobby} from './elevatorLobby.js';
 import {buildChangeRoom} from './changeRoom.js';
 import {createLevel6Navigation} from './firstPerson/NavigationWorld.js';
 import {box,cyl,rod,mesh,makeGroup,shapeGeometry,sofa,chair,table,tree,mergeRoomGeometry,mats,canvasTexture} from './model.js';
@@ -57,7 +58,7 @@ export const level6Rooms=[
  room('fire','Fire pit terrace',[[1037,674],[1160,674],[1298,788],[1138,962],[1037,867]],[site(3989),terrace,aerial],'An open paved terrace between the east pergola and the southern tip. Its north side has a striped modular fire-pit lounge and a curved timber picnic table, open for public use. The bookable P18 fire-pit, table and BBQ area occupies the terrace’s south end.','Social'),
  // User's red outline (2026-09-11): P18 is the south fire lounge, its round table and the grill on the planter's southwest rim.
  room('p18','P18 – Firepit, Table & BBQ',[[1037,815],[1150,815],[1150,839],[1193,882],[1203,891],[1138,962],[1037,867]],['fire-pit-booking-1.jpg','fire-pit-booking-2.jpg','fire-pit-booking-3.jpg','fire-pit-booking-4.jpg'],'P18 combines a fire-pit lounge and BBQ dining space at the south end of the fire pit terrace. Club Gilmore lists a BBQ, fire pit, patio couch and picnic table, with room for sixteen people total: eight in the BBQ space and eight in the fire-pit area. The reservation duration is 2 hours 50 minutes. Striped modular sofas surround a low round fire bowl, beside a curved timber picnic table and a compact stainless-steel grill against the planter.','Social',{bookingUrl:bbqBooking('c9efdb01-612b-46b3-b371-a161fc97bf6b')}),
- room('bbq-north','North terrace & playhouse',[[660,110],[858,38],[916,102],[932,244],[698,244],[698,278],[660,278]],[site(4038),site(4040),site(3985),site(3984),site(3978)],'An open timber play shelter on navy posts sits on a circular tan rubber pad ringed in pale concrete and set into green turf. A vertical timber chime wall and a teal graphic panel run off its gable, with a play counter, steering wheels and low disc seats under the roof. The adjoining dark-clad stair pavilion has a gravel roof, two rooftop vents and a glazed bridge entrance. A picnic table sits beside the pavilion; pale paving and timber-look bands follow the actual terrace.','Social'),
+ room('bbq-north','North terrace & playhouse',[[660,110],[858,38],[916,102],[932,244],[698,244],[698,278],[660,278]],[site(4038),site(4040),site(3985),site(3984),site(3978),'elevator-lobby-1.png','elevator-lobby-2.png','elevator-lobby-3.png','elevator-lobby-4.png','elevator-lobby-5.png'],'An open timber play shelter on navy posts sits on a circular tan rubber pad ringed in pale concrete and set into green turf. A vertical timber chime wall and a teal graphic panel run off its gable, with a play counter, steering wheels and low disc seats under the roof. The adjoining dark-clad elevator lobby has a gravel roof, round ceiling lights, pale tile walls, stainless elevator doors, a dark entry mat, safety panels and exit signage visible through the black-framed glass bridge entrance. A picnic table sits beside the pavilion; pale paving and timber-look bands follow the actual terrace.','Social'),
  room('bbq-central','Bocce-side fireplace lounges',rect(690,653,225,113),[site(3992),site(3979),site(3983)],'Two dark stone fireplaces anchor the ends of this terrace beside the bocce lawn. Each lounge has facing grey sofas, two striped armchairs and a low white round table. A dark slatted dining table and six striped chairs sit between the lounges.','Social'),
  room('bbq-1','BBQ 1 – Table & Gazebo',bbqBay(bayZ[0]),['bbq-1-1.jpg','bbq-1-2.jpg','bbq-1-3.jpg','bbq-1-4.png'],bbqDescription(1),'Social',{bookingUrl:bbqBooking('e19d55a9-ba84-4359-82d4-9bca2c23ee1c')}),
  room('bbq-2','BBQ 2 – Table & Gazebo',bbqBay(bayZ[1]),['bbq-2-1.jpg','bbq-2-2.jpg','bbq-2-3.png'],bbqDescription(2),'Social',{bookingUrl:bbqBooking('3807e29f-a39b-4a63-9ece-192a29076d3e')}),
@@ -869,16 +870,35 @@ export function createLevel6Model(){
  for(const [a,b] of [[[846,158],[930,158]],[[930,158],[930,240]],[[930,240],[846,240]],[[846,240],[846,158]]])line(a,b,.24,metal,.18,3.63);
  for(const [x,z,w,d] of [[907,220,18,16],[874,221,12,12]]){B(x,z,w,d,.42,mats.metal,3.76);B(x,z,w+2,d+2,.055,mats.white,4.18);}
  for(let i=0;i<10;i++){const [a,b]=world([851+i*5,159]);cyl(props,a,3.92,b,.075,.32,'white');}
- // Glazing wraps the bridge-side corner; the former west doorway is solid cladding.
- B(930,219,1,40,3.25,mats.glass,.12);
+ // Photo-based interior partitions sit inside the existing exterior footprint.
+ const [lobbyX,lobbyZ]=world([882,190]);
+ const lobby=buildElevatorLobby(props,lobbyX,lobbyZ);
+ // Bridge-side glazing has a door-height transom and a narrow active door leaf.
+ B(930,219,1,40,3.25,lobby.glass,.12).castShadow=false;
  for(const z of [199,212,225,239])B(930.5,z,1,1,3.4,metal);
- B(930.5,219,1,40,.07,metal,1.72);
- B(910,240,40,1,3.25,mats.glass,.12);
- for(const x of [890,903,916,930])B(x,240.5,1,1,3.4,metal);
- B(910,240.5,40,1,.07,metal,1.72);
- B(910,241,1,1,.55,mats.metal,.75);
+ B(930.5,219,1,40,.07,metal,2.48);
+ B(901.5,240,23,.3,2.36,lobby.glass,.12).castShadow=false;
+ B(910,240,40,.3,.82,lobby.glass,2.55).castShadow=false;
+ for(const x of [890,913,930])B(x,240.5,1,1,3.4,metal);
+ B(910,240.5,40,1,.07,metal,2.48);
+ B(910,240.5,40,1,.065,metal,.12);
+ // Keep the leaf outside the static merge so walk mode can swing it inward.
+ const [doorX,doorZ]=world([929.5,240.5]);
+ const lobbyDoor=makeGroup(props,doorX,doorZ);lobbyDoor.name='Elevator lobby entrance door';
+ lobbyDoor.userData.openYaw=-Math.PI/2;
+ const doorWidth=16*U,doorBottom=.17,doorHeight=2.29;
+ box(lobbyDoor,-doorWidth/2,doorBottom+doorHeight/2,0,doorWidth-.06,doorHeight-.08,.018,lobby.glass).castShadow=false;
+ for(const x of [-doorWidth+.025,-.025])box(lobbyDoor,x,doorBottom+doorHeight/2,0,.05,doorHeight,.055,metal);
+ for(const y of [doorBottom+.025,doorBottom+doorHeight-.025])box(lobbyDoor,-doorWidth/2,y,0,doorWidth,.05,.055,metal);
+ box(lobbyDoor,-doorWidth/2,1.1,.075,doorWidth-.14,.035,.04,mats.metal);
+ for(const x of [-doorWidth+.09,-.09])box(lobbyDoor,x,1.1,.045,.045,.09,.09,mats.metal);
+ for(const y of [.46,2.01])box(lobbyDoor,0,y,0,.06,.12,.07,metal);
+ box(lobbyDoor,-.4,2.39,.04,.3,.065,.06,metal);
+ walkModeGates.push(lobbyDoor);
+ B(930.9,224,.5,2.7,.21,metal,1.3);
  surface(rect(889,241,42,25),mats.woodfloor,.17);
- surface(rect(890,241,40,24),mats.glass,2.65);
+ for(let z=241;z<244;z+=.45)B(910,z,40,.17,.012,mats.metal,.18);
+ surface(rect(890,241,40,24),lobby.glass,2.65);
  for(const x of [890,903,916,930])line([x,240],[x,265],.1,metal,.08,2.65);
  // Lower Level 4 glimpses keep the light wells open while matching the photographs.
  // IMG_4015/4016 and the IMG_3979 aerial: the turf does not stop at the bridge. It
